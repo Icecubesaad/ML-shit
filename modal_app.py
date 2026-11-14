@@ -702,6 +702,16 @@ def xai_v2_all(split: str = "test"):
         print("done", res, flush=True)
 
 
+@app.local_entrypoint()
+def xai_v2_some(runs: str, split: str = "test"):
+    """Subset of xai_v2_all: runs = 'C:42,C:123,Creleased:2026'."""
+    commit = _clean_commit()
+    todo = [(r.split(":")[0], int(r.split(":")[1])) for r in runs.split(",")]
+    print(f"commit {commit}: {len(todo)} runs on split={split}", flush=True)
+    for res in xai_v2.starmap([(a, s, split, commit) for a, s in todo]):
+        print("done", res, flush=True)
+
+
 @app.function(image=image, gpu="A100-40GB", timeout=14400, volumes={"/vol": vol})
 def dermahair_repro(commit: str, limit: int = 0):
     """Released checkpoint on DERMAHAIR (scripts/62_dermahair_repro.py)."""
