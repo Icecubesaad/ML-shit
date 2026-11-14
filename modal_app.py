@@ -703,14 +703,15 @@ def xai_v2_all(split: str = "test"):
 
 
 @app.function(image=image, gpu="A100-40GB", timeout=14400, volumes={"/vol": vol})
-def dermahair_repro(commit: str):
+def dermahair_repro(commit: str, limit: int = 0):
     """Released checkpoint on DERMAHAIR (scripts/62_dermahair_repro.py)."""
-    return _run("62_dermahair_repro.py", ["--commit", commit])
+    extra = ["--limit", str(limit)] if limit else []
+    return _run("62_dermahair_repro.py", ["--commit", commit] + extra)
 
 
 @app.local_entrypoint()
-def dermahair_run():
-    print(dermahair_repro.remote(_clean_commit()))
+def dermahair_run(limit: int = 0):
+    print(dermahair_repro.remote(_clean_commit(), limit))
 
 
 @app.function(image=image, cpu=4, memory=16384, timeout=1800, volumes={"/vol": vol})
