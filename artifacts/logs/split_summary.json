@@ -1,0 +1,53 @@
+{
+  "counts": {
+    "test": {
+      "akiec": 49,
+      "bcc": 77,
+      "bkl": 165,
+      "df": 17,
+      "mel": 167,
+      "nv": 1006,
+      "vasc": 21
+    },
+    "train": {
+      "akiec": 229,
+      "bcc": 360,
+      "bkl": 769,
+      "df": 81,
+      "mel": 779,
+      "nv": 4693,
+      "vasc": 100
+    },
+    "val": {
+      "akiec": 49,
+      "bcc": 77,
+      "bkl": 165,
+      "df": 17,
+      "mel": 167,
+      "nv": 1006,
+      "vasc": 21
+    }
+  },
+  "created_at": "2026-11-11T16:16:50+00:00",
+  "fractions": {
+    "test": 0.15,
+    "train": 0.7,
+    "val": 0.15
+  },
+  "groups": {
+    "test": 1437,
+    "train": 4597,
+    "val": 1436
+  },
+  "protocol_hash": "854c6da45d6bac6e12a34f3702816572a55529961265adbe48639a11584628a3",
+  "seed": 42,
+  "sizes": {
+    "test": 1502,
+    "train": 7011,
+    "val": 1502
+  },
+  "splits_sha256": "fda56cf3c555e6d22f823510670e1392cd9b1b27778a50a831e68f1dd8d5be2b",
+  "total_groups": 7470,
+  "total_images": 10015,
+  "total_lesions": 7470
+}

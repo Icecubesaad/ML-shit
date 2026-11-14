@@ -46,8 +46,8 @@ def main() -> int:
         # at the A100-80GB rate, so the subtotal is an upper bound, not an invoice.
         for i, line in enumerate(Path(args.registry).read_text().splitlines()):
             d = json.loads(line)
-            if d.get("gpu") is None:
-                continue
+            if d.get("gpu") is None or str(d.get("timestamp", "")) >= "2026-11-14T00":
+                continue  # this session's jobs are counted from their job logs
             g = str(d["gpu"])
             rate = PRICE_PER_SECOND["A100-40GB"] if "40GB" in g else PRICE_PER_SECOND["A100-80GB"]
             secs = float(d.get("seconds", 0)) + OVERHEAD_SECONDS

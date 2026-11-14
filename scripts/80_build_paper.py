@@ -470,7 +470,8 @@ def build(args) -> Path:
     prov = dh["provenance"]
     P.p(f"The public DERMAHAIR dataset (Hugging Face AnasHXH/SR_SDM and Kaggle riotulab/skin-cancer-hair-removal; the two "
         f"copies are byte-identical) holds {prov.get('n_pairs', 707)} hairy/hairless pairs and no published "
-        "train/test split, so all pairs were used. The released checkpoint was run through our adapter. "
+        "train/test split; the paper describes 700 images reserved for testing, so all public pairs were used. "
+        "The released checkpoint was run through our adapter. "
         f"Rule fixed beforehand: reproduced = within 2 dB of the paper's {paper_psnr:.2f} dB and above the hairy-input floor. "
         f"Verdict: {'reproduced' if repro_any else 'not reproduced'}.")
     rows = [["Hairy input (do nothing)", f(floor["psnr_up"], 2), f(floor["ssim_up"], 4), f(floor["lpips"], 4), "-"]]
@@ -610,9 +611,11 @@ def build(args) -> Path:
     P.p(f"The released checkpoint, run through our adapter on the public DERMAHAIR pairs, reached {f(full2000['psnr_up'], 2)} dB PSNR / "
         f"{f(full2000['ssim_up'], 4)} SSIM at the full 2,000-step schedule and {f(r10['psnr_up'], 2)} dB / {f(r10['ssim_up'], 4)} with 10 "
         f"strided steps, against a do-nothing floor of {f(floor['psnr_up'], 2)} dB / {f(floor['ssim_up'], 4)} and the published {paper_psnr:.2f} dB / "
-        f"{paper_ssim:.4f}. The result is above the floor but {paper_psnr - full2000['psnr_up']:.1f} dB below the publication at the best "
-        "setting, outside the pre-stated 2 dB band: not reproduced. The paper reports no do-nothing baseline, and the public data have no "
-        "published split, so differences in evaluation subset, checkpoint or metric implementation cannot be excluded.")
+        f"{paper_ssim:.4f}. The best setting ({best_dh_key}) is "
+        f"{'above' if best_dh['psnr_up'] > floor['psnr_up'] else 'not above'} the floor and "
+        f"{abs(paper_psnr - best_dh['psnr_up']):.1f} dB {'below' if best_dh['psnr_up'] < paper_psnr else 'above'} the publication; "
+        f"the pre-stated verdict is {'reproduced' if repro_any else 'not reproduced'}. The paper reports no do-nothing baseline, and "
+        "evaluation subset, checkpoint version or metric implementation may differ from ours, so the cause of any gap is not established.")
     P.h2("5.4. Limitations")
     P.bullets([
         "Image-quality evidence uses synthetic hair on clean photographs; real-hair removal quality is not validated.",

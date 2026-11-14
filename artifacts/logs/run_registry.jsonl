@@ -103,3 +103,18 @@
 {"arm": "Cv2", "gpu": "cuda", "host": "modal", "job": "xai", "n": 1502, "pid": 549, "python": "3.11.12", "seconds": 157.61, "seed": 2026, "status": "ok", "timestamp": "2026-11-13T18:27:11+00:00"}
 {"gpu": null, "host": "modal", "job": "stats", "pid": 5, "python": "3.11.12", "rows": 22, "seconds": 27.6, "status": "ok", "timestamp": "2026-11-13T18:28:37+00:00"}
 {"gpu": null, "host": "modal", "job": "stats", "pid": 5, "python": "3.11.12", "rows": 26, "seconds": 24.3, "status": "ok", "timestamp": "2026-11-13T18:32:07+00:00"}
+{"gpu": null, "host": "modal", "job": "stageD_tune", "pid": 5, "python": "3.11.12", "seconds": 0.0, "settings": 24, "status": "ok", "timestamp": "2026-11-13T19:01:32+00:00"}
+{"gpu": null, "host": "modal", "job": "stageD_tune", "pid": 5, "python": "3.11.12", "seconds": 0.0, "settings": 36, "status": "ok", "timestamp": "2026-11-13T19:09:47+00:00"}
+{"arm": "A", "best_val_f1": 0.7686198788578741, "epochs": 23, "gpu": "NVIDIA A100-SXM4-80GB", "host": "modal", "job": "vit_train", "pid": 5, "python": "3.11.12", "seconds": 375.2, "seed": 7, "status": "ok", "timestamp": "2026-11-13T19:57:16+00:00"}
+{"arm": "A", "gpu": "cuda", "host": "modal", "job": "vit_eval", "n_test": 2818, "pid": 224, "python": "3.11.12", "seconds": 0.0, "seed": 7, "status": "ok", "timestamp": "2026-11-13T19:58:25+00:00"}
+{"arm": "B", "best_val_f1": 0.7456269588385507, "epochs": 23, "gpu": "NVIDIA A100-SXM4-80GB", "host": "modal", "job": "vit_train", "pid": 549, "python": "3.11.12", "seconds": 767.3, "seed": 17, "status": "ok", "timestamp": "2026-11-13T20:11:22+00:00"}
+{"arm": "B", "gpu": "cuda", "host": "modal", "job": "vit_eval", "n_test": 2818, "pid": 767, "python": "3.11.12", "seconds": 0.0, "seed": 17, "status": "ok", "timestamp": "2026-11-13T20:15:06+00:00"}
+{"gpu": null, "host": "modal", "job": "stats", "pid": 5, "python": "3.11.12", "rows": 18, "seconds": 29.39, "status": "ok", "timestamp": "2026-11-13T20:21:22+00:00"}
+{"gpu": "cuda", "host": "modal", "job": "paper_t10_check", "pairs": 50, "pid": 5, "python": "3.11.12", "seconds": 227.28, "status": "ok", "timestamp": "2026-11-13T21:03:34+00:00"}
+{"arm": "A", "gpu": "cuda", "host": "modal", "job": "xai_v2", "n": 1502, "pid": 5, "python": "3.11.12", "seconds": 134.21, "seed": 123, "split": "val", "status": "ok", "timestamp": "2026-11-13T21:33:05+00:00"}
+{"arm": "Cv2", "gpu": "cuda", "host": "modal", "job": "xai_v2", "n": 1502, "pid": 92, "python": "3.11.12", "seconds": 133.66, "seed": 2026, "split": "val", "status": "ok", "timestamp": "2026-11-13T21:35:54+00:00"}
+{"arm": "A", "gpu": "cuda", "host": "modal", "job": "xai_v2", "n": 1502, "pid": 5, "python": "3.11.12", "seconds": 139.03, "seed": 17, "split": "test", "status": "ok", "timestamp": "2026-11-13T21:41:14+00:00"}
+{"arm": "Astar", "gpu": "cuda", "host": "modal", "job": "xai_v2", "n": 1502, "pid": 92, "python": "3.11.12", "seconds": 139.27, "seed": 7, "split": "test", "status": "ok", "timestamp": "2026-11-13T21:44:30+00:00"}
+{"arm": "B", "gpu": "cuda", "host": "modal", "job": "xai_v2", "n": 1502, "pid": 5, "python": "3.11.12", "seconds": 145.21, "seed": 7, "split": "test", "status": "ok", "timestamp": "2026-11-13T21:49:45+00:00"}
+{"arm": "Creleased", "gpu": "cuda", "host": "modal", "job": "xai_v2", "n": 1502, "pid": 107, "python": "3.11.12", "seconds": 143.88, "seed": 42, "split": "test", "status": "ok", "timestamp": "2026-11-13T21:53:01+00:00"}
+{"gpu": "A100-40GB", "host": "modal", "job": "dermahair_repro", "pairs": 707, "pid": 5, "python": "3.11.12", "seconds": 3583.21, "status": "ok", "timestamp": "2026-11-14T20:50:02+00:00"}

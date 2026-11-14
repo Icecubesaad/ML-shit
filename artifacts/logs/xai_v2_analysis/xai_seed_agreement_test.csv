@@ -1,0 +1,19 @@
+arm,method,n_seeds,mean_pairwise_spearman,seed_range_of_mean_recall
+A,attention rollout,8,0.9832928428749723,0.07961908964220277
+A,"Grad-CAM, last-block ln_1 (primary)",8,0.24214687792262365,0.15285658649315642
+A,"Grad-CAM, patch grid (sensitivity)",8,0.2642746640624804,0.16701907119613005
+B,attention rollout,8,0.9784675249018778,0.10001307398914283
+B,"Grad-CAM, last-block ln_1 (primary)",8,0.16684474446568234,0.16278414551146417
+B,"Grad-CAM, patch grid (sensitivity)",8,0.4138168854294886,0.12810471452499833
+Astar,attention rollout,8,0.987084763679858,0.06482843184936371
+Astar,"Grad-CAM, last-block ln_1 (primary)",8,0.22445328188298927,0.15827123083896538
+Astar,"Grad-CAM, patch grid (sensitivity)",8,0.3142852895217968,0.1871739595591999
+Cv2,attention rollout,8,0.9898009387311751,0.05270832422485139
+Cv2,"Grad-CAM, last-block ln_1 (primary)",8,0.1662789930558489,0.15824066541508156
+Cv2,"Grad-CAM, patch grid (sensitivity)",8,0.3641437772921235,0.15862540158187471
+C,attention rollout,3,0.9604483086119343,0.021342620993503758
+C,"Grad-CAM, last-block ln_1 (primary)",3,0.7008941230647779,0.09485193861434177
+C,"Grad-CAM, patch grid (sensitivity)",3,0.5556706629379228,0.05171366082987866
+Creleased,attention rollout,3,0.9882805411011247,0.04439585689705711
+Creleased,"Grad-CAM, last-block ln_1 (primary)",3,0.2583742182503354,0.07326792945052232
+Creleased,"Grad-CAM, patch grid (sensitivity)",3,0.3897142301980147,0.04760175758856361

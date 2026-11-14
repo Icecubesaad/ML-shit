@@ -299,3 +299,11 @@ See decision log D30. The fixed trainer was tested on validation pairs only; the
 - Correction notices added to `reports/stageE_results.md` (section 6), `reports/final_research_report.md`, `reports/client_summary.md`. The Word/PDF reports and their generator scripts were NOT updated and still carry the superseded explanation reading: do not send them.
 - Plan and timeline: `reports/client_plan_and_timeline.md`. Nothing trained, nothing re-scored on the test set.
 - Open: Kaggle login or dataset copy; approval for the learning-curve run; checkpoint destination; human ratings of `artifacts/review_kit/`.
+
+## 2026-11-14 - Client asks completed on the icysolutionscorp Modal account (D40-D46)
+
+- State at hand-over from the previous session: the corrected explanation analysis and the learning-curve run were unfinished (no commit of results; credits exhausted). Checked against the branch: geometry module, gates V9-V11, spend and export scripts, reproduction script and learning-curve tooling were committed; test-split explanation runs for C and Creleased (five of 38) and the DERMAHAIR result were missing.
+- Volume `dmahr-vit-vol` of the second account was downloaded (all checkpoints, logs, predictions) and the pieces needed for new jobs were uploaded to the icysolutionscorp account; arm C images came from the first account.
+- Done: all 38 test-split corrected explanation runs, statistics (`scripts/59_xai_stats.py`), DERMAHAIR reproduction (`scripts/62_dermahair_repro.py`, result in `artifacts/logs/dermahair_repro.json`), results report regenerated, paper generated (`scripts/80_build_paper.py`), final-status block (`scripts/82_final_status.py`), checkpoint export with hashes (`reports/export_manifest.csv`), spend log, gates, secret scan.
+- Not done, by rule: own diffusion training on DERMAHAIR (Step 2 applies only if the released checkpoint reproduces; see D42), the learning-curve continuation (snapshots beyond 55k were never evaluated; the `dmahr_lc*` runs stopped at 70k), Colab notebooks (D43).
+- Open for a person: human ratings of `artifacts/review_kit/`; the licence question (HAM10000 CC BY-NC 4.0; DM-AHR README and LICENSE contradict each other).

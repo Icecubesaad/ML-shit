@@ -525,6 +525,13 @@ Authority order applied: `AGENTS.md` > `docs/ACCEPTANCE_CRITERIA.md` > `docs/DEV
 - **Consequence.** All pairs are used for the reproduction check; the paper's test split cannot be reconstructed. Three pairs are pixel-identical (PSNR undefined) and are excluded from every mean (counted in the provenance record).
 - **Rule (unchanged, pre-stated).** Reproduced = within 2 dB of the paper's 41.04 dB and above the do-nothing floor. Result and consequence: D42.
 
+## D42 - Reproduction result: not reproduced; Step 2 (own diffusion training) skipped
+
+- **Run.** `scripts/62_dermahair_repro.py` at commit 3978ca9 (clean tree), released checkpoint (SHA-256 `c99e406050d3aaf3...`), all 707 pairs, 704 scored (3 identical pairs excluded), bf16 (an fp32 check on 64 pairs differs by 0.17 dB), upstream PSNR/SSIM at 128 px, AlexNet LPIPS. Output: `artifacts/logs/dermahair_repro.json`, per-pair `artifacts/logs/dermahair_repro_pairs.csv`.
+- **Numbers.** Do-nothing floor (hairy input against hairless): 18.82 dB, SSIM 0.5698, LPIPS 0.574. Released checkpoint: 10 strided steps 22.48 dB / 0.3639 / 0.4399; 25 steps 25.54 / 0.5415 / 0.2958; 50 steps 29.79 / 0.8468 / 0.1126; full 2,000 steps 35.24 / 0.9175 / 0.0683; a rebuilt 10-step schedule 9.43 / 0.0153 / 1.3667. Paper: 41.04 dB / 0.9656, no floor, no LPIPS.
+- **Verdict by the pre-stated rule.** Every setting is above the floor except the rebuilt 10-step schedule, but the best (2,000 steps) is 5.8 dB below the paper, outside the 2 dB band: **not reproduced**. The matching effort stops here, as pre-stated.
+- **Consequence.** Step 2 applies only if Step 1 reproduces, so no diffusion model was trained on DERMAHAIR, no stop rule file was written, and the 25,000-iteration checks and the clipping test were not run. Step 3 uses the existing best checkpoint (Cv2) and the released checkpoint as an exploratory arm. The learning-curve continuation started by the previous session (`dmahr_lc`, `dmahr_lc_noclip`, stopped at 70,000 iterations; only the 25k, 50k and 55k snapshots were evaluated) is not continued.
+
 ## D43 - No Colab notebooks
 
 - The owner's instruction is that no Colab notebooks are created. The previous session's notebook builder (`notebooks/colab/build_notebooks.py`, never run to completion, no notebook produced) was removed. Colab wording was removed from the README, the code guide and the paper; the three earlier notebooks under `notebooks/` are unchanged.
