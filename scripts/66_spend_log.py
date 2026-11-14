@@ -25,6 +25,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--logs", default="artifacts/logs/modal_runs")
     ap.add_argument("--out", default="reports/spend_log.csv")
+    ap.add_argument("--registry", default=None)
     args = ap.parse_args()
     rows = []
     for f in sorted(Path(args.logs).glob("*.log")):
@@ -36,6 +37,23 @@ def main() -> int:
                          "seconds_with_overhead": round(secs, 1),
                          "usd_per_second": PRICE_PER_SECOND[gpu],
                          "est_usd": round(secs * PRICE_PER_SECOND[gpu], 3)})
+    for r in rows:
+        r["scope"] = "this session (job logs)"
+    if args.registry and Path(args.registry).exists():
+        import json  # noqa: PLC0415
+
+        # Earlier sessions: registry rows carry GPU names only sometimes; an unnamed "cuda" row is priced
+        # at the A100-80GB rate, so the subtotal is an upper bound, not an invoice.
+        for i, line in enumerate(Path(args.registry).read_text().splitlines()):
+            d = json.loads(line)
+            if d.get("gpu") is None:
+                continue
+            g = str(d["gpu"])
+            rate = PRICE_PER_SECOND["A100-40GB"] if "40GB" in g else PRICE_PER_SECOND["A100-80GB"]
+            secs = float(d.get("seconds", 0)) + OVERHEAD_SECONDS
+            rows.append({"job": d.get("job", "?"), "gpu": g, "run": i, "exit_code": 0,
+                         "seconds_with_overhead": round(secs, 1), "usd_per_second": rate,
+                         "est_usd": round(secs * rate, 3), "scope": "earlier sessions (run registry, upper bound)"})
     df = pd.DataFrame(rows)
     df["running_total_usd"] = df["est_usd"].cumsum().round(3)
     df.to_csv(args.out, index=False)

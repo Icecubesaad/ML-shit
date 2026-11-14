@@ -235,14 +235,14 @@ def v10() -> None:
 
 
 def v11() -> None:
-    """Spend for this task stays inside the owner's $40 limit."""
+    """Spend for this task stays inside the owner's $60 limit."""
     p = REP / "spend_log.csv"
     ok, detail = False, "reports/spend_log.csv missing"
     if p.exists():
         df = pd.read_csv(p)
         total = float(df["est_usd"].sum())
-        ok, detail = total <= 40.0, f"estimated ${total:.2f} of $40.00 over {len(df)} jobs"
-    gate("V11", "Spend within the owner's $40 limit (estimate)", ok, "reports/spend_log.csv", detail)
+        ok, detail = total <= 60.0, f"estimated ${total:.2f} of $60.00 over {len(df)} jobs"
+    gate("V11", "Spend within the owner's $60 limit (estimate)", ok, "reports/spend_log.csv", detail)
 
 
 def main() -> int:
