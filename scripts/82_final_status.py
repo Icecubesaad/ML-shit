@@ -68,7 +68,7 @@ def block() -> str:
     cmp = F["xai_cmp"]
     sel = cmp[(cmp.frame == "as is") & (cmp.metric == "recall") & (cmp.method.isin([bp.ROLL, bp.GC1]))]
     L += ["", f"Between-arm recall rows struck by the seed-spread rule: {int(sel['struck'].sum())} of {len(sel)}.", "",
-          "### 5. Deliverables", ""]
+          "### 4-5. Paper and deliverables", ""]
     man = pd.read_csv(ROOT / "reports" / "export_manifest.csv")
     L.append(f"- Checkpoints: {int((man['kind'] == 'vit').sum())} ViT and {int((man['kind'] == 'diffusion').sum())} diffusion files with SHA-256 in "
              "`reports/export_manifest.csv` (files in `exports/` and on the Modal volume under `/artifacts/exports`).")
