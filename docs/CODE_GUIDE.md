@@ -312,8 +312,7 @@ Two tests per endpoint, as the protocol requires:
 - **Wilcoxon signed-rank:** per-lesion values collapsed to one number per group before testing.
 
 Holm correction is applied across the three planned pairwise comparisons within each endpoint, per
-test. Cohen's dz is computed on observed pairs, not the bootstrap distribution (whose spread shrinks
-with replicate count and would inflate the effect size).
+test. Standardised effect sizes are not reported; each comparison gives the pooled difference with its interval and a per-image log-loss difference.
 
 *Why groups and not images:* a lesion with six photographs would otherwise contribute six
 independent-looking data points. Collapsing to the lesion is what makes the p-value honest.
@@ -421,7 +420,7 @@ src/dm_ahr_vit/          the library — runs on CPU, no Modal import anywhere
   xai/
     vit_xai.py           Grad-CAM on the patch grid, attention roll-out
   stats/
-    bootstrap.py         lesion-group bootstrap, Holm, Wilcoxon, Cohen's dz
+    bootstrap.py         lesion-group bootstrap, Holm, Wilcoxon
 
 scripts/                 numbered phases, each a plain CLI (argparse) — Modal is not required
   00_download_data.py    fetch collection 212
@@ -549,7 +548,7 @@ It needs no local GPU; no local GPU is involved.
 | Per-class recall/specificity/AUC | `classification_per_class.csv` | `recall_mean`, `specificity_mean`, `auc_mean` |
 | PSNR 35.732 / 16.312 / 22.127 | `statistical_comparisons.csv` | `arm_a_mean`, `arm_b_mean` |
 | Grad-CAM and roll-out overlap | `xai_localization_*.csv`, `statistical_comparisons.csv` | `*_overlap20` |
-| p-values, CIs, effect sizes | `statistical_comparisons.csv` | `p_raw`, `p_holm`, `wilcoxon_p_*`, `effect_size_dz` |
+| p-values, CIs, pooled differences | `statistical_comparisons.csv` | `p_raw`, `p_holm`, `wilcoxon_p_*` |
 | GPU and versions | `environment_report.json` | `device`, `torch`, `cuda`, `python` |
 | Gate status | `acceptance_report.json` | `gates[]`, `summary` |
 
@@ -606,7 +605,6 @@ which the source does not claim were dermatologist-traced.
 | **Pointing game** | Does the single most salient pixel land inside the lesion mask? |
 | **Bootstrap CI** | Confidence interval from resampling lesion groups 10,000 times. |
 | **Holm correction** | A step-down method controlling family-wise error across multiple comparisons. |
-| **Cohen's dz** | Standardised mean difference for paired data. |
 
 ---
 

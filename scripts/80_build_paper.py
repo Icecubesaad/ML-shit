@@ -228,6 +228,27 @@ def xai_val(F, arm, method, metric, frame="as is"):
 ROLL, GC1, GCP = "attention rollout", "Grad-CAM, last-block ln_1 (primary)", "Grad-CAM, patch grid (sensitivity)"
 
 
+def verdicts(F) -> dict:
+    """H1-H3 verdicts by rule, from the final numbers (used by the paper and the final report)."""
+    _, _, qcmp = quality_table(F)
+    psnr, ssim = qcmp[0][2]
+    acv, bcv, cva = (stat_row(F, "macro_f1", c) for c in ("A-Cv2", "B-Cv2", "Cv2-Astar"))
+    cmp = F["xai_cmp"]
+
+    def row(method):
+        return cmp[(cmp.a == "Cv2") & (cmp.b == "Astar") & (cmp.metric == "recall") & (cmp.method == method)
+                   & (cmp.frame == "as is")].iloc[0]
+
+    ro, gc = row(ROLL), row(GC1)
+    return {
+        "h1": bool(psnr[1] > 0 and ssim[1] > 0),
+        "h2": any(bool(r["established"]) and r["difference"] * sign < 0 for r, sign in ((acv, 1), (bcv, 1), (cva, -1))),
+        "h3": bool((ro["difference"] > 0 and ro["p_holm"] < 0.05 and not ro["struck"])
+                   or (gc["difference"] > 0 and gc["p_holm"] < 0.05 and not gc["struck"])),
+        "h1_psnr": psnr, "h1_ssim": ssim,
+    }
+
+
 def build(args) -> Path:
     F = load_facts()
     P = Paper()
@@ -249,18 +270,13 @@ def build(args) -> Path:
     cva = stat_row(F, "macro_f1", "Cv2-Astar")
     bcv = stat_row(F, "macro_f1", "B-Cv2")
     cv_vs_b_psnr, cv_vs_b_ssim = qcmp[0][2]
-    h1_supported = cv_vs_b_psnr[1] > 0 and cv_vs_b_ssim[1] > 0
-    h2_supported = any(bool(r["established"]) and r["difference"] * sign < 0
-                       for r, sign in ((acv, 1), (bcv, 1), (cva, -1)))
+    V = verdicts(F)
+    h1_supported, h2_supported, h3_supported = V["h1"], V["h2"], V["h3"]
     roll_cv = xai_val(F, "Cv2", ROLL, "recall")
     roll_as = xai_val(F, "Astar", ROLL, "recall")
     cmp = F["xai_cmp"]
     cv_as_roll = cmp[(cmp.a == "Cv2") & (cmp.b == "Astar") & (cmp.metric == "recall") & (cmp.method == ROLL)
                      & (cmp.frame == "as is")].iloc[0]
-    cv_as_gc = cmp[(cmp.a == "Cv2") & (cmp.b == "Astar") & (cmp.metric == "recall") & (cmp.method == GC1)
-                   & (cmp.frame == "as is")].iloc[0]
-    h3_supported = bool((cv_as_roll["difference"] < 0 and cv_as_roll["p_holm"] < 0.05 and not cv_as_roll["struck"])
-                        or (cv_as_gc["difference"] < 0 and cv_as_gc["p_holm"] < 0.05 and not cv_as_gc["struck"]))
     sel = cmp[(cmp.frame == "as is") & (cmp.metric == "recall") & (cmp.method.isin([ROLL, GC1]))]
     all_struck = bool(sel["struck"].all())
     best_dh_key = max((k for k in res if k.startswith(("respaced_", "full_", "truncated_"))),
