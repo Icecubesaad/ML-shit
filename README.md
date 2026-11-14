@@ -32,8 +32,23 @@ localization against released lesion masks.
 
 Start with `AGENTS.md` (project rules), `docs/CODE_GUIDE.md` (how the code
 fits together), `reports/final_research_report.md` (results) and
-`reports/decision_log.md` (every deviation and why). The client's proposal is
-at `docs/proposal.docx`.
+`reports/decision_log.md` (every deviation and why). The original research
+proposal is at `docs/proposal.docx`.
+
+## Final deliverables (where each one is and how it is regenerated)
+
+| Deliverable | Location | Generator |
+|---|---|---|
+| Research paper (Word) | `artifacts/reports/Research_Paper.docx` | `scripts/80_build_paper.py` (reads `artifacts/`, no typed numbers) |
+| Results report (Word, PDF) | `artifacts/reports/Results_Report.docx` | `scripts/14_results_report.py` |
+| Code guide and preprocessing reports | `artifacts/reports/` | `scripts/15_code_guide_report.py`, `scripts/13_preprocessing_report.py` |
+| Corrected explanation results | `reports/xai_corrected_results.md`, `artifacts/logs/xai_v2_analysis/` | `scripts/58_xai_corrected.py`, `scripts/59_xai_stats.py` |
+| DERMAHAIR reproduction | `artifacts/logs/dermahair_repro.json` | `scripts/62_dermahair_repro.py` |
+| Trained checkpoints (ViT x 38, diffusion x 2) with SHA-256 manifest | `exports/` and Modal volume path `/artifacts/exports`; manifest in `reports/export_manifest.csv` | `scripts/71_export_checkpoints.py` |
+| Figures | `artifacts/figures/` | `scripts/73_figures.py` |
+| Gates | `artifacts/logs/acceptance_report.json`, `artifacts/reports/deliverable_checklist.md` | `scripts/check_acceptance.py`, `scripts/20_deliverable_gates.py` (includes the geometry, stale-phrase and spend gates) |
+
+To fetch the exported checkpoints from Modal: `modal volume get dmahr-vit-vol /artifacts/exports exports`.
 
 **Research prototype only. Not clinically validated. Not for diagnosis or
 patient care.**
@@ -158,8 +173,8 @@ Three notebooks, all runnable from the repository root:
   download. Use it to present the study.
 - `notebooks/02_pipeline_reproduction.ipynb` — the full pipeline on Modal, phase by phase, with cost
   warnings. Modeled on the commands below.
-- `notebooks/03_local_gpu_pipeline.ipynb` — the same pipeline run **natively** on a local GPU or a
-  Colab GPU, calling `scripts/` directly with `python`. No Modal account, no token. This is the one
+- `notebooks/03_local_gpu_pipeline.ipynb` — the same pipeline run **natively** on a local GPU,
+  calling `scripts/` directly with `python`. No Modal account, no token. This is the one
   to use if you want to watch the pipeline execute on your own hardware.
 
 The `scripts/` directory is Modal-free by design: every phase is a plain CLI that reads
@@ -250,23 +265,4 @@ modal run --detach modal_app.py::upload_to_drive --tier all
 
 `--dest` sets the Drive folder (default `dmahr-vit`). Each run writes
 `artifacts/logs/drive_upload_<tier>.json` with a per-path status record.
-
-### Free alternative: Colab as the bridge
-
-Needs no Google Cloud project and no Modal credits:
-
-```python
-from google.colab import drive
-drive.mount('/content/drive')
-
-!pip install -q modal
-import os
-os.environ['MODAL_TOKEN_ID'] = 'ak-...'
-os.environ['MODAL_TOKEN_SECRET'] = 'as-...'
-
-!modal volume get dmahr-vit-vol /artifacts/logs /content/drive/MyDrive/dmahr/
-```
-
-Note the destination-directory quirk: pass an existing **parent** directory and
-Modal appends the remote's last path segment.
 

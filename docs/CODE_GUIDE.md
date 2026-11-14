@@ -465,7 +465,7 @@ python scripts/02_hair_pipeline.py
 ```
 
 Modal is a scheduling convenience, not a dependency. `notebooks/03_local_gpu_pipeline.ipynb` drives
-this path end to end on a local or Colab GPU.
+this path end to end on a local GPU.
 
 Data preparation phases 1–3 (CPU) were verified natively from a fresh download: they reproduced the
 reference frozen split hash `fda56cf3…`, 7,470 lesion groups, 8,993 hair-present images and 1,022
@@ -481,7 +481,7 @@ states what that cell does and why it exists. This section is the written index.
 |---|---|---|
 | `01_results_walkthrough.ipynb` | reads the committed artifacts and explains the results | CPU only, no Modal, no download |
 | `02_pipeline_reproduction.ipynb` | runs every phase on Modal | Modal token |
-| `03_local_gpu_pipeline.ipynb` | runs every phase natively on a local or Colab GPU | a CUDA GPU, no Modal |
+| `03_local_gpu_pipeline.ipynb` | runs every phase natively on a local GPU | a CUDA GPU, no Modal |
 
 ### `01_results_walkthrough.ipynb` — presenting the study
 
@@ -512,7 +512,7 @@ states what that cell does and why it exists. This section is the written index.
 | Environment check | reports the GPU and torch build before anything assumes one |
 | Dependencies | installs the pinned versions the results were produced with |
 | Get the code | clones the repository and enters it |
-| Where the data lives | sets `DATA_ROOT` and `ARTIFACT_ROOT`; in Colab these point at Drive |
+| Where the data lives | sets `DATA_ROOT` and `ARTIFACT_ROOT`; they can point at any mounted storage |
 | Script runner | a wrapper that invokes each phase with those variables set |
 | Download + verify | fetches all 11,720 images and masks, then reads the report back |
 | Audit + split, and verify | rebuilds the frozen split and confirms the counts and leakage check |
@@ -533,7 +533,7 @@ states what that cell does and why it exists. This section is the written index.
 | Outputs | counts the files produced, and how to explore them |
 
 `02_pipeline_reproduction.ipynb` follows the same phases, but each cell shells out to `modal run`.
-It needs no local GPU; the runtime selected in Colab is irrelevant to it.
+It needs no local GPU; no local GPU is involved.
 
 ## 8. Where each reported number comes from
 | Report claim | Source artifact | Field |

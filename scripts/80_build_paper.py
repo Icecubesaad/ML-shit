@@ -641,6 +641,34 @@ def build(args) -> Path:
         "the whole photograph) are retained as artifacts/logs/xai_summary_*_X1.json and are superseded by Section 4.5.")
     P.figure(FIGS / "fig_learning_curve.png", "Diffusion diagnostics at the evaluated training snapshots (validation pairs only).", 5.8)
 
+    P.h1("Appendix B. Per-seed explanation values")
+    seeds_sorted = [42, 123, 2026, 7, 11, 17, 23, 31]
+    prow = []
+    for a in ("A", "B", "Astar", "Cv2", "Creleased", "C"):
+        for m, mn in ((ROLL, "rollout"), (GC1, "Grad-CAM ln_1"), (GCP, "Grad-CAM patch")):
+            r = xai_val(F, a, m, "recall")
+            if r is None:
+                continue
+            d = dict(kv.split(":") for kv in str(r["per_seed"]).split(";"))
+            prow.append([SHORT[a], mn] + [d.get(str(s), "-") for s in seeds_sorted])
+    P.table("Recall as is, per seed (columns are the seeds; '-' = seed not trained for that arm).",
+            ["Arm", "Method"] + [str(s) for s in seeds_sorted], prow, size=7.5)
+
+    P.h1("Appendix C. Explanation results before the geometry correction (superseded)")
+    legacy = []
+    for a in ("A", "B", "Astar", "Cv2", "Creleased", "C"):
+        js = [json.loads(p.read_text()) for p in sorted(LOGS.glob(f"xai_summary_{a}_seed*_X1.json"))]
+        if not js:
+            continue
+        legacy.append([SHORT[a], len(js), f(np.mean([j["rollout_overlap20_mean"] for j in js])),
+                       f(np.mean([j["gradcam_overlap20_mean"] for j in js])),
+                       f(np.mean([j["rollout_pointing_mean"] for j in js])),
+                       f(np.mean([j["gradcam_pointing_mean"] for j in js])),
+                       f(np.mean([j["chance_gaussian_overlap20_mean"] for j in js]))])
+    P.table("Old frame (masks resized from the whole photograph, Grad-CAM on the patch-embedding grid; three seeds). "
+            "Kept for the record; the geometry does not match what the classifier sees, so these values must not be compared with Section 4.5.",
+            ["Arm", "Seeds", "Rollout overlap", "Grad-CAM overlap", "Rollout pointing", "Grad-CAM pointing", "Gaussian overlap"], legacy)
+
     # ================= References
     P.h1("References")
     refs = [p.text for p in paras if p.style.name == "Normal" and p.text[:3].strip().rstrip(".").isdigit() and ". " in p.text[:5]]
