@@ -223,8 +223,10 @@ def v10() -> None:
     except Exception as exc:  # noqa: BLE001
         gate("V10x", "Word text readable for the stale-phrase scan", False, cfg["docx_dir"], repr(exc))
     hits = []
+    paper_files = set(cfg.get("paper_files", []))
     for rel, body in texts.items():
-        for pat in cfg["patterns"]:
+        pats = list(cfg["patterns"]) + (list(cfg.get("paper_patterns", [])) if rel in paper_files else [])
+        for pat in pats:
             for m in re.finditer(pat, body, flags=re.IGNORECASE):
                 hits.append(f"{rel}: /{pat}/ -> {body[max(0, m.start() - 30):m.end() + 30]!r}")
     gate("V10", "No stale explanation or statistics phrases in current deliverables", not hits,
