@@ -397,12 +397,12 @@ def build(args) -> Path:
              ["A*", "original resized to 128 px", "original", "resolution control", "8"],
              ["B", "DullRazor-style removal (original resolution)", "original", "primary comparison", "8"],
              ["Cv2", "output of our rebuilt diffusion model (128 px)", "original", "final diffusion arm (exploratory family)", "8"],
-             ["Creleased", "output of the authors' released checkpoint, same sampler (128 px)", "original", "exploratory", "3"],
+             ["Creleased", "output of the authors' released checkpoint with a 25-step respaced schedule (128 px)", "original", "exploratory", "3"],
              ["C", "output of our first diffusion model (trainer defect)", "original", "recorded failure, appendix only", "3"]],
             widths=[0.7, 2.4, 1.0, 1.7, 0.5])
     P.p("The three pre-registered seeds are 42, 123 and 2026; five further seeds (7, 11, 17, 23, 31) were added "
-        "for A, A*, B and Cv2 after the first results showed that three seeds cannot resolve differences of 0.02 "
-        "macro-F1. Both analyses are reported.")
+        "for A, A*, B and Cv2 in a pre-registered follow-up (Stage E) after an independent review pointed out that three seeds "
+        "cannot resolve differences of 0.02 macro-F1. Both analyses are reported.")
     P.h2("3.2. Data, split and hair screening")
     cnt = sp["counts"]
     cls = ["akiec", "bcc", "bkl", "df", "mel", "nv", "vasc"]
@@ -424,11 +424,12 @@ def build(args) -> Path:
     P.p("Our first diffusion run (C) used a noise-level encoding opposite to the sampler's (t/T in the trainer, "
         "the cumulative noise level in the sampler); the repaired trainer mirrors the upstream loss and is covered by "
         "contract tests. The final diffusion model (Cv2) is the repaired-trainer model trained for 50,000 iterations "
-        "and fine-tuned for 20,000 iterations on real hair strands harvested from training and validation photographs "
-        "and composited onto clean images. Sampling starts from the noised input at level 600 of 2,000 with 50 "
-        "strided DDIM steps (partial-noise sampler), in fp32, at 128 px; the released checkpoint arm uses the same "
-        "sampler. The released checkpoint (725,000 iterations) was not retrained; its licence status is unresolved "
-        "(Section 6).")
+        "and fine-tuned for 20,000 iterations on real hair strands pasted onto clean images (only train-split images "
+        "supplied training strands and targets; the leakage check is recorded in the training manifest). Sampling starts "
+        "from the noised input at level 600 of 2,000 with 50 strided DDIM steps (partial-noise sampler), in fp32, at 128 px. "
+        "The released checkpoint arm uses a 25-step respaced schedule whose routine is not reproducible from the "
+        "repository (decision D26). The released checkpoint (725,000 iterations) was not retrained; its licence status is "
+        "unresolved (Section 5.4).")
     P.h2("3.4. Classifier and training recipe")
     v = F["vit"]
     P.p(f"ViT-B/16 initialised from ImageNet-1k weights [15], input {v['image_size']} × {v['image_size']}, AdamW, "
@@ -462,7 +463,7 @@ def build(args) -> Path:
         "control: A−A*; exploratory: everything involving Cv2 or Creleased). Per-seed differences are shown next "
         "to every interval. A per-image log-loss difference accompanies each macro-F1 comparison; a standardised "
         "effect size is deliberately not reported. Image quality is PSNR and SSIM against the hairless original on held-out "
-        f"synthetic-hair pairs ({nq} test pairs built by compositing hair onto clean validation/test photographs); "
+        f"synthetic-hair pairs ({nq} test pairs built by compositing synthetic hair onto hair-free test photographs); "
         "intervals are lesion-cluster bootstraps over pairs. The test set was scored once per frozen checkpoint, "
         "after the recipe and stop rules were committed; the corrected explanation analysis is a documented second look "
         "at the same checkpoints (decision D40).")

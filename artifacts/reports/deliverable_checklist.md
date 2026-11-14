@@ -10,10 +10,10 @@ it actually inspected.
 | V3 | Reports rebuild from artifacts; tracked copy matches generated | **PASS** | `scripts/13_*, scripts/14_*, scripts/15_*` | 13_preprocessing_report.py:ok; 14_results_report.py:ok; 15_code_guide_report.py:ok; report identical=True |
 | V4 | No stale phrases in either report | **PASS** | `reports/final_research_report.md, artifacts/reports/*.docx` | over-smoothing (affirmative)=0, expert-traced disclaimer=0, no independent hair annotations=0, 'part of that margin'=0, 'uniform chance 0.200' as a claim=0 |
 | V5 | Determinism: Arm A seed 42 reproduces | **PASS** | `artifacts/logs/reproduction_log.json` | diff=0.000000 tolerance=0.02 |
-| V6 | Unit tests pass | **PASS** | `tests/` | 93 passed, 2 skipped, 36 warnings in 19.78s |
+| V6 | Unit tests pass | **PASS** | `tests/` | 93 passed, 2 skipped, 36 warnings in 21.98s |
 | V7 | All three .docx present and rendered to PDF | **PASS** | `artifacts/reports/*.docx, artifacts/reports/*.pdf` | {"Preprocessing_Report.docx": 11, "Results_Report.docx": 16, "Code_Guide_Report.docx": 16} |
 | V8 | Spend within budget | **PASS** | `artifacts/logs/run_registry.jsonl` | diagnosis 29.1 min = $1.02; budget $8.37 |
-| V9a | Geometry tests (mask aligned with model input, per arm and stored size) | **PASS** | `tests/test_xai_registration.py` | 18 passed in 3.88s |
+| V9a | Geometry tests (mask aligned with model input, per arm and stored size) | **PASS** | `tests/test_xai_registration.py` | 18 passed in 3.62s |
 | V9b | All corrected explanation CSVs use the model-frame geometry | **PASS** | `artifacts/logs/xai_v2/*_test.csv` | 38 files, frames=['model_frame_v2'] |
 | V9c | Mask fraction in the model's frame reported per arm | **PASS** | `artifacts/logs/xai_v2_analysis/xai_geometry_by_arm_test.csv; reports/xai_corrected_results.md` | arms=['A', 'B', 'Astar', 'Cv2', 'C', 'Creleased'] |
 | V10 | No stale explanation or statistics phrases in current deliverables | **PASS** | `configs/stale_phrases.json` | 9 files scanned, 0 hits |
