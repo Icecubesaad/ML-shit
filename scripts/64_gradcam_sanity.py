@@ -16,7 +16,8 @@ Checks
    against the same square. If the production reshape swapped rows and columns, the
    transposed map would score like the true map and the true map would fail.
 3. Reshape unit check: a token tensor that encodes its own index must land at grid
-   position (row, col) = (i // 14, i % 14) through the production `_as_grid`.
+   position (row, col) = ((i-1) // 14, (i-1) % 14) for patch token i (the class token
+   at position 0 is dropped) through the production `_as_grid`.
 4. Reference implementation: pytorch-grad-cam 1.5.0 with the standard reshape_transform
    and the same target layer must agree with the production map (Spearman correlation).
 
@@ -132,13 +133,16 @@ def reference_map(model: torch.nn.Module, x: torch.Tensor, class_idx: int, grid:
 
 
 def reshape_unit_check(cam: MultiLayerGradCAM, grid: int) -> dict:
-    """Token i must land at (i // grid, i % grid) through the production reshape."""
+    """Patch token k (1-based after the class token) must land at ((k-1)//grid, (k-1)%grid)
+    through the production reshape, which drops the class token at position 0."""
     c = 8
-    tokens = torch.arange(grid * grid, dtype=torch.float32).view(1, grid * grid, 1).repeat(1, 1, c)
+    tokens = torch.arange(grid * grid + 1, dtype=torch.float32).view(1, grid * grid + 1, 1).repeat(1, 1, c)
     out = cam._as_grid(tokens, "tokens")
-    ok = bool(torch.equal(out[0, 0], torch.arange(grid * grid, dtype=torch.float32).view(grid, grid)))
-    return {"ok": ok, "detail": "token i lands at (i // 14, i % 14) exactly"
-            if ok else "token-to-grid reshape is not row-major"}
+    expect = torch.arange(1, grid * grid + 1, dtype=torch.float32).view(grid, grid)
+    ok = bool(torch.equal(out[0, 0], expect))
+    return {"ok": ok,
+            "detail": ("class token dropped; patch token k lands at ((k-1)//14, (k-1)%14) exactly"
+                       if ok else "token-to-grid reshape is not row-major after the class token")}
 
 
 def main() -> int:
