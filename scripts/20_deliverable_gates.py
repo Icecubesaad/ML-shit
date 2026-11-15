@@ -294,25 +294,26 @@ def v12() -> None:
         a, b = comp.split("-", 1)
         nrows += 1
         cell = row.cells[5].text
-        listed = [(int(s), float(v)) for s, v in re.findall(r"(\d+):([+-]\d+\.\d+)", cell)]
+        listed = {int(s): float(v) for s, v in re.findall(r"(\d+):([+-]\d+\.\d+)", cell)}
         m = re.search(r"\[(-?\d+) of (\d+) seeds favour first\]", cell)
         if not listed or m is None:
             problems.append(f"{comp}: unparseable per-seed cell {cell!r}")
             continue
-        expected = []
-        for s in sorted(set(full[full["arm"] == a]["seed"]) & set(full[full["arm"] == b]["seed"])):
+        expected = {}
+        for s in set(full[full["arm"] == a]["seed"]) & set(full[full["arm"] == b]["seed"]):
             va = full[(full["arm"] == a) & (full["seed"] == s)]["macro_f1"].iloc[0]
             vb = full[(full["arm"] == b) & (full["seed"] == s)]["macro_f1"].iloc[0]
-            expected.append((int(s), float(va - vb)))
-        if [s for s, _ in listed] != [s for s, _ in expected]:
-            problems.append(f"{comp}: listed seeds {[s for s, _ in listed]} != analysis seeds {[s for s, _ in expected]}")
-        for (s, v), (_, ev) in zip(listed, expected):
-            if abs(v - ev) > 0.0051:
-                problems.append(f"{comp} seed {s}: cell {v:+.2f} vs csv {ev:+.4f}")
+            expected[int(s)] = float(va - vb)
+        listed = {int(s): float(v) for s, v in re.findall(r"(\d+):([+-]\d+\.\d+)", cell)}
+        if set(listed) != set(expected):
+            problems.append(f"{comp}: listed seeds {sorted(listed)} != analysis seeds {sorted(expected)}")
+        for s in sorted(set(listed) & set(expected)):
+            if abs(listed[s] - expected[s]) > 0.0051:
+                problems.append(f"{comp} seed {s}: cell {listed[s]:+.2f} vs csv {expected[s]:+.4f}")
         k, n = int(m.group(1)), int(m.group(2))
-        if (k, n) != (sum(v > 0 for _, v in listed), len(listed)):
+        if (k, n) != (sum(v > 0 for v in listed.values()), len(listed)):
             problems.append(f"{comp}: bracket [{k} of {n}] != recomputed "
-                            f"[{sum(v > 0 for _, v in listed)} of {len(listed)}]")
+                            f"[{sum(v > 0 for v in listed.values())} of {len(listed)}]")
         if len(expected) == 8 and len(listed) != 8:
             problems.append(f"{comp}: only {len(listed)} of 8 seeds listed")
     ok = nrows >= 3 and not problems
@@ -340,7 +341,7 @@ def v13() -> None:
     leaks = []
     for block in _iter_docx_blocks(d):
         if isinstance(block, Paragraph):
-            if block.style.name == "Heading 1" and block.text.startswith("Appendix"):
+            if block.text.strip().lower().startswith("appendix"):
                 appendix_seen = True
             text = block.text
         else:  # type: Table
