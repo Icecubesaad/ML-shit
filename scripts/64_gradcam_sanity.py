@@ -52,9 +52,12 @@ from dm_ahr_vit.xai.batched import MultiLayerGradCAM, localization_scores  # noq
 log = setup_logging()
 IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
 IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
-# Two asymmetric square positions: one upper-left, one lower-right, so a row/column
-# transposition moves the mass to a disjoint location and cannot pass by accident.
-PLACEMENTS = [((96, 136), (32, 72)), ((88, 128), (152, 192))]
+# Two asymmetric square positions, each 48 px = 3 x 3 patch cells (16 px) and aligned to the
+# patch grid, so one whole interior cell lies inside the square. Without alignment the
+# bilinearly upsampled argmax pixel can fall just outside the square edge (a quantization
+# artifact, not an implementation fault). A transposition moves the mass to a disjoint
+# location and cannot pass by accident.
+PLACEMENTS = [((96, 144), (32, 80)), ((80, 128), (144, 192))]
 SQUARE_LEVEL = (0.90, 1.00)
 BG_RANGE = (0.42, 0.58)
 BLUR_SIGMA = 6.0  # smooth background; white noise can dominate patch embeddings on its own
@@ -242,13 +245,14 @@ def main() -> int:
     fig, axes = plt.subplots(2, 4, figsize=(11, 5.6))
     for i, p in enumerate(placements):
         img, sal, ref, mask = p["_plot"]
-        axes[i][0].imshow(img.clip(0, 1))
+        disp = np.transpose(img.clip(0, 1), (1, 2, 0))
+        axes[i][0].imshow(disp)
         axes[i][0].set_title(f"input, square rows {p['rows'][0]}-{p['rows'][1]}\n"
                              f"cols {p['cols'][0]}-{p['cols'][1]} ({p['class_name']})", fontsize=8)
-        axes[i][1].imshow(img.clip(0, 1)); axes[i][1].imshow(sal, cmap="inferno", alpha=0.55)
+        axes[i][1].imshow(disp); axes[i][1].imshow(sal, cmap="inferno", alpha=0.55)
         axes[i][1].contour(mask, levels=[0.5], colors="cyan", linewidths=0.8)
         axes[i][1].set_title(f"production ln_1 (recall {p['follow_ln1']['recall']:.2f})", fontsize=8)
-        axes[i][2].imshow(img.clip(0, 1)); axes[i][2].imshow(ref, cmap="inferno", alpha=0.55)
+        axes[i][2].imshow(disp); axes[i][2].imshow(ref, cmap="inferno", alpha=0.55)
         axes[i][2].contour(mask, levels=[0.5], colors="cyan", linewidths=0.8)
         axes[i][2].set_title(f"pytorch-grad-cam (rho {p['reference']['spearman']:.3f})", fontsize=8)
         axes[i][3].imshow(sal.T, cmap="inferno", alpha=0.55)
