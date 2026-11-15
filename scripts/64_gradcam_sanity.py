@@ -287,7 +287,7 @@ def main() -> int:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig, axes = plt.subplots(2, 4, figsize=(11, 5.6))
+    fig, axes = plt.subplots(4, 4, figsize=(11, 11))
     for i, p in enumerate(placements):
         img, sal, ref, mask = p["_plot"]
         disp = np.transpose(img.clip(0, 1), (1, 2, 0))
