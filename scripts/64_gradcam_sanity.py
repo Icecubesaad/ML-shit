@@ -129,6 +129,7 @@ def reference_map(model: torch.nn.Module, x: torch.Tensor, class_idx: int, grid:
     except TypeError:  # newer versions dropped the `model` argument
         ref = RefGradCAM(target_layers=[model.encoder.layers[-1].ln_1],
                          reshape_transform=reshape_transform)
+    x = x.to(next(model.parameters()).device)
     return np.asarray(ref(input_tensor=x, targets=[ClassifierOutputTarget(class_idx)])[0])
 
 
@@ -173,7 +174,7 @@ def main() -> int:
         for rows, cols in PLACEMENTS:
             img_bg = base_noise(size, rng)
             img, mask = add_square(img_bg, rows, cols, rng)
-            x, x_bg = normalize(img), normalize(img_bg)
+            x, x_bg = normalize(img).to(device), normalize(img_bg).to(device)
             class_idx, delta, deltas = pick_class(model, x, x_bg, device)
             grids, _ = cam(x, class_idx=torch.tensor([class_idx], device=device))
             sal = upsample(grids["last_ln1"][0], size, device)
