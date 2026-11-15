@@ -147,7 +147,8 @@ def build() -> Path:
          "The first fifteen Vision Transformers (sections 2 to 7) are five input conditions (arms) at three random "
          "seeds each; Stage C added three Cv2 runs and Stage E twenty more (section 8). Everything except the arm is identical — same frozen split, same manifests, "
          "same architecture, hyperparameters, augmentation and evaluation code — so a difference "
-         "between arms is attributable to the hair-removal condition alone. Creleased is the "
+         "between arms reflects the whole condition as run: the hair-removal processing and "
+         "everything it does to the images, not hair removal in isolation. Creleased is the "
          "authors' released DM-AHR checkpoint run through our pipeline at a 25-step respaced "
          "schedule; it was added after the protocol was frozen and is reported as exploratory.")
     table(doc, ["Arm", "Input the classifier sees", "Macro-F1 (mean ± SD)"],
@@ -298,9 +299,9 @@ def build() -> Path:
               "is measured against one tracing, not consensus.", size=9.5, italic=True)
     fig_dir = artifact_dir("reports") / "preprocessing_assets"
     figure(doc, fig_dir / "dmahr.jpg",
-           "Figure 1 — Arm C diffusion removal, from the preprocessing report, reproduced here "
-           "because the same failed hair-removal output drives both its quality scores and its "
-           "classification deficit.")
+           "Figure 1 — Arm C diffusion removal, from the preprocessing report. The images shown "
+           "are the same output that produced its quality scores and its classification results; "
+           "the reading of that deficit is in section 6.")
 
     h1(doc, "5. Statistical comparisons")
     body(doc,
@@ -313,9 +314,12 @@ def build() -> Path:
          "header says so. Holm correction is applied across the three planned "
          "comparisons within each endpoint, separately for each test; A–A* is a "
          "secondary control in its own family and cannot inflate the planned family. "
-         "A CI spanning zero is called inconclusive, not 'no difference'.")
+         "A CI spanning zero is called inconclusive, not 'no difference'. The explainability rows "
+         "of the first analysis are not in this table: they are superseded by the corrected-geometry "
+         "comparisons below and kept only in the labelled appendix at the end of this report.")
     rows = []
-    for r in stats.itertuples():
+    stats_body = stats[~stats["endpoint"].astype(str).str.startswith("x1_")]
+    for r in stats_body.itertuples():
         rows.append([r.endpoint, r.comparison, f"{r.difference:+.3f}",
                      f"{r.ci_low:+.3f} to {r.ci_high:+.3f}",
                      f"{r.p_holm:.4f}" if r.p_holm >= 0.0001 else "<0.0001",
@@ -324,6 +328,18 @@ def build() -> Path:
     table(doc, ["Endpoint", "Comparison", "Diff.", "95% CI (bootstrap)",
                  "p (Holm)", "Wilcoxon p (per-group acc.)", "Groups"],
           rows, widths=[1.35, 0.95, 0.6, 1.25, 0.72, 0.9, 0.55], font=8, align_right_from=2)
+    h2(doc, "Explainability comparisons in the corrected geometry")
+    body(doc, "The first analysis compared maps with masks that were not in the classifier's frame; its "
+              "explainability rows are superseded and are kept only in the appendix. This table is the "
+              "replacement: between-arm lesion-coverage (recall) differences in the frame the classifier "
+              "actually sees, for all three maps, with the two-level bootstrap (lesion groups and seeds), "
+              "Holm correction within each family, and the pre-registered strike rule.", size=9.5)
+    table(doc, xt.comparison_header(), xt.comparison_rows(x2, "recall"),
+          widths=[0.7, 0.75, 1.05, 0.65, 1.1, 0.55, 1.55, 1.4], font=7, align_right_from=3)
+    body(doc, "A struck row is removed from its planned family when the seed-to-seed spread of either arm "
+              "exceeds the between-arm difference; such rows cannot establish or refute a claim. The "
+              "pointing endpoint and the shifted-lesion robustness test are in section 4.", size=9.5,
+         italic=True)
     if not expl.empty:
         h2(doc, "Exploratory: released-checkpoint arm")
         body(doc,
@@ -353,8 +369,6 @@ def build() -> Path:
     h1(doc, "6. What this says about the three hypotheses")
     psnr = row(stats, "paired_psnr", "C-B")
     ssim = row(stats, "paired_ssim", "C-B")
-    gc = row(stats, "x1_gradcam_overlap20", "A-C")
-    ro = row(stats, "x1_rollout_overlap20", "A-C")
     body(doc, "H1 — image quality (diffusion preserves texture better than classical): ",
          space_after=2)
     c_ssim = quality["C_ssim"].dropna()
@@ -616,6 +630,27 @@ def build() -> Path:
          "classification_per_class.csv, paired_psnr_ssim_test.csv, xai_localization_*.csv and "
          "statistical_comparisons.csv. This document is built by scripts/14_results_report.py "
          "and can be regenerated after any rerun.", size=9, italic=True)
+
+    h1(doc, "Appendix. First-look explanation rows (legacy, superseded)")
+    body(doc, "Kept for the record only. These rows come from the first explanation analysis, which compared "
+              "maps with lesion masks that were not in the classifier's frame and used Grad-CAM on the "
+              "patch-embedding grid; the corrected geometry (sections 4 and 5) supersedes them (decision "
+              "D40). They are not used anywhere in this report and must not be compared with those sections.",
+         size=9.5)
+    lrows = []
+    for r in stats[stats["endpoint"].astype(str).str.startswith("x1_")].itertuples():
+        lrows.append([r.endpoint, r.comparison, f"{r.difference:+.3f}",
+                      f"{r.ci_low:+.3f} to {r.ci_high:+.3f}",
+                      f"{r.p_holm:.4f}" if r.p_holm >= 0.0001 else "<0.0001",
+                      f"{r.wilcoxon_p_holm:.4f}" if r.wilcoxon_p_holm >= 0.0001 else "<0.0001",
+                      f"{r.n_groups}"])
+    if not lrows:
+        raise SystemExit("no legacy explainability rows found in statistical_comparisons.csv; "
+                         "the appendix would be empty — check the input")
+    table(doc, ["Endpoint", "Comparison", "Diff.", "95% CI (bootstrap)",
+                "p (Holm)", "Wilcoxon p (per-group acc.)", "Groups"],
+          lrows, widths=[1.35, 0.95, 0.6, 1.25, 0.72, 0.9, 0.55], font=8, align_right_from=2)
+    body(doc, "Superseded: see the corrected-geometry tables in sections 4 and 5.", size=9, italic=True)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     doc.save(OUT)

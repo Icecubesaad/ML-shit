@@ -1,4 +1,4 @@
-"""Verification gates V1-V8 for the final deliverables.
+"""Verification gates V1-V14 for the final deliverables.
 
 Every gate reports its own evidence path. The script writes
 reports/deliverable_checklist.md from what it actually measured.
@@ -245,8 +245,142 @@ def v11() -> None:
     gate("V11", "Spend within the owner's $60 limit (estimate)", ok, "reports/spend_log.csv", detail)
 
 
+def _iter_docx_blocks(doc):
+    """Yield the document's paragraphs and tables in true document order."""
+    from docx.oxml.ns import qn  # noqa: PLC0415
+    from docx.table import Table  # noqa: PLC0415
+    from docx.text.paragraph import Paragraph  # noqa: PLC0415
+
+    for child in doc.element.body.iterchildren():
+        if child.tag == qn("w:p"):
+            yield Paragraph(child, doc)
+        elif child.tag == qn("w:tbl"):
+            yield Table(child, doc)
+
+
+def v12() -> None:
+    """Paper Table 8: the per-seed column lists seed:value pairs that match pooled_per_seed.csv.
+
+    Every listed value must equal the CSV macro-F1 difference for that arm pair and seed
+    (cell shows 2 dp, so tolerance 0.0051), the bracket must equal the recomputed
+    '[k of N seeds favour first]', and the listed seeds must be exactly the seeds both
+    arms have in the analysis — eight for every A/A*/B/Cv2 comparison shown.
+    """
+    import re  # noqa: PLC0415
+
+    import docx  # noqa: PLC0415
+
+    name = "Paper Table 8 per-seed column matches pooled_per_seed.csv"
+    p = ART / "reports" / "Research_Paper.docx"
+    if not p.exists():
+        gate("V12", name, False, str(p), "missing")
+        return
+    d = docx.Document(str(p))
+    t8 = [t for t in d.tables
+          if len(t.rows) and len(t.rows[0].cells) >= 6
+          and t.rows[0].cells[5].text.strip() == "Per-seed differences"
+          and "Macro-F1 difference" in t.rows[0].cells[2].text]
+    if len(t8) != 1:
+        gate("V12", name, False, "artifacts/reports/Research_Paper.docx",
+             f"found {len(t8)} candidate tables, expected exactly 1")
+        return
+    full = pd.read_csv(LOGS / "pooled_per_seed.csv")
+    full = full[full["subset"] == "full"]
+    problems, nrows = [], 0
+    for row in t8[0].rows[1:]:
+        comp = row.cells[0].text.replace("A*", "Astar").replace(" ", "")
+        if "-" not in comp:
+            continue
+        a, b = comp.split("-", 1)
+        nrows += 1
+        cell = row.cells[5].text
+        listed = [(int(s), float(v)) for s, v in re.findall(r"(\d+):([+-]\d+\.\d+)", cell)]
+        m = re.search(r"\[(-?\d+) of (\d+) seeds favour first\]", cell)
+        if not listed or m is None:
+            problems.append(f"{comp}: unparseable per-seed cell {cell!r}")
+            continue
+        expected = []
+        for s in sorted(set(full[full["arm"] == a]["seed"]) & set(full[full["arm"] == b]["seed"])):
+            va = full[(full["arm"] == a) & (full["seed"] == s)]["macro_f1"].iloc[0]
+            vb = full[(full["arm"] == b) & (full["seed"] == s)]["macro_f1"].iloc[0]
+            expected.append((int(s), float(va - vb)))
+        if [s for s, _ in listed] != [s for s, _ in expected]:
+            problems.append(f"{comp}: listed seeds {[s for s, _ in listed]} != analysis seeds {[s for s, _ in expected]}")
+        for (s, v), (_, ev) in zip(listed, expected):
+            if abs(v - ev) > 0.0051:
+                problems.append(f"{comp} seed {s}: cell {v:+.2f} vs csv {ev:+.4f}")
+        k, n = int(m.group(1)), int(m.group(2))
+        if (k, n) != (sum(v > 0 for _, v in listed), len(listed)):
+            problems.append(f"{comp}: bracket [{k} of {n}] != recomputed "
+                            f"[{sum(v > 0 for _, v in listed)} of {len(listed)}]")
+        if len(expected) == 8 and len(listed) != 8:
+            problems.append(f"{comp}: only {len(listed)} of 8 seeds listed")
+    ok = nrows >= 3 and not problems
+    gate("V12", name, ok,
+         "artifacts/reports/Research_Paper.docx + artifacts/logs/pooled_per_seed.csv",
+         f"{nrows} rows checked" + ("" if not problems else "; " + " | ".join(problems[:3])))
+
+
+def v13() -> None:
+    """Results Report: no legacy x1_ row outside the labelled appendix; the corrected-geometry
+    comparison table appears before the appendix."""
+    import docx  # noqa: PLC0415
+    from docx.table import Table  # noqa: PLC0415
+    from docx.text.paragraph import Paragraph  # noqa: PLC0415
+
+    name = "Results Report keeps legacy x1_ rows only in the labelled appendix"
+    p = ART / "reports" / "Results_Report.docx"
+    if not p.exists():
+        gate("V13", name, False, str(p), "missing")
+        return
+    d = docx.Document(str(p))
+    appendix_seen = False
+    geo_before = False
+    legacy_after = 0
+    leaks = []
+    for block in _iter_docx_blocks(d):
+        if isinstance(block, Paragraph):
+            if block.style.name == "Heading 1" and block.text.startswith("Appendix"):
+                appendix_seen = True
+            text = block.text
+        else:  # type: Table
+            text = "\n".join(c.text for r in block.rows for c in r.cells)
+            head = " | ".join(c.text for c in block.rows[0].cells)
+            if not appendix_seen and "Map" in head and "95% CI (lesions and seeds)" in head:
+                geo_before = True
+        if "x1_" in text:
+            if appendix_seen:
+                legacy_after += 1
+            else:
+                i = text.find("x1_")
+                leaks.append(text[max(0, i - 30):i + 40])
+    ok = appendix_seen and geo_before and legacy_after >= 1 and not leaks
+    gate("V13", name, ok, "artifacts/reports/Results_Report.docx",
+         f"appendix heading found={appendix_seen}, corrected-geometry table before it={geo_before}, "
+         f"legacy rows inside appendix={legacy_after}"
+         + ("" if not leaks else f"; OUTSIDE-APPENDIX x1_ at: {leaks[:2]}"))
+
+
+def v14() -> None:
+    """Grad-CAM ln_1 sanity check passes on planted bright squares (synthetic inputs only)."""
+    p = LOGS / "gradcam_sanity.json"
+    if not p.exists():
+        gate("V14", "Grad-CAM ln_1 sanity check passes", False, str(p), "missing")
+        return
+    d = json.loads(p.read_text())
+    c = d.get("criteria", {})
+    bools = {k: v for k, v in c.items() if isinstance(v, bool)}
+    ok = (d.get("verdict") == "passes" and bool(bools) and all(bools.values())
+          and float(c.get("follow_recall_min", -1.0)) > float(c.get("chance_recall", 1.0)))
+    gate("V14", "Grad-CAM ln_1 sanity check passes on planted bright squares", ok,
+         "artifacts/logs/gradcam_sanity.json",
+         f"verdict={d.get('verdict')}, follow_recall_min={c.get('follow_recall_min')} vs chance "
+         f"{c.get('chance_recall')}, transposed_max={c.get('transposed_recall_max')}, "
+         f"reference_rho_min={c.get('reference_spearman_min')}, reshape_exact={c.get('reshape_exact')}")
+
+
 def main() -> int:
-    v1(); v2(); v3(); v4(); v5(); v6(); v7(); v8(); v9(); v10(); v11()
+    v1(); v2(); v3(); v4(); v5(); v6(); v7(); v8(); v9(); v10(); v11(); v12(); v13(); v14()
     out = ART / "reports" / "deliverable_checklist.md"
     lines = ["# Deliverable verification checklist", "",
              "Generated by `scripts/20_deliverable_gates.py`. Each gate records the evidence path",

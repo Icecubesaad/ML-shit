@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -209,13 +210,19 @@ def stat_row(F, endpoint, comparison, subset="full"):
 
 
 def per_seed_diff(F, a, b, subset="full"):
-    sa = F["metrics_all"]
+    """Per-seed macro-F1 differences (a minus b) as (seed, value) pairs over the eight seeds.
+
+    Source is pooled_per_seed.csv, which carries all eight seeds for A, A*, B and Cv2; seeds an
+    arm does not have are omitted (possible only when one arm is Creleased or C, which the
+    caller never passes here).
+    """
+    m = F["per_seed"]
     out = []
     for s in EIGHT:
-        va = sa[(sa.arm == a) & (sa["subset"] == subset) & (sa.seed == s)]["macro_f1"]
-        vb = sa[(sa.arm == b) & (sa["subset"] == subset) & (sa.seed == s)]["macro_f1"]
+        va = m[(m.arm == a) & (m["subset"] == subset) & (m.seed == s)]["macro_f1"]
+        vb = m[(m.arm == b) & (m["subset"] == subset) & (m.seed == s)]["macro_f1"]
         if len(va) and len(vb):
-            out.append(float(va.iloc[0] - vb.iloc[0]))
+            out.append((int(s), float(va.iloc[0] - vb.iloc[0])))
     return out
 
 
@@ -229,7 +236,13 @@ ROLL, GC1, GCP = "attention rollout", "Grad-CAM, last-block ln_1 (primary)", "Gr
 
 
 def verdicts(F) -> dict:
-    """H1-H3 verdicts by rule, from the final numbers (used by the paper and the final report)."""
+    """H1-H3 verdicts by rule, from the final numbers (used by the paper and the final report).
+
+    h1 and h2 are booleans. h3 is a string: 'supported', 'not supported', or
+    'inconclusive (all between-arm rows struck)' when every between-arm recall row in the
+    unshifted frame is struck by the seed-spread rule, so the rows can neither support nor
+    refute the hypothesis.
+    """
     _, _, qcmp = quality_table(F)
     psnr, ssim = qcmp[0][2]
     acv, bcv, cva = (stat_row(F, "macro_f1", c) for c in ("A-Cv2", "B-Cv2", "Cv2-Astar"))
@@ -240,11 +253,16 @@ def verdicts(F) -> dict:
                    & (cmp.frame == "as is")].iloc[0]
 
     ro, gc = row(ROLL), row(GC1)
+    sel = cmp[(cmp.frame == "as is") & (cmp.metric == "recall") & (cmp.method.isin([ROLL, GC1]))]
+    all_struck = bool(sel["struck"].all())
+    positive = bool((ro["difference"] > 0 and ro["p_holm"] < 0.05 and not ro["struck"])
+                    or (gc["difference"] > 0 and gc["p_holm"] < 0.05 and not gc["struck"]))
+    h3 = ("inconclusive (all between-arm rows struck)" if all_struck
+          else ("supported" if positive else "not supported"))
     return {
         "h1": bool(psnr[1] > 0 and ssim[1] > 0),
         "h2": any(bool(r["established"]) and r["difference"] * sign < 0 for r, sign in ((acv, 1), (bcv, 1), (cva, -1))),
-        "h3": bool((ro["difference"] > 0 and ro["p_holm"] < 0.05 and not ro["struck"])
-                   or (gc["difference"] > 0 and gc["p_holm"] < 0.05 and not gc["struck"])),
+        "h3": h3,
         "h1_psnr": psnr, "h1_ssim": ssim,
     }
 
@@ -271,7 +289,14 @@ def build(args) -> Path:
     bcv = stat_row(F, "macro_f1", "B-Cv2")
     cv_vs_b_psnr, cv_vs_b_ssim = qcmp[0][2]
     V = verdicts(F)
-    h1_supported, h2_supported, h3_supported = V["h1"], V["h2"], V["h3"]
+    h1_supported, h2_supported, h3_state = V["h1"], V["h2"], V["h3"]
+    if h3_state == "supported":
+        h3_concl = "improved"
+    elif h3_state == "not supported":
+        h3_concl = "did not improve"
+    else:
+        h3_concl = ("left the explanation-localisation comparison inconclusive "
+                    "(all between-arm differences were struck by the seed-spread rule)")
     roll_cv = xai_val(F, "Cv2", ROLL, "recall")
     roll_as = xai_val(F, "Astar", ROLL, "recall")
     cmp = F["xai_cmp"]
@@ -325,8 +350,8 @@ def build(args) -> Path:
         f"{'every' if all_struck else 'not every'} between-arm explanation difference "
         f"{'was struck by' if all_struck else 'passed'} the seed-spread rule. "
         f"Conclusion: diffusion hair removal {'improved' if h1_supported else 'did not improve'} image quality over the "
-        f"classical method, {'improved' if h2_supported else 'did not improve'} classification and "
-        f"{'improved' if h3_supported else 'did not improve'} explanation localisation in this study.", size=10)
+        f"classical method on the synthetic-hair pairs, {'improved' if h2_supported else 'did not improve'} "
+        f"classification, and {h3_concl} in this study.", size=10)
     P.p("Keywords: medical image analysis; skin cancer detection; ISIC; dermoscopy; vision transformer; "
         "explainable AI; Grad-CAM; attention rollout; hair removal; diffusion models", italic=True, size=9)
 
@@ -366,6 +391,8 @@ def build(args) -> Path:
                 t = t.replace(old, new)
                 used.add(old)
         t = t.replace("Part 1 revised draft (Sections 1–5)", "")
+        if t.startswith("Table 1"):
+            continue  # the generated literature table below carries its own caption
         if p.style.name == "Heading 1":
             P.h1(t)
         elif p.style.name == "Heading 2":
@@ -374,8 +401,6 @@ def build(args) -> Path:
             P.doc.add_paragraph(t, style="List Bullet")
         else:
             P.p(t)
-        if t.startswith("Table 1"):
-            pass
     missing = [o for o, _ in REPLACEMENTS if o not in used]
     if missing:
         raise SystemExit(f"replacement text not found in the draft: {missing}")
@@ -451,6 +476,21 @@ def build(args) -> Path:
         "endpoint and precision is reported as a labelled second metric. Attention rollout [19] is computed over all "
         "layers and heads. Grad-CAM [18] targets the output of ln_1 in the last encoder block (class token dropped, "
         "tokens reshaped to 14 × 14); the earlier patch-embedding grid is kept as a labelled sensitivity run.")
+    san_path = LOGS / "gradcam_sanity.json"
+    if not san_path.exists():
+        raise SystemExit("artifacts/logs/gradcam_sanity.json is missing; run scripts/64_gradcam_sanity.py first")
+    san = json.loads(san_path.read_text())
+    sc = san["criteria"]
+    P.p("Implementation sanity check for the primary map (synthetic inputs only; no dataset image, mask or label used): "
+        "a bright square is planted at two asymmetric positions of a smooth-noise image and the production ln_1 map, "
+        "upsampled exactly as in the analysis, must follow it. The map covers the square (worst top-20% recall "
+        f"{sc['follow_recall_min']:.2f} against a {sc['chance_recall']:.3f} chance level, worst pointing "
+        f"{sc['follow_pointing_min']:.2f}), the row-and-column transposition of the same map fails (worst recall "
+        f"{sc['transposed_recall_max']:.2f}), a token-to-grid reshape unit check "
+        f"{'passes' if sc['reshape_exact'] else 'fails'}, and the pytorch-grad-cam reference implementation with the "
+        f"standard reshape transform on the same target layer agrees (worst per-image Spearman "
+        f"{sc['reference_spearman_min']:.3f}); verdict: {san['verdict']} (artifacts/logs/gradcam_sanity.json, checkpoint "
+        f"{san['arm']} seed {san['seed']}).")
     P.p("Baselines on the same masks: random pixel maps and random 14 × 14 patch maps (100 draws per image), a "
         "centred Gaussian (σ = 0.25 of the width), pointing chance, the per-arm overlap ceiling "
         "(mean of min(1, 0.2/area)), lesion-centroid statistics, and an off-centre test in which image and mask are "
@@ -538,10 +578,12 @@ def build(args) -> Path:
         ps = per_seed_diff(F, a, b)
         rows.append([comp.replace("Astar", "A*"), fam_label[r["family"]], f"{sgn(r['difference'])} ({sgn(r['ci_low'])} to {sgn(r['ci_high'])})",
                      p_fmt(r["p_holm"]), "yes" if r["established"] else "no",
-                     " ".join(f"{x:+.2f}" for x in ps) + f" [{sum(x > 0 for x in ps)}/{len(ps)} seeds favour first]",
+                     " ".join(f"{s}:{x:+.2f}" for s, x in ps)
+                     + f" [{sum(x > 0 for _, x in ps)} of {len(ps)} seeds favour first]",
                      f"{sgn(ll['difference'])} ({sgn(ll['ci_low'])} to {sgn(ll['ci_high'])})"])
     P.table("Pooled analysis, eight seeds, test macro-F1 (full test set). Differences are first arm minus second; "
-            "per-seed differences are in seed order 42, 123, 2026, 7, 11, 17, 23, 31. The last column is the per-image "
+            "per-seed differences are labelled seed:value in seed order 42, 123, 2026, 7, 11, 17, 23, 31, read from "
+            "pooled_per_seed.csv (an arm that lacks a seed would have it omitted). The last column is the per-image "
             "log-loss difference (negative favours the first arm).",
             ["Comparison", "Family", "Macro-F1 difference (95% CI)", "Holm p", "Established", "Per-seed differences", "Log-loss difference (95% CI)"], rows, size=7)
     ex = F["expl"]
@@ -608,8 +650,8 @@ def build(args) -> Path:
         f"(difference {sgn(cva['difference'])}, CI {sgn(cva['ci_low'])} to {sgn(cva['ci_high'])}), and DullRazor is lower "
         f"({f(f1['B'])}). Only A over B is established; the eight-seed minimum detectable difference is about "
         f"{f(float(ab['mdd_80pct']), 2)} macro-F1, so differences of 0.02 cannot be resolved here. Hair removal did not help the classifier; "
-        "classical removal hurt it.")
-    P.p(f"H3 (explainability): {'supported' if h3_supported else 'not supported'}. After correcting the mask geometry, the "
+        "this DullRazor implementation lowered macro-F1 and damages lesions on real photos.")
+    P.p(f"H3 (explainability): {h3_state}. After correcting the mask geometry, the "
         f"remaining between-arm differences are explained by the working frame, not by hair removal: attention-rollout recall is "
         f"{f(roll_as['mean'])} for A* and {f(roll_cv['mean'])} for Cv2 (difference {sgn(cv_as_roll['difference'])}, "
         f"CI {sgn(cv_as_roll['ci_low'])} to {sgn(cv_as_roll['ci_high'])}), while the full-resolution arms differ from the 128 px arms "
@@ -633,6 +675,17 @@ def build(args) -> Path:
         f"{abs(paper_psnr - best_dh['psnr_up']):.1f} dB {'below' if best_dh['psnr_up'] < paper_psnr else 'above'} the publication; "
         f"the pre-stated verdict is {'reproduced' if repro_any else 'not reproduced'}. The paper reports no do-nothing baseline, and "
         "evaluation subset, checkpoint version or metric implementation may differ from ours, so the cause of any gap is not established.")
+    # Training-iteration facts for the limitations bullet; each number below is read from a file,
+    # except the two documented historical facts, which carry their citation in the text.
+    n_iter_cfg = int(re.search(r'"n_iter":\s*(\d+)',
+                               (ROOT / "third_party" / "dmahr" / "config" / "akiec.json").read_text()).group(1))
+    rel_iter = int(re.search(r"I(\d+)_E\d+", (ROOT / "reports" / "export_manifest.csv").read_text()).group(1))
+    ft_iter = int(json.loads((LOGS / "dmahr_v2_train.json").read_text())["iterations"])
+    lc_files = sorted((LOGS / "learning_curve").glob("it*.json"))
+    if not lc_files:
+        raise SystemExit("artifacts/logs/learning_curve/ holds no snapshot files")
+    snap_iters = [int(p.stem[2:]) for p in lc_files]
+    snap_mae = [float(json.loads(p.read_text())["one_step_eps_mae"]["1500"]) for p in lc_files]
     P.h2("5.4. Limitations")
     P.bullets([
         "Image-quality evidence uses synthetic hair on clean photographs; real-hair removal quality is not validated.",
@@ -640,15 +693,28 @@ def build(args) -> Path:
         "Eight seeds (three for Creleased and C) leave a minimum detectable difference near 0.04–0.05 macro-F1.",
         "Lesion masks come from a single rater and are large and central, which limits what localisation metrics can show.",
         "The explanation analysis re-scored the same test images after the geometry correction (decision D40); the first-look results are kept in the appendix.",
+        "Training iterations — the Cv2 backbone is the fixed-trainer lineage whose snapshots were evaluated at "
+        f"{', '.join(f'{v:,}' for v in snap_iters)} iterations (Figure 5); the continuation was stopped by the project owner at "
+        "56,300 of a planned 100,000 iterations (reports/decision_log.md), and the model was then fine-tuned for "
+        f"{ft_iter:,} iterations on pasted real strands (artifacts/logs/dmahr_v2_train.json). For scale: the development kit's "
+        "reference recipe specifies 20,000 iterations (decision D1), the shipped upstream config asks for "
+        f"{n_iter_cfg:,} (third_party/dmahr/config/akiec.json), and the released checkpoint is labelled {rel_iter:,} "
+        f"(reports/export_manifest.csv). One-step error at t=1,500 across the snapshots in that order is "
+        f"{', '.join(f'{v:.4f}' for v in snap_mae)} — not monotonically improving — so iterations beyond about 56,000 are "
+        f"untested in this pipeline, as are the upstream budgets ({n_iter_cfg:,}-{rel_iter:,}).",
         "Licences: HAM10000 is CC BY-NC 4.0, so results and derived images are non-commercial; the DM-AHR repository's README (CC BY-NC 4.0) and LICENSE file (Apache-2.0) contradict each other, "
         "so commercial use of the released weights is unresolved; no legal conclusion is drawn.",
         "Research prototype only; no clinical claim is made."])
 
     # ================= 6 Conclusion
     P.h1("6. Conclusion")
+    h3_body = ("made explanations more lesion-focused" if h3_state == "supported"
+               else ("left the explanation comparison inconclusive (every between-arm difference was struck "
+                     "by the seed-spread rule)" if h3_state.startswith("inconclusive")
+                     else "did not make explanations more lesion-focused"))
     P.p(f"In a lesion-grouped, matched-recipe comparison with eight seeds, diffusion hair removal did not improve classification "
         f"(Cv2 {f(f1['Cv2'])} versus original {f(f1['A'])} and resolution control {f(f1['Astar'])} macro-F1), did not match the classical method on "
-        "image fidelity for synthetic hair, and did not make explanations more lesion-focused once mask geometry and a centre prior were accounted "
+        f"image fidelity for synthetic hair, and {h3_body} once mask geometry and a centre prior were accounted "
         "for. The published image-quality figure was not reproduced from the released checkpoint on the public data. The only established effect is "
         f"that DullRazor-style removal lowered macro-F1 relative to the original images ({sgn(ab['difference'])}, CI {sgn(ab['ci_low'])} to "
         f"{sgn(ab['ci_high'])}).")
