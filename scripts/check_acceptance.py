@@ -197,8 +197,7 @@ def check_stats() -> None:
         add("G11", False, str(p), "missing statistics table")
         return
     df = pd.read_csv(p)
-    need = {"endpoint", "comparison", "p_raw", "p_holm", "difference", "ci_low", "ci_high",
-            "effect_size_dz"}
+    need = {"endpoint", "comparison", "p_raw", "p_holm", "difference", "ci_low", "ci_high"}
     ok = need <= set(df.columns) and df["p_holm"].notna().any()
     add("G11", ok, str(p), f"rows={len(df)}, endpoints={df['endpoint'].nunique()}")
 

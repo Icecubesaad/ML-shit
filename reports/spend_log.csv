@@ -1,0 +1,99 @@
+job,gpu,run,exit_code,seconds_with_overhead,usd_per_second,est_usd,scope,running_total_usd
+dermahair_probe_20_pairs,A100-40GB,0,0,308.1,0.000583,0.18,this session (job logs),0.18
+dermahair_repro_707_pairs,A100-40GB,0,0,3923.8,0.000583,2.288,this session (job logs),2.468
+xai_v2_test_rerun,A10G,0,0,263.9,0.000306,0.081,this session (job logs),2.549
+xai_v2_test_rerun,A10G,1,0,280.6,0.000306,0.086,this session (job logs),2.635
+xai_v2_test_rerun,A10G,2,0,281.0,0.000306,0.086,this session (job logs),2.721
+xai_v2_test_rerun,A10G,3,0,284.9,0.000306,0.087,this session (job logs),2.808
+xai_v2_test_rerun,A10G,4,0,509.4,0.000306,0.156,this session (job logs),2.964
+vit_train,NVIDIA A100-SXM4-80GB,3,0,479.7,0.000694,0.333,"earlier sessions (run registry, upper bound)",3.297
+vit_train,NVIDIA A100-SXM4-80GB,4,0,403.8,0.000694,0.28,"earlier sessions (run registry, upper bound)",3.577
+vit_train,NVIDIA A100-SXM4-80GB,5,0,430.5,0.000694,0.299,"earlier sessions (run registry, upper bound)",3.876
+vit_train,NVIDIA A100-SXM4-80GB,6,0,699.1,0.000694,0.485,"earlier sessions (run registry, upper bound)",4.361
+vit_train,NVIDIA A100-SXM4-80GB,7,0,686.2,0.000694,0.476,"earlier sessions (run registry, upper bound)",4.837
+vit_train,NVIDIA A100-SXM4-80GB,8,0,754.3,0.000694,0.523,"earlier sessions (run registry, upper bound)",5.36
+vit_train,NVIDIA A100-SXM4-80GB,9,0,550.3,0.000694,0.382,"earlier sessions (run registry, upper bound)",5.742
+vit_train,NVIDIA A100-SXM4-80GB,10,0,362.9,0.000694,0.252,"earlier sessions (run registry, upper bound)",5.994
+vit_train,NVIDIA A100-SXM4-80GB,11,0,421.9,0.000694,0.293,"earlier sessions (run registry, upper bound)",6.287
+dmahr_sample,cuda,12,0,5061.7,0.000694,3.513,"earlier sessions (run registry, upper bound)",9.8
+vit_train,NVIDIA A100-SXM4-40GB,13,0,634.0,0.000583,0.37,"earlier sessions (run registry, upper bound)",10.17
+vit_eval,cuda,14,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",10.232
+xai,cuda,15,0,210.6,0.000694,0.146,"earlier sessions (run registry, upper bound)",10.378
+vit_train,NVIDIA A100-SXM4-40GB,16,0,534.3,0.000583,0.311,"earlier sessions (run registry, upper bound)",10.689
+vit_eval,cuda,17,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",10.751
+xai,cuda,18,0,185.6,0.000694,0.129,"earlier sessions (run registry, upper bound)",10.88
+vit_train,NVIDIA A100-SXM4-40GB,19,0,594.3,0.000583,0.346,"earlier sessions (run registry, upper bound)",11.226
+vit_eval,cuda,20,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",11.288
+xai,cuda,21,0,184.6,0.000694,0.128,"earlier sessions (run registry, upper bound)",11.416
+reproduction_check,cuda,22,0,497.7,0.000694,0.345,"earlier sessions (run registry, upper bound)",11.761
+arm_c_diagnose,cuda,23,0,1834.6,0.000694,1.273,"earlier sessions (run registry, upper bound)",13.034
+paper_reproduction,A100-40GB,24,0,95.9,0.000583,0.056,"earlier sessions (run registry, upper bound)",13.09
+paper_reproduction,A100-40GB,25,0,1129.6,0.000583,0.659,"earlier sessions (run registry, upper bound)",13.749
+arm_c_diagnose_v2,A100-40GB,26,0,323.3,0.000583,0.188,"earlier sessions (run registry, upper bound)",13.937
+xai_v2,cuda,27,0,349.8,0.000694,0.243,"earlier sessions (run registry, upper bound)",14.18
+xai_v2,cuda,28,0,664.5,0.000694,0.461,"earlier sessions (run registry, upper bound)",14.641
+xai_v2,cuda,29,0,198.2,0.000694,0.138,"earlier sessions (run registry, upper bound)",14.779
+dmahr_sample,cuda,30,0,120.9,0.000694,0.084,"earlier sessions (run registry, upper bound)",14.863
+dmahr_sample,cuda,31,0,504.3,0.000694,0.35,"earlier sessions (run registry, upper bound)",15.213
+vit_eval,cuda,33,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",15.275
+xai,cuda,34,0,270.5,0.000694,0.188,"earlier sessions (run registry, upper bound)",15.463
+vit_eval,cuda,35,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",15.525
+xai,cuda,36,0,197.7,0.000694,0.137,"earlier sessions (run registry, upper bound)",15.662
+vit_eval,cuda,37,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",15.724
+xai,cuda,38,0,199.6,0.000694,0.138,"earlier sessions (run registry, upper bound)",15.862
+vit_eval,cuda,41,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",15.924
+vit_eval,cuda,42,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",15.986
+vit_eval,cuda,43,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",16.048
+vit_eval,cuda,44,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",16.11
+xai,cuda,45,0,201.6,0.000694,0.14,"earlier sessions (run registry, upper bound)",16.25
+vit_eval,cuda,46,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",16.312
+xai,cuda,47,0,195.1,0.000694,0.135,"earlier sessions (run registry, upper bound)",16.447
+vit_eval,cuda,48,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",16.509
+xai,cuda,49,0,194.1,0.000694,0.135,"earlier sessions (run registry, upper bound)",16.644
+xai,cuda,54,0,264.2,0.000694,0.183,"earlier sessions (run registry, upper bound)",16.827
+xai,cuda,55,0,192.2,0.000694,0.133,"earlier sessions (run registry, upper bound)",16.96
+xai,cuda,56,0,188.1,0.000694,0.131,"earlier sessions (run registry, upper bound)",17.091
+xai,cuda,57,0,257.8,0.000694,0.179,"earlier sessions (run registry, upper bound)",17.27
+xai,cuda,58,0,186.0,0.000694,0.129,"earlier sessions (run registry, upper bound)",17.399
+xai,cuda,59,0,186.8,0.000694,0.13,"earlier sessions (run registry, upper bound)",17.529
+xai,cuda,60,0,259.0,0.000694,0.18,"earlier sessions (run registry, upper bound)",17.709
+xai,cuda,61,0,197.1,0.000694,0.137,"earlier sessions (run registry, upper bound)",17.846
+xai,cuda,62,0,199.4,0.000694,0.138,"earlier sessions (run registry, upper bound)",17.984
+oneshot_diagnostic,cuda,67,0,95.0,0.000694,0.066,"earlier sessions (run registry, upper bound)",18.05
+oneshot_diagnostic,cuda,68,0,170.6,0.000694,0.118,"earlier sessions (run registry, upper bound)",18.168
+convention_check,cuda,69,0,116.3,0.000694,0.081,"earlier sessions (run registry, upper bound)",18.249
+dmahr_train_overfit,A100-80GB,70,0,211.3,0.000694,0.147,"earlier sessions (run registry, upper bound)",18.396
+dmahr_train,A100-80GB,71,0,262.3,0.000694,0.182,"earlier sessions (run registry, upper bound)",18.578
+warmstart_check,cuda,72,0,102.5,0.000694,0.071,"earlier sessions (run registry, upper bound)",18.649
+respacing_check,cuda,73,0,133.2,0.000694,0.092,"earlier sessions (run registry, upper bound)",18.741
+respacing_check,cuda,74,0,152.6,0.000694,0.106,"earlier sessions (run registry, upper bound)",18.847
+trainer_gate1,cuda,75,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",18.909
+trainer_gate2,cuda,76,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",18.971
+dmahr_train,A100-80GB,77,0,1315.9,0.000694,0.913,"earlier sessions (run registry, upper bound)",19.884
+gate3_smoke,cuda,78,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",19.946
+control_released,cuda,79,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",20.008
+h10_fp32,cuda,80,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",20.07
+h10b_n8_fp32,cuda,81,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",20.132
+rep16_fixed20k,cuda,82,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",20.194
+rep16_fixed20k_truefp32,cuda,83,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",20.256
+stageA_fixed50k,cuda,88,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",20.318
+stageA_fixed50k_rep,cuda,89,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",20.38
+dmahr_train_composite,A100-80GB,92,0,194.1,0.000694,0.135,"earlier sessions (run registry, upper bound)",20.515
+dmahr_train_composite,A100-80GB,93,0,762.7,0.000694,0.529,"earlier sessions (run registry, upper bound)",21.044
+stageB_v2_synth,cuda,94,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",21.106
+dmahr_sample,cuda,95,0,114.7,0.000694,0.08,"earlier sessions (run registry, upper bound)",21.186
+dmahr_sample,cuda,98,0,855.3,0.000694,0.594,"earlier sessions (run registry, upper bound)",21.78
+vit_train,NVIDIA A100-SXM4-80GB,100,0,527.9,0.000694,0.366,"earlier sessions (run registry, upper bound)",22.146
+vit_eval,cuda,101,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",22.208
+xai,cuda,102,0,247.6,0.000694,0.172,"earlier sessions (run registry, upper bound)",22.38
+vit_train,NVIDIA A100-SXM4-80GB,107,0,465.2,0.000694,0.323,"earlier sessions (run registry, upper bound)",22.703
+vit_eval,cuda,108,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",22.765
+vit_train,NVIDIA A100-SXM4-80GB,109,0,857.3,0.000694,0.595,"earlier sessions (run registry, upper bound)",23.36
+vit_eval,cuda,110,0,90.0,0.000694,0.062,"earlier sessions (run registry, upper bound)",23.422
+paper_t10_check,cuda,112,0,317.3,0.000694,0.22,"earlier sessions (run registry, upper bound)",23.642
+xai_v2,cuda,113,0,224.2,0.000694,0.156,"earlier sessions (run registry, upper bound)",23.798
+xai_v2,cuda,114,0,223.7,0.000694,0.155,"earlier sessions (run registry, upper bound)",23.953
+xai_v2,cuda,115,0,229.0,0.000694,0.159,"earlier sessions (run registry, upper bound)",24.112
+xai_v2,cuda,116,0,229.3,0.000694,0.159,"earlier sessions (run registry, upper bound)",24.271
+xai_v2,cuda,117,0,235.2,0.000694,0.163,"earlier sessions (run registry, upper bound)",24.434
+xai_v2,cuda,118,0,233.9,0.000694,0.162,"earlier sessions (run registry, upper bound)",24.596

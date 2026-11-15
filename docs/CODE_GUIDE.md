@@ -312,8 +312,7 @@ Two tests per endpoint, as the protocol requires:
 - **Wilcoxon signed-rank:** per-lesion values collapsed to one number per group before testing.
 
 Holm correction is applied across the three planned pairwise comparisons within each endpoint, per
-test. Cohen's dz is computed on observed pairs, not the bootstrap distribution (whose spread shrinks
-with replicate count and would inflate the effect size).
+test. Standardised effect sizes are not reported; each comparison gives the pooled difference with its interval and a per-image log-loss difference.
 
 *Why groups and not images:* a lesion with six photographs would otherwise contribute six
 independent-looking data points. Collapsing to the lesion is what makes the p-value honest.
@@ -421,7 +420,7 @@ src/dm_ahr_vit/          the library — runs on CPU, no Modal import anywhere
   xai/
     vit_xai.py           Grad-CAM on the patch grid, attention roll-out
   stats/
-    bootstrap.py         lesion-group bootstrap, Holm, Wilcoxon, Cohen's dz
+    bootstrap.py         lesion-group bootstrap, Holm, Wilcoxon
 
 scripts/                 numbered phases, each a plain CLI (argparse) — Modal is not required
   00_download_data.py    fetch collection 212
@@ -465,7 +464,7 @@ python scripts/02_hair_pipeline.py
 ```
 
 Modal is a scheduling convenience, not a dependency. `notebooks/03_local_gpu_pipeline.ipynb` drives
-this path end to end on a local or Colab GPU.
+this path end to end on a local GPU.
 
 Data preparation phases 1–3 (CPU) were verified natively from a fresh download: they reproduced the
 reference frozen split hash `fda56cf3…`, 7,470 lesion groups, 8,993 hair-present images and 1,022
@@ -481,7 +480,7 @@ states what that cell does and why it exists. This section is the written index.
 |---|---|---|
 | `01_results_walkthrough.ipynb` | reads the committed artifacts and explains the results | CPU only, no Modal, no download |
 | `02_pipeline_reproduction.ipynb` | runs every phase on Modal | Modal token |
-| `03_local_gpu_pipeline.ipynb` | runs every phase natively on a local or Colab GPU | a CUDA GPU, no Modal |
+| `03_local_gpu_pipeline.ipynb` | runs every phase natively on a local GPU | a CUDA GPU, no Modal |
 
 ### `01_results_walkthrough.ipynb` — presenting the study
 
@@ -512,7 +511,7 @@ states what that cell does and why it exists. This section is the written index.
 | Environment check | reports the GPU and torch build before anything assumes one |
 | Dependencies | installs the pinned versions the results were produced with |
 | Get the code | clones the repository and enters it |
-| Where the data lives | sets `DATA_ROOT` and `ARTIFACT_ROOT`; in Colab these point at Drive |
+| Where the data lives | sets `DATA_ROOT` and `ARTIFACT_ROOT`; they can point at any mounted storage |
 | Script runner | a wrapper that invokes each phase with those variables set |
 | Download + verify | fetches all 11,720 images and masks, then reads the report back |
 | Audit + split, and verify | rebuilds the frozen split and confirms the counts and leakage check |
@@ -533,7 +532,7 @@ states what that cell does and why it exists. This section is the written index.
 | Outputs | counts the files produced, and how to explore them |
 
 `02_pipeline_reproduction.ipynb` follows the same phases, but each cell shells out to `modal run`.
-It needs no local GPU; the runtime selected in Colab is irrelevant to it.
+It needs no local GPU; no local GPU is involved.
 
 ## 8. Where each reported number comes from
 | Report claim | Source artifact | Field |
@@ -549,7 +548,7 @@ It needs no local GPU; the runtime selected in Colab is irrelevant to it.
 | Per-class recall/specificity/AUC | `classification_per_class.csv` | `recall_mean`, `specificity_mean`, `auc_mean` |
 | PSNR 35.732 / 16.312 / 22.127 | `statistical_comparisons.csv` | `arm_a_mean`, `arm_b_mean` |
 | Grad-CAM and roll-out overlap | `xai_localization_*.csv`, `statistical_comparisons.csv` | `*_overlap20` |
-| p-values, CIs, effect sizes | `statistical_comparisons.csv` | `p_raw`, `p_holm`, `wilcoxon_p_*`, `effect_size_dz` |
+| p-values, CIs, pooled differences | `statistical_comparisons.csv` | `p_raw`, `p_holm`, `wilcoxon_p_*` |
 | GPU and versions | `environment_report.json` | `device`, `torch`, `cuda`, `python` |
 | Gate status | `acceptance_report.json` | `gates[]`, `summary` |
 
@@ -606,7 +605,6 @@ which the source does not claim were dermatologist-traced.
 | **Pointing game** | Does the single most salient pixel land inside the lesion mask? |
 | **Bootstrap CI** | Confidence interval from resampling lesion groups 10,000 times. |
 | **Holm correction** | A step-down method controlling family-wise error across multiple comparisons. |
-| **Cohen's dz** | Standardised mean difference for paired data. |
 
 ---
 

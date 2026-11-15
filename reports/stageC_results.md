@@ -2,7 +2,7 @@
 
 Research prototype only. Not clinically validated and not intended for diagnosis, triage or patient care.
 
-> **Partly superseded (2026-11-13, Stage E).** The three-seed means, SDs and intervals below omit training-seed variance, the Cv2 rows were labelled "planned" (they are exploratory), and macro-F1 effect sizes (dz) are not interpretable. The pooled eight-seed analysis with a two-level bootstrap is in `reports/stageE_results.md` and replaces the Cv2 classification comparisons here. The image-quality and explanation tables below are unchanged; explanation overlap should not be used for between-arm claims (arm A swings by 0.22 across seeds, and every arm is below the centred-Gaussian baseline 0.644).
+> **Partly superseded (2026-11-13, Stage E).** The three-seed means, SDs and intervals below omit training-seed variance, the Cv2 rows were labelled "planned" (they are exploratory), and macro-F1 standardised effect sizes are not interpretable and have been removed. The pooled eight-seed analysis with a two-level bootstrap is in `reports/stageE_results.md` and replaces the Cv2 classification comparisons here. The explanation analysis is replaced by `reports/xai_corrected_results.md`.
 
 This document reports the one run of the rebuilt diffusion arm against the locked test split, under `reports/protocol_addendum_stageC.md` (committed before any test use of the new model). Every number traces to a file in `artifacts/`.
 
@@ -29,12 +29,12 @@ Cv2 accuracy 0.860 ± 0.001, balanced accuracy 0.697 ± 0.028, macro AUC 0.966 �
 
 ### Planned comparisons (lesion-grouped paired bootstrap, 10,000 replicates, Holm within the planned family)
 
-| Comparison (full test) | Difference in macro-F1 | 95% CI | raw p | Holm p | effect size d_z |
-|---|---:|---|---:|---:|---:|
-| A − B | +0.052 | +0.019 to +0.087 | 0.0012 | 0.0036 | 0.06 |
-| A − Cv2 | +0.031 | −0.006 to +0.066 | 0.099 | 0.198 | −0.001 |
-| B − Cv2 | −0.022 | −0.052 to +0.009 | 0.160 | 0.198 | −0.06 |
-| Cv2 − A* (resolution control) | −0.012 | −0.040 to +0.016 | 0.386 | 0.386 | 0.05 |
+| Comparison (full test) | Difference in macro-F1 | 95% CI | raw p | Holm p |
+|---|---:|---|---:|---:|
+| A − B | +0.052 | +0.019 to +0.087 | 0.0012 | 0.0036 |
+| A − Cv2 | +0.031 | −0.006 to +0.066 | 0.099 | 0.198 |
+| B − Cv2 | −0.022 | −0.052 to +0.009 | 0.160 | 0.198 |
+| Cv2 − A* (resolution control) | −0.012 | −0.040 to +0.016 | 0.386 | 0.386 |
 
 Hair-present subset: A − Cv2 +0.035 (−0.003 to +0.073, Holm p 0.146); B − Cv2 −0.023 (−0.057 to +0.010, Holm p 0.167). The secondary Wilcoxon test on per-lesion correctness gives Holm p of 0.027 for B against Cv2 and 0.034 for Cv2 against A*, but every one of those effect sizes is below 0.06 and the bootstrap intervals include zero, so I do not read them as findings.
 
@@ -49,22 +49,13 @@ Hair-present subset: A − Cv2 +0.035 (−0.003 to +0.073, Holm p 0.146); B − 
 | **Cv2: rebuilt diffusion** | 29.18 | 0.861 |
 | Creleased (released checkpoint, its own sampler) | 27.08 | 0.703 |
 
-Cv2 − hairy input: +7.05 dB (95% CI +6.89 to +7.21) and +0.341 SSIM. Cv2 − B: **−6.55 dB** (−6.91 to −6.19, d_z −2.63) and −0.057 SSIM (−0.065 to −0.049). All Holm p below 0.0001.
+Cv2 − hairy input: +7.05 dB (95% CI +6.89 to +7.21) and +0.341 SSIM. Cv2 − B: **−6.55 dB** (−6.91 to −6.19) and −0.057 SSIM (−0.065 to −0.049). All Holm p below 0.0001.
 
 **Reading.** The diffusion arm removes most of the damage from synthetic hair but scores clearly lower than DullRazor on this test. That is expected for this data: the synthetic hair is simple dark curves that the hair detector finds exactly, so DullRazor repairs only the hair pixels and leaves everything else byte-identical, whereas the diffusion model regenerates the whole 128 px image and loses fine detail everywhere. The hypothesis that diffusion gives better image fidelity than the classical method is **not supported** on these pairs. These pairs say nothing about real hair, where DullRazor was shown to damage lesions (`reports/hair_check_prereg.md`).
 
-## Explanation overlap (X1 lesion-mask subset; share of the top 20% attention inside the lesion; higher is better)
+## Explanation overlap: superseded
 
-| Arm | Grad-CAM | Attention rollout |
-|---|---:|---:|
-| A | 0.364 | 0.558 |
-| A* | 0.406 | 0.580 |
-| B | 0.392 | 0.589 |
-| Cv2 | 0.410 | 0.604 |
-
-- Cv2 over A: Grad-CAM +0.046 and rollout +0.046 (both Holm p below 0.0001). Cv2 over B: +0.018 and +0.014 (Holm p 0.002 and below 0.0001).
-- **Against the resolution control A*:** Grad-CAM +0.004 (−0.006 to +0.014, p 0.43), no difference, so the Grad-CAM gain over A comes from the 128 px resolution, not from hair removal. Rollout +0.024 (0.022 to 0.026, Holm p below 0.0001), a small gain that remains after the control.
-- Caution on the rollout gain: these intervals resample lesions after averaging the three seeds, so they leave out seed-to-seed variation. By seed, Cv2 exceeds A* in two of three seeds (0.622 against 0.585, 0.575 against 0.540) and ties in the third (0.606 against 0.607), and A* alone moves between 0.54 and 0.61 across seeds. I read the rollout gain as suggestive, not established. The A* comparison rows were added to the statistics script after the planned rows had been seen, because the addendum names A* as the control; they are reported exactly as computed.
+The explanation table that stood here used masks squashed from the whole photograph, Grad-CAM on the patch-embedding grid and a mis-described metric, and is superseded by the corrected-geometry analysis in `reports/xai_corrected_results.md` (decision D40). The earlier text is in the git history.
 
 ## What this does and does not show
 

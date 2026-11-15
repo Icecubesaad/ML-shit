@@ -19,5 +19,16 @@
     "effect_size_dz",
     "over-?smooth(ed|ing)? (output|images|diffusion)",
     "Grad-CAM[^.\\n]{0,60}(visual )?faithfulness has been validated"
+  ],
+  "paper_files": ["artifacts/reports/Research_Paper.docx"],
+  "paper_patterns": [
+    "\\bColab\\b",
+    "\\bthe client\\b",
+    "expected results",
+    "(is|are) expected to (achieve|show|produce|preserve)",
+    "rotations? of up to [±+]/?-?\\s?90",
+    "improves not only classification",
+    "(?<!knowledge, )no prior study has",
+    "to be agreed by"
   ]
 }

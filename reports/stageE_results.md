@@ -29,7 +29,7 @@ Macro-F1, full test. "Seeds fixed" is the earlier style of interval, shown to ma
 | B − Cv2 | exploratory | −0.0285 | −0.0592 to +0.0016 | **−0.0517 to −0.0059** | 0.194 | 0.043 |
 | Cv2 − A\* | exploratory | −0.0060 | −0.0340 to +0.0207 | −0.0241 to +0.0113 | 0.671 | 0.039 |
 
-Hair-present subset: A − B +0.0542 (CI +0.0186 to +0.0936, Holm p 0.0032); every other comparison inconclusive. Per-image log-loss (lower is better): A 0.547, A\* 0.587, B 0.551, Cv2 0.562; every comparison inconclusive, intervals about ±0.1 (dz over lesion groups is in the CSV).
+Hair-present subset: A − B +0.0542 (CI +0.0186 to +0.0936, Holm p 0.0032); every other comparison inconclusive. Per-image log-loss (lower is better): A 0.547, A\* 0.587, B 0.551, Cv2 0.562; every comparison inconclusive, intervals about ±0.1.
 
 - **Only original over DullRazor is established**, and DullRazor damages lesions on real photos, so it is not evidence about hair removal in general.
 - **B − Cv2 shows why the correction mattered.** With the seeds held fixed the interval excluded zero (Cv2 better than B); with seed variance included it does not.
@@ -77,24 +77,9 @@ Ratio of epsilon-prediction error with the hairy conditioning image zeroed over 
 
 All four use the condition at t=200 (shuffled gives the same picture). At t=1500 the released model still leans on it by 2.6 to 4.2 times while mine barely do (1.1 to 1.45 times) and their error with the condition kept is 1.4 to 2.9 times higher. Cv2 never samples above t=600, so its behaviour is unaffected, but this is consistent with why pure-noise sampling, which must start where the condition matters little to my models, failed. It does not prove the cause.
 
-## 6. Explanation overlap: no arm beats a centre prior (`xai_localization_*_X1.csv`, per seed)
+## 6. Explanation overlap: superseded by the corrected-geometry analysis
 
-> **Post-review correction (2026-11-13).** Three problems were found after this section was written. The numbers below are reported as recorded; the conclusions drawn from them are **not established** until re-measured (plan: `reports/client_plan_and_timeline.md`, Milestone 3).
->
-> 1. **Mask frame.** The lesion mask was squashed from the whole photo to 224 x 224, but the model sees the photo resized to 255 px on the short side and centre-cropped to 224. Stored images differ by arm (A and B 600 x 450; A*, Cv2, Creleased 128 x 128), so the mismatch differs by arm. On the 1,502 validation masks (`artifacts/logs/xai_registration_val.json`; no model, no test data) the lesion occupies 0.457 of the model's frame for A and B and 0.366 for the diffusion arms, against 0.295 for the mask used here (IoU with it 0.61 and 0.79). The centred-Gaussian baseline scores 0.642 on the squashed mask and 0.466 (A, B) or 0.555 (diffusion arms) on the registered one. The between-arm comparison is confounded and "no arm beats a centre prior" is not established.
-> 2. **Metric definition.** The CSV column is the share of the *lesion* covered by the top 20% of the map (`lesion_overlap`, which is why the uniform baseline is 0.200). The text here, the proposal and the kit describe the share of the top 20% that falls *inside* the lesion. Both will be reported in the re-measurement.
-> 3. **Seed stability.** Per-image Grad-CAM overlap correlates only 0.19 to 0.54 (Spearman) between independently trained seeds; rollout correlates 0.96 to 0.99, so rollout depends little on the trained weights. Neither can be read as a property of an arm without this caveat.
-
-Share of the top 20% attention inside the lesion, X1 mask subset, n=1,502 images per arm and seed. Baselines stored in the same files: uniform 0.200, centred Gaussian **0.644**.
-
-| Arm | Grad-CAM, mean (range over 3 seeds) | Rollout, mean (range) |
-|---|---|---|
-| A | 0.363 (0.223 to 0.439) | 0.555 (0.514 to 0.601) |
-| A\* | 0.404 (0.357 to 0.477) | 0.577 (0.540 to 0.607) |
-| B | 0.388 (0.363 to 0.411) | 0.586 (0.547 to 0.607) |
-| Cv2 | 0.406 (0.389 to 0.424) | 0.601 (0.575 to 0.622) |
-
-Every arm, every seed, is below the centred-Gaussian baseline for both methods. Per S4, no between-arm claim is made from these rows: arm A's Grad-CAM swings by 0.22 across seeds, as much as any gap between arms, and the earlier intervals did not include that. The extra seeds have no explanation maps (not run, by design), so these stay three-seed.
+The explanation results originally reported here were computed with lesion masks squashed from the whole photograph while the classifier sees a centre crop, with Grad-CAM on the patch-embedding grid, and with the overlap metric described incorrectly. They are **superseded**: the corrected analysis (one shared image-and-mask geometry, Grad-CAM at the last encoder block's `ln_1`, 100-draw random baselines per metric, centred-Gaussian baseline, centroid statistics and off-centre test, all 38 test checkpoints) is in `reports/xai_corrected_results.md` (decision D40). The old per-image files remain in `artifacts/logs/xai_localization_*_X1.csv`, labelled as the old frame in Appendix C of the paper, and the earlier text of this section is in the git history.
 
 ## 7. Reference ranges (reviewer's rough estimates, not requirements; nothing was tuned toward them)
 
@@ -114,7 +99,7 @@ All four live arms are inside every range; A and A\* are slightly above the 0.02
 ## 8. Corrections to earlier statements
 
 - Three-seed SDs and the standard errors built on them (sections 1, 2).
-- Cv2 was labelled planned; it is exploratory. Macro-F1 `dz` is withdrawn for the Cv2 file; the original file's macro-F1 `dz` values are not interpretable and are not used anywhere.
+- Cv2 was labelled planned; it is exploratory. Standardised effect sizes for macro-F1 are withdrawn: they are not interpretable and are not used anywhere.
 - I said I could not confirm the paper's PSNR. The paper reports 41.04 dB / 0.9656 for DM-AHR(SS) on its own 700 synthetic-hair test images. Different pairs and no hairy-input floor; context only.
 - Upstream applies no gradient clipping; my trainer clips at 1.0. EMA is "not used now" in the upstream config. Both recorded in the pre-registration, section 6.
 - The earlier statement that the high-noise error was "flat" was too strong (D37).
@@ -125,7 +110,7 @@ Hair removal on real photographs. The only evidence is my own visual review, the
 
 ## 10. Bottom line for the deliverable
 
-Hair removal, as built here, made no measurable difference to seven-class classification: the rebuilt diffusion arm is statistically indistinguishable from the originals, from the 128 px control and from DullRazor. On pixel fidelity the diffusion arm is clearly behind DullRazor on both synthetic hair and pasted real strands. Explanation overlap is below a centre prior for every arm. Those are the findings; none was tuned toward a target.
+Hair removal, as built here, made no measurable difference to seven-class classification: the rebuilt diffusion arm is statistically indistinguishable from the originals, from the 128 px control and from DullRazor. On pixel fidelity the diffusion arm is clearly behind DullRazor on both synthetic hair and pasted real strands. The explanation results are in `reports/xai_corrected_results.md`. Those are the findings; none was tuned toward a target.
 
 ## 11. Cost
 
