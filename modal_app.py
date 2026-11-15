@@ -700,6 +700,89 @@ def gradcam_sanity_check(arm: str = "A", seed: int = 42):
     gradcam_sanity.remote(arm, seed, _clean_commit())
 
 
+# The local pipe corrupts very large (>=1 GiB) transfers, so a big checkpoint is
+# uploaded as ~100 MB parts and reassembled in-container. The destination is
+# replaced only when the assembled bytes hash to the recorded original and
+# torch.load can read the file; otherwise nothing is modified and the parts stay
+# for diagnosis.
+A_SEED42_SHA256 = "33d93a7ff75343feb24f46014d9c562fa9b6e6598a22098bff80a0beea4b6497"
+
+
+@app.function(image=image, cpu=2, memory=4096, timeout=3600, volumes={"/vol": vol})
+def assemble_ckpt(dest: str = "/vol/artifacts/checkpoints/vit/A_seed42",
+                  sha256_expected: str = A_SEED42_SHA256, commit: str = "unrecorded"):
+    """Concatenate uploaded parts, verify against the recorded hash, then restore."""
+    import glob  # noqa: PLC0415
+    import hashlib  # noqa: PLC0415
+    import json  # noqa: PLC0415
+    import platform  # noqa: PLC0415
+    from datetime import datetime, timezone  # noqa: PLC0415
+
+    import torch  # noqa: PLC0415
+
+    started = time.time()
+    part_paths = sorted(glob.glob(os.path.join(dest, "parts", "part_*.bin")))
+    tmp = os.path.join(dest, "best_assembled.pt")
+    final = os.path.join(dest, "best.pt")
+    if not part_paths:
+        raise RuntimeError(f"no parts under {dest}/parts")
+    digest = hashlib.sha256()
+    with open(tmp, "wb") as out:
+        for path in part_paths:
+            with open(path, "rb") as fh:
+                while True:
+                    buf = fh.read(16 * 1024 * 1024)
+                    if not buf:
+                        break
+                    digest.update(buf)
+                    out.write(buf)
+    result = {
+        "job": "assemble_ckpt",
+        "host": "modal",
+        "gpu": "none",
+        "commit": commit,
+        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "dest": dest,
+        "n_parts": len(part_paths),
+        "sha256_expected": sha256_expected,
+        "sha256_got": digest.hexdigest(),
+        "sha_ok": False,
+        "torch_load_ok": False,
+        "status": "rejected",
+    }
+    result["sha_ok"] = result["sha256_got"] == sha256_expected
+    if result["sha_ok"]:
+        try:
+            obj = torch.load(tmp, map_location="cpu", weights_only=False)
+            if isinstance(obj, dict) and obj:
+                result["torch_load_ok"] = True
+                result["n_top_level_keys"] = len(obj)
+            else:
+                result["load_error"] = f"unexpected object type {type(obj)!r}"
+        except Exception as exc:  # noqa: BLE001
+            result["load_error"] = repr(exc)
+    if result["sha_ok"] and result["torch_load_ok"]:
+        os.replace(tmp, final)
+        result["status"] = "restored"
+    else:
+        os.remove(tmp)
+    result["seconds"] = round(time.time() - started, 2)
+    result["pid"] = os.getpid()
+    result["python"] = platform.python_version()
+    log_path = "/vol/artifacts/logs/restore_A_seed42.json"
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, "w") as fh:
+        json.dump(result, fh, indent=2, sort_keys=True)
+    with open("/vol/artifacts/logs/run_registry.jsonl", "a") as fh:
+        fh.write(json.dumps(result, sort_keys=True) + "\n")
+    vol.commit()
+    print(json.dumps(result, indent=2, sort_keys=True), flush=True)
+    if result["status"] != "restored":
+        raise RuntimeError("assembled checkpoint failed verification; destination untouched")
+    print("restored", final, flush=True)
+    return result
+
+
 @app.local_entrypoint()
 def xai_v2_all(split: str = "test"):
     commit = _clean_commit()
