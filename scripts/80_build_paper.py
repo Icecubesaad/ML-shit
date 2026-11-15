@@ -588,7 +588,7 @@ def build(args) -> Path:
         rows.append([comp.replace("Astar", "A*"), fam_label[r["family"]], f"{sgn(r['difference'])} ({sgn(r['ci_low'])} to {sgn(r['ci_high'])})",
                      p_fmt(r["p_holm"]), "yes" if r["established"] else "no",
                      " ".join(f"{s}:{x:+.2f}" for s, x in ps)
-                     + f" [{sum(x > 0 for _, x in ps)} of {len(ps)} seeds favour first]",
+                     + f" [{sum(float(f'{x:+.2f}') > 0 for _, x in ps)} of {len(ps)} seeds favour first]",
                      f"{sgn(ll['difference'])} ({sgn(ll['ci_low'])} to {sgn(ll['ci_high'])})"])
     P.table("Pooled analysis, eight seeds, test macro-F1 (full test set). Differences are first arm minus second; "
             "per-seed differences are labelled seed:value in seed order 42, 123, 2026, 7, 11, 17, 23, 31, read from "

@@ -87,5 +87,5 @@ def test_table8_cells_label_every_seed(tmp_path):
         assert listed and [s for s, _ in listed] == [s for s, _ in expect], (comp, cell)
         assert all(abs(v - x) <= 0.0051 for (_, v), (_, x) in zip(listed, expect)), (comp, cell)
         assert len(expect) == 8, (comp, len(expect))
-        assert re.search(rf"\[{sum(x > 0 for _, x in expect)} of {len(expect)} seeds favour first\]",
-                         cell), cell
+        n_fav = sum(float(f"{x:+.2f}") > 0 for _, x in expect)
+        assert re.search(rf"\[{n_fav} of {len(expect)} seeds favour first\]", cell), cell
