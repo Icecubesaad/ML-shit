@@ -6,14 +6,14 @@ baseline (about 0.200) in several arms, which is suspicious for an implementatio
 This script tests the implementation on planted squares and against a reference
 implementation; it never touches a dataset image, mask or label.
 
-What three stimulus runs established (run registry + decision log), all on this same
+What the stimulus runs established (run registry + decision log), all on this same
 frozen checkpoint and all with the reference implementation agreeing at rho >= 0.999:
 a bright square straddling patch boundaries is followed (recall 0.96/0.84, its
-transposition is not, 0.06/0.02); the same bright content aligned to the patch grid is
-ignored (0.139); a patch-aligned bright/dark checkerboard is actively suppressed (0.00).
-Planted-square coverage therefore tracks the model's salience response to the stimulus,
-not the implementation - which is exactly what the below-chance recall on real images
-needed to be checked against.
+transposition is not, 0.06/0.02); a patch-aligned bright square scored 0.139 in one
+random realisation and 0.822 in another; a patch-aligned bright/dark checkerboard is
+suppressed (0.00). Planted-square coverage therefore depends on the model's salience
+response to the specific synthetic image, not on the implementation - which is exactly
+what the below-chance recall on real images needed to be checked against.
 
 Checks
 1. Reshape unit check: a token tensor that encodes its own index must land at grid

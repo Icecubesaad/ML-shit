@@ -482,23 +482,23 @@ def build(args) -> Path:
     san = json.loads(san_path.read_text())
     sc = san["criteria"]
     strat = [p for p in san["placements"] if str(p["stimulus"]).startswith("straddling")]
-    alig = [p for p in san["placements"] if not str(p["stimulus"]).startswith("straddling")]
-    if not strat or not alig:
-        raise SystemExit("gradcam_sanity.json lacks the straddling/aligned stimulus groups")
+    if len(san["placements"]) < 3:
+        raise SystemExit("gradcam_sanity.json lacks the stimulus probes")
     f_strat = min(p["follow_ln1"]["recall"] for p in strat)
+    f_best = max(p["follow_ln1"]["recall"] for p in strat)
     t_strat = max(p["transposed_ln1"]["recall"] for p in strat)
-    rec_alig = ", ".join(f"{p['stimulus']} {p['follow_ln1']['recall']:.2f}" for p in alig)
+    rec_all = ", ".join(f"{p['follow_ln1']['recall']:.2f}" for p in san["placements"])
     P.p("Implementation sanity check for the primary map (synthetic inputs only; no dataset image, mask or label used): "
         "the token-to-grid reshape unit check "
         f"{'passes' if sc['reshape_exact'] else 'fails'}, and on every planted-square input the production map agrees "
         f"with the pytorch-grad-cam 1.5.0 reference implementation on the same target layer (worst per-image Spearman "
-        f"{sc['reference_spearman_min']:.3f}). On the bright square that straddles patch boundaries the map does follow "
-        f"the square (worst top-20% recall {f_strat:.2f} against a {sc['chance_recall']:.3f} chance level) while the "
-        f"row-and-column transposition of the same map does not (recall {t_strat:.2f}), so the orientation is correct. "
-        f"Two further probes bound what the coverage numbers mean: the same bright content aligned to the patch grid, "
-        f"and a patch-aligned checkerboard, are not followed (recalls {rec_alig}) - planted-square coverage tracks the "
-        "model's salience response to the stimulus, not the implementation, so the below-chance recall of the ln_1 map "
-        "on real images is reported as a property of the maps rather than an implementation artifact. Verdict: "
+        f"{sc['reference_spearman_min']:.3f}). On the bright squares that straddle patch boundaries the map follows the "
+        f"square (top-20% recall {f_strat:.2f} and {f_best:.2f} against a {sc['chance_recall']:.3f} chance level) while "
+        f"the row-and-column transposition of the same map does not (recall {t_strat:.2f}), so the orientation is "
+        "correct. Planted-square coverage itself varies with the synthetic image rather than with the implementation "
+        f"(follow recalls across the four planted squares: {rec_all} for two straddling bright squares, a patch-aligned "
+        "bright square and a patch-aligned checkerboard), so the below-chance recall of the ln_1 map on real images is "
+        "reported as a property of the model's salience on those images, not an implementation artifact. Verdict: "
         f"{san['verdict']} (artifacts/logs/gradcam_sanity.json, checkpoint {san['arm']} seed {san['seed']}).")
     P.p("Baselines on the same masks: random pixel maps and random 14 × 14 patch maps (100 draws per image), a "
         "centred Gaussian (σ = 0.25 of the width), pointing chance, the per-arm overlap ceiling "
