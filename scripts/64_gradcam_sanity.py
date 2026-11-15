@@ -3,37 +3,42 @@
 Why: in the corrected analysis the ln_1 map's mean recall sits below the random-pixel
 baseline (about 0.200) in several arms, which is suspicious for an implementation bug
 (token-to-grid reshape or a row/column transposition) rather than a property of the maps.
-This script tests the implementation on planted high-contrast squares and against a
-reference implementation; it never touches a dataset image, mask or label.
+This script tests the implementation on planted squares and against a reference
+implementation; it never touches a dataset image, mask or label.
 
-Stimulus note (established by two earlier runs, recorded in the run registry and the
-decision log): a patch-aligned square of uniform bright values is IGNORED by the map
-(follow recall 0.139 < 0.200 chance) while the same bright values planted across patch
-boundaries are followed (recall 0.96). The ln_1 salience tracks within-patch contrast,
-not brightness alone, so the square is a bright/dark checkerboard (8-px sub-blocks):
-every covered patch then carries boundary-scale contrast, and the patch alignment keeps
-the upsampled argmax cell inside the square (a straddling square fails the pointing
-check by quantization alone, which is a stimulus artifact, not an implementation fault).
+What three stimulus runs established (run registry + decision log), all on this same
+frozen checkpoint and all with the reference implementation agreeing at rho >= 0.999:
+a bright square straddling patch boundaries is followed (recall 0.96/0.84, its
+transposition is not, 0.06/0.02); the same bright content aligned to the patch grid is
+ignored (0.139); a patch-aligned bright/dark checkerboard is actively suppressed (0.00).
+Planted-square coverage therefore tracks the model's salience response to the stimulus,
+not the implementation - which is exactly what the below-chance recall on real images
+needed to be checked against.
 
 Checks
-1. Follow check: a checkerboard square is planted at two asymmetric patch-aligned
-   locations of a 224 x 224 low-contrast smooth-noise image. The production
-   MultiLayerGradCAM("last_ln1") map, upsampled exactly the way the corrected analysis
-   upsamples it, must cover the square (top-20% recall) and point inside it, for the
-   class whose logit the square most raises (largest positive with-minus-without logit
-   difference; the script aborts if no class responds positively).
-2. Transposed control: the same map transposed (rows and columns swapped) is scored
-   against the same square. If the production reshape swapped rows and columns, the
-   transposed map would score like the true map and the true map would fail.
-3. Reshape unit check: a token tensor that encodes its own index must land at grid
+1. Reshape unit check: a token tensor that encodes its own index must land at grid
    position (row, col) = ((i-1) // 14, (i-1) % 14) for patch token i (the class token
    at position 0 is dropped) through the production `_as_grid`.
-4. Reference implementation: pytorch-grad-cam 1.5.0 with the standard reshape_transform
-   and the same target layer must agree with the production map (Spearman correlation).
+2. Reference implementation: pytorch-grad-cam 1.5.0 with the standard reshape_transform
+   and the same target layer must agree with the production map (Spearman correlation)
+   on every planted-square input.
+3. Orientation control: on a stimulus the map does follow (the straddling bright
+   square), the row-and-column transposition of the same map must fail against the
+   same square; if the production reshape swapped rows and columns, the transposed
+   map would score like the true map.
+4. Stimulus-sensitivity probes (reported, not gated): the same bright content aligned
+   to the patch grid, and a patch-aligned checkerboard, bound what the coverage
+   numbers can mean.
 
-The checkpoint is a frozen, already-evaluated one (default A seed 42). The result is
-written to artifacts/logs/gradcam_sanity.json, a contact sheet to
-artifacts/logs/gradcam_sanity.png, and one line to the run registry.
+Verdict semantics: "passes" means the implementation is verified - reshape exact,
+reference agreement on every input, and a discriminating transposition control on a
+following stimulus. Planted-square coverage is reported per stimulus; it is a property
+of the model's salience on the stimulus, not of the implementation.
+
+The checkpoint is a frozen, already-evaluated one (arm and seed given on the command
+line; C seed 42 while the A seed 42 checkpoint is blocked by the transfer corruption,
+see reports/decision_log.md). The result is written to artifacts/logs/gradcam_sanity.json,
+a contact sheet to artifacts/logs/gradcam_sanity.png, and one line to the run registry.
 """
 
 from __future__ import annotations
@@ -62,16 +67,20 @@ from dm_ahr_vit.xai.batched import MultiLayerGradCAM, localization_scores  # noq
 log = setup_logging()
 IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
 IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
-# Two asymmetric square positions, each 48 px = 3 x 3 patch cells (16 px), aligned to the
-# patch grid (so the upsampled argmax cell lies inside the square) and transposition-disjoint
-# (a transposed map cannot pass by accident). The square content is a bright/dark checkerboard
-# of 8-px sub-blocks: a uniform bright square is ignored by the map because ln_1 salience
-# tracks within-patch contrast, not brightness (see the module docstring).
-PLACEMENTS = [((96, 144), (32, 80)), ((80, 128), (144, 192))]
-SUB_BLOCK = 8  # checkerboard sub-block size; each 16-px patch holds 2 x 2 sub-blocks
-SQUARE_HIGH = (0.90, 1.00)
-SQUARE_LOW = (0.35, 0.45)
-BG_RANGE = (0.46, 0.54)
+# Four planted squares in three styles, in a fixed order: the first two reproduce the
+# earlier straddling runs (same rng consumption order and levels), the last two are the
+# patch-aligned probes. All placements are transposition-disjoint, so a transposed map
+# cannot pass by accident.
+STIMULI = [
+    {"name": "straddling_bright_a", "content": "uniform_bright", "rows": (96, 136), "cols": (32, 72)},
+    {"name": "straddling_bright_b", "content": "uniform_bright", "rows": (88, 128), "cols": (152, 192)},
+    {"name": "aligned_bright", "content": "uniform_bright", "rows": (96, 144), "cols": (32, 80)},
+    {"name": "aligned_checkerboard", "content": "checkerboard", "rows": (80, 128), "cols": (144, 192)},
+]
+SQUARE_LEVEL = (0.90, 1.00)  # bright content (uniform squares and the checkerboard's bright sub-blocks)
+SQUARE_LOW = (0.35, 0.45)    # dark sub-blocks of the checkerboard
+SUB_BLOCK = 8                # checkerboard sub-block size; each 16-px patch holds 2 x 2 sub-blocks
+BG_RANGE = (0.42, 0.58)
 BLUR_SIGMA = 6.0  # smooth background; white noise can dominate patch embeddings on its own
 
 
@@ -87,22 +96,30 @@ def base_noise(size: int, rng: np.random.Generator) -> np.ndarray:
     return img
 
 
-def add_square(img: np.ndarray, rows: tuple[int, int], cols: tuple[int, int],
+def add_square(img: np.ndarray, content: str, rows: tuple[int, int], cols: tuple[int, int],
                rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
-    """Overwrite the square with a bright/dark 8-px checkerboard; return (image, square mask).
+    """Overwrite the square region; return (image, square mask).
 
-    The checkerboard phase comes from absolute pixel coordinates, so with patch-aligned
-    placements every covered 16-px patch contains the same bright/dark sub-block layout.
+    uniform_bright: per-pixel bright values (the stimulus the map follows when it
+    straddles patch boundaries). checkerboard: bright/dark 8-px sub-blocks so every
+    covered 16-px patch carries within-patch contrast at patch-aligned geometry; the
+    phase comes from absolute pixel coordinates, so every covered patch has the same
+    bright/dark layout.
     """
     img = img.copy()
     mask = np.zeros(img.shape[1:], dtype=bool)
     mask[rows[0]:rows[1], cols[0]:cols[1]] = True
-    rr, cc = np.nonzero(mask)
-    phase = ((rr // SUB_BLOCK) + (cc // SUB_BLOCK)) % 2
     n = int(mask.sum())
-    hi = rng.uniform(*SQUARE_HIGH, size=n).astype(np.float32)
-    lo = rng.uniform(*SQUARE_LOW, size=n).astype(np.float32)
-    img[:, rr, cc] = np.where(phase == 0, hi, lo)[None, :]
+    if content == "uniform_bright":
+        img[:, mask] = rng.uniform(*SQUARE_LEVEL, size=(3, n)).astype(np.float32)
+    elif content == "checkerboard":
+        rr, cc = np.nonzero(mask)
+        phase = ((rr // SUB_BLOCK) + (cc // SUB_BLOCK)) % 2
+        hi = rng.uniform(*SQUARE_LEVEL, size=n).astype(np.float32)
+        lo = rng.uniform(*SQUARE_LOW, size=n).astype(np.float32)
+        img[:, rr, cc] = np.where(phase == 0, hi, lo)[None, :]
+    else:
+        raise ValueError(f"unknown square content: {content}")
     return img, mask
 
 
@@ -195,9 +212,9 @@ def main() -> int:
     with timed("gradcam_sanity", log) as tmr, MultiLayerGradCAM(model) as cam:
         unit = reshape_unit_check(cam, grid)
         placements = []
-        for rows, cols in PLACEMENTS:
+        for stim in STIMULI:
             img_bg = base_noise(size, rng)
-            img, mask = add_square(img_bg, rows, cols, rng)
+            img, mask = add_square(img_bg, stim["content"], stim["rows"], stim["cols"], rng)
             x, x_bg = normalize(img).to(device), normalize(img_bg).to(device)
             class_idx, delta, deltas = pick_class(model, x, x_bg, device)
             grids, _ = cam(x, class_idx=torch.tensor([class_idx], device=device))
@@ -206,7 +223,8 @@ def main() -> int:
             ref = reference_map(model, x, class_idx, grid)
             rho = float(spearmanr(sal.flatten(), ref.flatten()).statistic)
             placements.append({
-                "rows": list(rows), "cols": list(cols),
+                "stimulus": stim["name"], "content": stim["content"],
+                "rows": list(stim["rows"]), "cols": list(stim["cols"]),
                 "class_idx": class_idx, "class_name": CLASSES[class_idx],
                 "delta_logit": delta, "logit_deltas_by_class": dict(zip(CLASSES, deltas)),
                 "follow_ln1": localization_scores(sal, mask, fraction),
@@ -221,28 +239,31 @@ def main() -> int:
         rec_t = [p["transposed_ln1"]["recall"] for p in placements]
         poi_f = [p["follow_ln1"]["pointing"] for p in placements]
         rho = [p["reference"]["spearman"] for p in placements]
+        following = [(f, t) for f, t in zip(rec_f, rec_t) if f >= 0.60]
         criteria = {
+            "chance_recall": fraction,
+            "follow_recall_max": max(rec_f),
             "follow_recall_min": min(rec_f),
-            "follow_pointing_min": min(poi_f),
+            "follow_pointing_max": max(poi_f),
             "transposed_recall_max": max(rec_t),
             "reference_spearman_min": min(rho),
-            "chance_recall": fraction,
-        }
-        criteria.update({
-            "follow_covers_square": min(rec_f) >= 0.60,
-            "follow_points_inside": min(poi_f) >= 0.99,
-            "transposed_fails": max(rec_t) <= min(rec_f) - 0.2,
+            "n_following": len(following),
             "reshape_exact": unit["ok"],
             "reference_agrees": min(rho) >= 0.90,
-        })
+            "orientation_demonstrated": len(following) >= 1,
+            "transposed_fails_where_following": all(t <= f - 0.2 for f, t in following),
+        }
         verdict = "passes" if all(criteria[k] for k in
-                                  ("follow_covers_square", "follow_points_inside", "transposed_fails",
-                                   "reshape_exact", "reference_agrees")) else "fails"
+                                  ("reshape_exact", "reference_agrees", "orientation_demonstrated",
+                                   "transposed_fails_where_following")) else "fails"
 
     out = {
-        "what": "sanity check of the production MultiLayerGradCAM last_ln1 map on planted bright squares",
-        "input": (f"synthetic {size} x {size} ImageNet-normalised low-contrast smooth noise with a "
-                  "bright/dark 8-px checkerboard square; no dataset image, mask or label used"),
+        "what": ("implementation sanity check of the production MultiLayerGradCAM last_ln1 map "
+                 "(reshape unit check, reference agreement, transposition control) plus "
+                 "stimulus-sensitivity probes on planted squares"),
+        "input": (f"synthetic {size} x {size} ImageNet-normalised smooth noise with four planted squares in three "
+                  "styles (straddling bright x2, patch-aligned bright, patch-aligned checkerboard); "
+                  "no dataset image, mask or label used"),
         "checkpoint": {"path": str(ckpt), "sha256": sha256_file(ckpt)},
         "arm": args.arm, "seed": args.seed, "device": device,
         "gpu": torch.cuda.get_device_name(0) if device == "cuda" else None,
@@ -252,6 +273,9 @@ def main() -> int:
         "placements": [{k: v for k, v in p.items() if k != "_plot"} for p in placements],
         "criteria": criteria,
         "verdict": verdict,
+        "verdict_semantics": ("passes = implementation verified (reshape exact, reference agreement on every input, "
+                              "transposition control discriminates on a following stimulus); planted-square coverage "
+                              "is reported per stimulus, not gated"),
         "git_commit": args.commit,
         "seconds": tmr["seconds"],
     }
@@ -268,8 +292,8 @@ def main() -> int:
         img, sal, ref, mask = p["_plot"]
         disp = np.transpose(img.clip(0, 1), (1, 2, 0))
         axes[i][0].imshow(disp)
-        axes[i][0].set_title(f"input, square rows {p['rows'][0]}-{p['rows'][1]}\n"
-                             f"cols {p['cols'][0]}-{p['cols'][1]} ({p['class_name']})", fontsize=8)
+        axes[i][0].set_title(f"{p['stimulus']}: rows {p['rows'][0]}-{p['rows'][1]}, "
+                             f"cols {p['cols'][0]}-{p['cols'][1]} ({p['class_name']})", fontsize=7)
         axes[i][1].imshow(disp); axes[i][1].imshow(sal, cmap="inferno", alpha=0.55)
         axes[i][1].contour(mask, levels=[0.5], colors="cyan", linewidths=0.8)
         axes[i][1].set_title(f"production ln_1 (recall {p['follow_ln1']['recall']:.2f})", fontsize=8)
@@ -287,7 +311,8 @@ def main() -> int:
     png = artifact_dir("logs") / "gradcam_sanity.png"
     fig.savefig(png, dpi=120)
     record_run("gradcam_sanity", gpu=out["gpu"], seconds=tmr["seconds"], status=verdict,
-               checkpoint=str(ckpt), follow_recall_min=criteria["follow_recall_min"],
+               checkpoint=str(ckpt), follow_recall_max=criteria["follow_recall_max"],
+               follow_recall_min=criteria["follow_recall_min"],
                reference_spearman_min=criteria["reference_spearman_min"], commit=args.commit)
     print(f"verdict {verdict}; wrote {path} and {png}")
     return 0 if verdict == "passes" else 1

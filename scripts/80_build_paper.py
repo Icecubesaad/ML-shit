@@ -481,16 +481,25 @@ def build(args) -> Path:
         raise SystemExit("artifacts/logs/gradcam_sanity.json is missing; run scripts/64_gradcam_sanity.py first")
     san = json.loads(san_path.read_text())
     sc = san["criteria"]
+    strat = [p for p in san["placements"] if str(p["stimulus"]).startswith("straddling")]
+    alig = [p for p in san["placements"] if not str(p["stimulus"]).startswith("straddling")]
+    if not strat or not alig:
+        raise SystemExit("gradcam_sanity.json lacks the straddling/aligned stimulus groups")
+    f_strat = min(p["follow_ln1"]["recall"] for p in strat)
+    t_strat = max(p["transposed_ln1"]["recall"] for p in strat)
+    rec_alig = ", ".join(f"{p['stimulus']} {p['follow_ln1']['recall']:.2f}" for p in alig)
     P.p("Implementation sanity check for the primary map (synthetic inputs only; no dataset image, mask or label used): "
-        "a bright square is planted at two asymmetric positions of a smooth-noise image and the production ln_1 map, "
-        "upsampled exactly as in the analysis, must follow it. The map covers the square (worst top-20% recall "
-        f"{sc['follow_recall_min']:.2f} against a {sc['chance_recall']:.3f} chance level, worst pointing "
-        f"{sc['follow_pointing_min']:.2f}), the row-and-column transposition of the same map fails (worst recall "
-        f"{sc['transposed_recall_max']:.2f}), a token-to-grid reshape unit check "
-        f"{'passes' if sc['reshape_exact'] else 'fails'}, and the pytorch-grad-cam reference implementation with the "
-        f"standard reshape transform on the same target layer agrees (worst per-image Spearman "
-        f"{sc['reference_spearman_min']:.3f}); verdict: {san['verdict']} (artifacts/logs/gradcam_sanity.json, checkpoint "
-        f"{san['arm']} seed {san['seed']}).")
+        "the token-to-grid reshape unit check "
+        f"{'passes' if sc['reshape_exact'] else 'fails'}, and on every planted-square input the production map agrees "
+        f"with the pytorch-grad-cam 1.5.0 reference implementation on the same target layer (worst per-image Spearman "
+        f"{sc['reference_spearman_min']:.3f}). On the bright square that straddles patch boundaries the map does follow "
+        f"the square (worst top-20% recall {f_strat:.2f} against a {sc['chance_recall']:.3f} chance level) while the "
+        f"row-and-column transposition of the same map does not (recall {t_strat:.2f}), so the orientation is correct. "
+        f"Two further probes bound what the coverage numbers mean: the same bright content aligned to the patch grid, "
+        f"and a patch-aligned checkerboard, are not followed (recalls {rec_alig}) - planted-square coverage tracks the "
+        "model's salience response to the stimulus, not the implementation, so the below-chance recall of the ln_1 map "
+        "on real images is reported as a property of the maps rather than an implementation artifact. Verdict: "
+        f"{san['verdict']} (artifacts/logs/gradcam_sanity.json, checkpoint {san['arm']} seed {san['seed']}).")
     P.p("Baselines on the same masks: random pixel maps and random 14 × 14 patch maps (100 draws per image), a "
         "centred Gaussian (σ = 0.25 of the width), pointing chance, the per-arm overlap ceiling "
         "(mean of min(1, 0.2/area)), lesion-centroid statistics, and an off-centre test in which image and mask are "
