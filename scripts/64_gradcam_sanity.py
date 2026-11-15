@@ -3,15 +3,25 @@
 Why: in the corrected analysis the ln_1 map's mean recall sits below the random-pixel
 baseline (about 0.200) in several arms, which is suspicious for an implementation bug
 (token-to-grid reshape or a row/column transposition) rather than a property of the maps.
-This script tests the implementation on planted bright squares and against a reference
-implementation; it never touches a dataset image, mask or label.
+This script tests the implementation on planted high-contrast squares and against a
+reference implementation; it never touches a dataset image, mask or label.
+
+Stimulus note (established by two earlier runs, recorded in the run registry and the
+decision log): a patch-aligned square of uniform bright values is IGNORED by the map
+(follow recall 0.139 < 0.200 chance) while the same bright values planted across patch
+boundaries are followed (recall 0.96). The ln_1 salience tracks within-patch contrast,
+not brightness alone, so the square is a bright/dark checkerboard (8-px sub-blocks):
+every covered patch then carries boundary-scale contrast, and the patch alignment keeps
+the upsampled argmax cell inside the square (a straddling square fails the pointing
+check by quantization alone, which is a stimulus artifact, not an implementation fault).
 
 Checks
-1. Follow check: a bright square is planted at two asymmetric locations of a 224 x 224
-   smooth-noise image. The production MultiLayerGradCAM("last_ln1") map, upsampled exactly
-   the way the corrected analysis upsamples it, must cover the square (top-20% recall) and
-   point inside it, for the class whose logit the square most raises (largest positive
-   with-minus-without logit difference; the script aborts if no class responds positively).
+1. Follow check: a checkerboard square is planted at two asymmetric patch-aligned
+   locations of a 224 x 224 low-contrast smooth-noise image. The production
+   MultiLayerGradCAM("last_ln1") map, upsampled exactly the way the corrected analysis
+   upsamples it, must cover the square (top-20% recall) and point inside it, for the
+   class whose logit the square most raises (largest positive with-minus-without logit
+   difference; the script aborts if no class responds positively).
 2. Transposed control: the same map transposed (rows and columns swapped) is scored
    against the same square. If the production reshape swapped rows and columns, the
    transposed map would score like the true map and the true map would fail.
@@ -52,14 +62,16 @@ from dm_ahr_vit.xai.batched import MultiLayerGradCAM, localization_scores  # noq
 log = setup_logging()
 IMAGENET_MEAN = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
 IMAGENET_STD = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
-# Two asymmetric square positions, each 48 px = 3 x 3 patch cells (16 px) and aligned to the
-# patch grid, so one whole interior cell lies inside the square. Without alignment the
-# bilinearly upsampled argmax pixel can fall just outside the square edge (a quantization
-# artifact, not an implementation fault). A transposition moves the mass to a disjoint
-# location and cannot pass by accident.
+# Two asymmetric square positions, each 48 px = 3 x 3 patch cells (16 px), aligned to the
+# patch grid (so the upsampled argmax cell lies inside the square) and transposition-disjoint
+# (a transposed map cannot pass by accident). The square content is a bright/dark checkerboard
+# of 8-px sub-blocks: a uniform bright square is ignored by the map because ln_1 salience
+# tracks within-patch contrast, not brightness (see the module docstring).
 PLACEMENTS = [((96, 144), (32, 80)), ((80, 128), (144, 192))]
-SQUARE_LEVEL = (0.90, 1.00)
-BG_RANGE = (0.42, 0.58)
+SUB_BLOCK = 8  # checkerboard sub-block size; each 16-px patch holds 2 x 2 sub-blocks
+SQUARE_HIGH = (0.90, 1.00)
+SQUARE_LOW = (0.35, 0.45)
+BG_RANGE = (0.46, 0.54)
 BLUR_SIGMA = 6.0  # smooth background; white noise can dominate patch embeddings on its own
 
 
@@ -77,11 +89,20 @@ def base_noise(size: int, rng: np.random.Generator) -> np.ndarray:
 
 def add_square(img: np.ndarray, rows: tuple[int, int], cols: tuple[int, int],
                rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
-    """Overwrite the square region with bright values; return (image, square mask)."""
+    """Overwrite the square with a bright/dark 8-px checkerboard; return (image, square mask).
+
+    The checkerboard phase comes from absolute pixel coordinates, so with patch-aligned
+    placements every covered 16-px patch contains the same bright/dark sub-block layout.
+    """
     img = img.copy()
     mask = np.zeros(img.shape[1:], dtype=bool)
     mask[rows[0]:rows[1], cols[0]:cols[1]] = True
-    img[:, mask] = rng.uniform(*SQUARE_LEVEL, size=(3, int(mask.sum()))).astype(np.float32)
+    rr, cc = np.nonzero(mask)
+    phase = ((rr // SUB_BLOCK) + (cc // SUB_BLOCK)) % 2
+    n = int(mask.sum())
+    hi = rng.uniform(*SQUARE_HIGH, size=n).astype(np.float32)
+    lo = rng.uniform(*SQUARE_LOW, size=n).astype(np.float32)
+    img[:, rr, cc] = np.where(phase == 0, hi, lo)[None, :]
     return img, mask
 
 
@@ -220,8 +241,8 @@ def main() -> int:
 
     out = {
         "what": "sanity check of the production MultiLayerGradCAM last_ln1 map on planted bright squares",
-        "input": (f"synthetic {size} x {size} ImageNet-normalised smooth noise with a bright square; "
-                  "no dataset image, mask or label used"),
+        "input": (f"synthetic {size} x {size} ImageNet-normalised low-contrast smooth noise with a "
+                  "bright/dark 8-px checkerboard square; no dataset image, mask or label used"),
         "checkpoint": {"path": str(ckpt), "sha256": sha256_file(ckpt)},
         "arm": args.arm, "seed": args.seed, "device": device,
         "gpu": torch.cuda.get_device_name(0) if device == "cuda" else None,
