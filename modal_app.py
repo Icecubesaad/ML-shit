@@ -688,6 +688,18 @@ def xai_v2(arm: str, seed: int, split: str, commit: str):
                                         "--commit", commit])
 
 
+@app.function(image=image, gpu="A10G", timeout=3600, volumes={"/vol": vol},
+              retries=modal.Retries(max_retries=2, initial_delay=5.0))
+def gradcam_sanity(arm: str, seed: int, commit: str):
+    """Sanity check of the production ln_1 Grad-CAM on planted bright squares (synthetic input)."""
+    return _run("64_gradcam_sanity.py", ["--arm", arm, "--seed", str(seed), "--commit", commit])
+
+
+@app.local_entrypoint()
+def gradcam_sanity_check(arm: str = "A", seed: int = 42):
+    gradcam_sanity.remote(arm, seed, _clean_commit())
+
+
 @app.local_entrypoint()
 def xai_v2_all(split: str = "test"):
     commit = _clean_commit()
@@ -881,6 +893,40 @@ def reproduction_check():
     disturbed, then writes a reproduction log comparing the two.
     """
     return _run("11_reproduction_check.py")
+
+
+# Separate image: PDF rendering needs LibreOffice, which is far too large for the
+# shared compute image. Fonts are included so tables do not fall back to replacement
+# fonts; the profile flag keeps repeated conversions isolated and headless-safe.
+lo_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .apt_install("libreoffice-writer", "fonts-liberation", "libgl1", "libglib2.0-0")
+    .pip_install("pymupdf==1.24.14")
+    .env({"PYTHONUNBUFFERED": "1"})
+)
+
+
+@app.function(image=lo_image, cpu=4, memory=16384, timeout=7200, volumes={"/vol": vol})
+def render_pdfs():
+    """Render the four report .docx files on the volume to PDF with LibreOffice."""
+    import glob
+
+    rep = "/vol/artifacts/reports"
+    out = []
+    for docx in ("Preprocessing_Report.docx", "Results_Report.docx",
+                 "Code_Guide_Report.docx", "Research_Paper.docx"):
+        r = subprocess.run(
+            ["soffice", "--headless", "--norestore",
+             "-env:UserInstallation=file:///tmp/lo-profile",
+             "--convert-to", "pdf", "--outdir", rep, f"{rep}/{docx}"],
+            capture_output=True, text=True, timeout=1800)
+        print(docx, r.returncode, (r.stdout or "")[-300:], (r.stderr or "")[-300:], flush=True)
+        if r.returncode != 0:
+            raise RuntimeError(f"soffice failed for {docx}")
+        out.append(docx)
+    for pdf in sorted(glob.glob(f"{rep}/*.pdf")):
+        print(pdf, os.path.getsize(pdf), flush=True)
+    return out
 
 
 # Separate image: rclone must be installed before the local-file mounts, which
