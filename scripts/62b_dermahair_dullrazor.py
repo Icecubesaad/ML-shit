@@ -111,8 +111,12 @@ def main() -> int:
             outs.append(np.asarray(Image.fromarray(cleaned).resize((128, 128), Image.Resampling.BICUBIC)))
         df = metrics_for(outs, gts, gts256, lp_net, Metrics, device)
 
-    # Exclude the identical pairs (PSNR undefined) from every mean, as in 62_dermahair_repro.py.
-    ok = np.isfinite(df["psnr_up"]).to_numpy()
+    # Exclude the same 3 identical pairs as 62_dermahair_repro.py: identifiability is defined
+    # by the HAIRY INPUT versus the clean reference (PSNR undefined), not by the DullRazor
+    # output (which can still differ on those pairs after inpainting).
+    floor_in = [np.asarray(h.resize((128, 128), Image.Resampling.BICUBIC)) for h in hairy]
+    floor_psnr = np.asarray([Metrics.calculate_psnr(a, g) for a, g in zip(floor_in, gts)])
+    ok = np.isfinite(floor_psnr)
     metrics = {k: float(df[k][ok].mean()) for k in df.columns}
     metrics.update({f"{k}_sd": float(df[k][ok].std()) for k in df.columns})
     n_valid = int(ok.sum())
