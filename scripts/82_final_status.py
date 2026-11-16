@@ -47,12 +47,18 @@ def block() -> str:
             L.append(f"- {nm}: PSNR {f(r['psnr_up'], 2)} dB, SSIM {f(r['ssim_up'], 4)}, LPIPS {f(r['lpips'], 4)}; verdict **{r['verdict']}**.")
     L += ["", "### 2. Regenerate, retrain, re-evaluate", "",
           "| Arm | Seeds | Test macro-F1 (mean ± SD) | Balanced accuracy | Macro-AUC |", "|---|---:|---:|---:|---:|"]
-    for a in ("A", "Astar", "B", "Cv2", "Creleased", "C"):
+    arm_order = ["A", "Astar", "B", "Cv2", "Creleased", "C"]
+    if "Astarfov" in set(head.index):
+        arm_order.append("Astarfov")
+    for a in arm_order:
         h = head.loc[a]
         L.append(f"| {bp.LABEL[a]} | {int(h['seeds'])} | {h['macro_f1_mean']:.3f} ± {h['macro_f1_sd']:.3f} | "
                  f"{h['balanced_accuracy_mean']:.3f} | {h['auc_macro_mean']:.3f} |")
     L += ["", "| Comparison (full test) | Macro-F1 difference (95% CI) | Holm p | Established |", "|---|---|---:|---|"]
-    for comp in ("A-B", "A-Astar", "A-Cv2", "B-Cv2", "Cv2-Astar"):
+    comps = ["A-B", "A-Astar", "A-Cv2", "B-Cv2", "Cv2-Astar"]
+    if bp.stat_row(F, "macro_f1", "Astarfov-A") is not None:
+        comps += ["Astarfov-Astar", "Astarfov-A"]
+    for comp in comps:
         r = bp.stat_row(F, "macro_f1", comp)
         L.append(f"| {comp.replace('Astar', 'A*')} ({r['family']}) | {sgn(r['difference'])} ({sgn(r['ci_low'])} to {sgn(r['ci_high'])}) | "
                  f"{bp.p_fmt(r['p_holm'])} | {'yes' if r['established'] else 'no'} |")
@@ -85,6 +91,7 @@ def block() -> str:
 def rest_of_report() -> str:
     bp = _paper()
     F = bp.load_facts()
+    head = F["head"]
     V = bp.verdicts(F)
     f = bp.f
     sp, gm = F["split"], F["xai_geo"]
@@ -109,7 +116,13 @@ def rest_of_report() -> str:
          f"{f(bp.xai_val(F, 'Astar', bp.ROLL, 'recall')['baseline_gauss'])} (128 px arms) because lesions are large "
          f"(mean mask area {f(gm.loc['A', 'mean_mask_area'])} and {f(gm.loc['Astar', 'mean_mask_area'])} of the model frame) and central "
          f"({100 * gm.loc['A', 'share_masks_containing_centre']:.1f}% of masks contain the image centre).",
-         "", "## Limitations and failure cases", "",
+         ]
+    if "Astarfov" in set(head.index):
+        L.append(f"- **Exploratory A*-fov control:** macro-F1 {f(head.loc['Astarfov', 'macro_f1_mean'])} "
+                 f"(eight seeds), against A {f(head.loc['A', 'macro_f1_mean'])} and A* "
+                 f"{f(head.loc['Astar', 'macro_f1_mean'])}. It keeps A's field of view at A*'s "
+                 "storage resolution; its comparisons are exploratory and reported in the paper.")
+    L += [         "", "## Limitations and failure cases", "",
          "- Image-quality evidence uses synthetic hair on clean photographs; real-hair removal quality is not validated.",
          "- Our first diffusion run (arm C) failed because of a trainer defect (inverted noise-level encoding); it is kept as a recorded failure.",
          "- The released diffusion checkpoint did not reproduce the published image-quality figure on the public DERMAHAIR pairs; the matching "
