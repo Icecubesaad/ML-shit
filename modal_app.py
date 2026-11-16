@@ -980,23 +980,21 @@ def reproduction_check():
 
 # --- Client fix round: items 8 (CPU) and 9 (exploratory A*-fov arm) ---
 
-@app.function(image=image, cpu=8, memory=16384, timeout=14400, volumes={"/vol": vol})
-def fetch_isic_images(workers: int = 16):
-    """Re-fetch ISIC collection 212 originals onto this volume.
+@app.function(image=image, cpu=8, memory=16384, timeout=14400, volumes={"/vol": vol},
+              retries=modal.Retries(max_retries=3, initial_delay=10.0))
+def fetch_isic_images(workers: int = 24, limit: int = 0):
+    """Fetch ISIC originals from the frozen manifest's S3 URLs (hash-verified, resumable).
 
-    The icysolutionscorp volume holds checkpoints and derived images but not the
-    original ISIC JPEGs (those live on the first account's volume). The A*-fov build
-    needs the originals. Collection 212 is public; the split manifests still decide
-    which images enter any arm.
+    The ISIC API listing endpoint resets the connection from this environment, so the
+    manifest's image_id + SHA-256 are used instead. The split/hair-screen manifests
+    still decide which images enter any arm.
     """
-    from dm_ahr_vit.data.isic import download_collection  # noqa: PLC0415
-    from dm_ahr_vit.paths import isic_images_dir, raw_dir  # noqa: PLC0415
-
     vol.reload()
-    stats = download_collection(212, isic_images_dir(),
-                                raw_dir() / "isic_212" / "records.jsonl", workers=workers)
-    vol.commit()
-    return stats
+    args = ["--workers", str(workers)]
+    if limit:
+        args += ["--limit", str(limit)]
+    result = _run("00b_fetch_isic_from_manifest.py", args)
+    return result
 
 
 @app.function(image=image, cpu=8, memory=16384, timeout=7200, volumes={"/vol": vol})
