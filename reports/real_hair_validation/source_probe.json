@@ -1,0 +1,31 @@
+{
+  "mendeley": {
+    "url": "https://data.mendeley.com/datasets/j5ywpd2p27/2",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "note": "reachable"
+  },
+  "zenodo_dermartifactdb": {
+    "url": "https://zenodo.org/records/18324962",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "note": "reachable"
+  },
+  "isic2019": {
+    "url": "https://challenge.isic-archive.com/data/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "note": "reachable"
+  },
+  "ph2": {
+    "url": "https://www.fc.up.pt/addi/ph2%20database.html",
+    "status": null,
+    "error": "ConnectTimeout(MaxRetryError(\"HTTPSConnectionPool(host='www.fc.up.pt', port=443): Max retries exceeded with url: /addi/ph2%20database.html (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.fc.up.pt', port=443) at 0x2b964f551cd0>, 'Connection to www.fc.up.pt timed out. (connect timeout=30)'))\"))"
+  },
+  "derm7pt": {
+    "url": "https://derm.cs.sfu.ca/Welcome.html",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "note": "reachable"
+  }
+}

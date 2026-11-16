@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/files?folder=/dermoscopic_image&page=1",
+    "status": 200,
+    "body": "{\"error\":400}"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/v2/files?folder=dermoscopic_image&page=1",
+    "status": 404,
+    "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /public-api/datasets/j5ywpd2p27/v2/files</pre>\n<script type=\"module\" src=\"https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092\" integrity=\"sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==\" dat"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/versions/2/files?folder=dermoscopic_image&page=1",
+    "status": 404,
+    "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /public-api/datasets/j5ywpd2p27/versions/2/files</pre>\n<script type=\"module\" src=\"https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092\" integrity=\"sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+B"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/files?folder=dermoscopic_image&page=1&limit=100&sort=name",
+    "status": 200,
+    "body": "{\"error\":400}"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/files?folder=dermoscopic_image&page=1&limit=100&version=2&sort=name",
+    "status": 200,
+    "body": "{\"error\":400}"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/v1/datasets/j5ywpd2p27/files?folder=dermoscopic_image&page=1",
+    "status": 404,
+    "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /public-api/v1/datasets/j5ywpd2p27/files</pre>\n<script type=\"module\" src=\"https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092\" integrity=\"sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==\" dat"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/files?folder=dermoscopic_image&page=0",
+    "status": 200,
+    "body": "{\"error\":400}"
+  },
+  {
+    "n_scripts": 14,
+    "interesting_scripts": [
+      "window.NREUM||(NREUM={});NREUM.info = {\"agent\":\"\",\"beacon\":\"bam.nr-data.net\",\"errorBeacon\":\"bam.nr-data.net\",\"licenseKey\":\"NRJS-10516b9ce6a4c633b1f\",\"applicationID\":\"1487933047\",\"agentToken\":null,\"applicationTime\":83.464193,\"transactionName\":\"NVQHbUpSWRFXUhVQXwweIEFIQVIRRVsSFncnZUoWXFJDA0VUFUofWFgBEWNSGhh3HDsJHVtsHggITh5NDEcES0MLXgsRYwMaW2saSA==\",\"queueTime\":0,\"ttGuid\":\"fb90639c151e2a38\"}; (window.NREUM||(NREUM={})).init={\"privacy\":{\"cookies_enabled\":true},\"ajax\":{\"deny_list\":[\"bam.nr-data.net\"]},\"feature_flags\":[\"rum_v2\"],\"distributed_tracing\":{\"enabled\":true}};(window.NREUM||(NREUM={})).loader_config={\"agentID\":\"1588721160\",\"accountID\":\"2863447\",\"trustKey\":\"2038175\",\"xpid\":\"Vg4BUlJXDxABUFlVDgIEVlAG\",\"licenseKey\":\"NRJS-10516b9ce6a4c633b1f\",\"applicationID\":\"1487933047\",\"browserID\":\"1588721160\"};;/*! For license information please see nr-loader-spa-1.324.1.min.js.LICENSE.txt */\n(()=>{var e={8122(e,t,r){\"use strict\";r.d(t,{a:()=>i});var n=r(944);function i(e,t){try{if(!e||\"object\"!=typeof e)return(0,n.R)(3);if(!t||\"object\"!=typeof t)return(0,n.R)(4);const r=Object.create(Object.getPrototypeOf(t),Object.getOwnPropertyDescriptors(t)),s=0===Object.keys(r).length?e:r;for(let a in s)if(void 0!==e[a])try{if(null===e[a]){r[a]=null;continue}Array.isArray(e[a])&&Array.isArray(t[a])?r[a]=Array.from(new Set([...e[a],...t[a]])):e[a]instanceof Map||e[a]instanceof Set||e[a]instanceof Date||e[a]instanceof RegExp?r[a]=e[a]:\"object\"==typeof e[a]&&null!==t[a]&&\"object\"==typeof t[a]?r[a]=i(e[a],t",
+      "{\"@context\":\"http://schema.org/\",\"@type\":\"Dataset\",\"name\":\"A skin lesion hair mask dataset with fine-grained annotations\",\"description\":\"The largest publicly available skin lesion hair segmentation mask dataset created by carefully annotating 500 copyright-free CC0 licensed dermoscopic images collected from ISIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_mask folder contains a binary segmentation mask for each of the images of the dermoscopic_image folder. In a segmentation mask image, white pixels represent skin hair and black pixels represent background. The overlay folder contains hair mask images superimposed on the original dermoscopic images. We provided the superimposed images for easy public verification so that, other people can report any annotation mistakes and contribute to improving the dataset. Images in the hair_mask and overlay folders share the same names as the primary images in the dermoscopic_image folder. additional_materials folder contains codes and additional materials used for preparing the dataset.\\n\\nadditional_materials folder contents:\\n- Inside the unet folder the U-net [2] model is defined in model.pyfile, unet training is performed using the unet_training.ipynb python notebook file. T",
+      "window.INITIAL_STATE = {\"archive\":{\"data\":{\"status\":\"PENDING\"},\"error\":null,\"loading\":false},\"articles\":{\"list\":[],\"loading\":true},\"citations\":{\"data\":{},\"count\":0,\"error\":false,\"loading\":true},\"configClient\":{\"environment\":\"live\",\"recaptchaV3SiteKey\":\"6LcEHc8ZAAAAAMenhT9jO_B-EJAoGq_v29B7HaCf\",\"adobeAnalytics\":{\"newPage\":{\"page\":{\"businessUnit\":\"els:rp:st\",\"language\":\"en\",\"productName\":\"md\",\"environment\":\"dev\",\"noTracking\":\"false\",\"sectionName\":\"md:data\",\"type\":\"cp-ca\"},\"content\":{\"type\":\"md:datasets\",\"format\":\"MIME-HTML\"}}},\"apiBaseUrl\":\"/api/datasets-v2\",\"publicApiBaseUrl\":\"/public-api\",\"baseUrl\":\"/datasets\",\"baseAssetsUrl\":\"/datasets\"},\"customer\":{\"customer\":null,\"institution\":null},\"dataset\":{\"snapshot\":{\"id\":\"j5ywpd2p27\",\"version\":2,\"name\":\"A skin lesion hair mask dataset with fine-grained annotations\",\"description\":\"The largest publicly available skin lesion hair segmentation mask dataset created by carefully annotating 500 copyright-free CC0 licensed dermoscopic images collected from ISIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_mask folder contains a binary segmentation mask for each of the images of the dermoscopic_image folder. In a segmentation mask image, white pixels represent skin hair and black pixe"
+    ],
+    "embedded": [],
+    "html_len": 137687
+  }
+]

@@ -1,0 +1,123 @@
+{
+  "marker_found": true,
+  "top_keys": [
+    "archive",
+    "articles",
+    "citations",
+    "configClient",
+    "customer",
+    "dataset",
+    "environment",
+    "files",
+    "fileViewer",
+    "hostname",
+    "idToken",
+    "orcidDomain",
+    "repository",
+    "s3",
+    "versions"
+  ],
+  "hits": [
+    {
+      "path": "configClient.adobeAnalytics.newPage.content",
+      "type": "dict",
+      "preview": "{'type': 'md:datasets', 'format': 'MIME-HTML'}"
+    },
+    {
+      "path": "configClient.apiBaseUrl",
+      "type": "str",
+      "preview": "/api/datasets-v2"
+    },
+    {
+      "path": "configClient.publicApiBaseUrl",
+      "type": "str",
+      "preview": "/public-api"
+    },
+    {
+      "path": "configClient.baseUrl",
+      "type": "str",
+      "preview": "/datasets"
+    },
+    {
+      "path": "configClient.baseAssetsUrl",
+      "type": "str",
+      "preview": "/datasets"
+    },
+    {
+      "path": "dataset",
+      "type": "dict",
+      "preview": "{'snapshot': {'id': 'j5ywpd2p27', 'version': 2, 'name': 'A skin lesion hair mask dataset with fine-grained annotations', 'description': 'The largest publicly available skin lesion hair segmentation mask dataset created by carefully annotating 500 copyright-free CC0 licensed dermoscopic images collected from ISIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images co"
+    },
+    {
+      "path": "dataset.snapshot.version",
+      "type": "int",
+      "preview": "2"
+    },
+    {
+      "path": "dataset.snapshot.customer.config.dataset_size_limit",
+      "type": "int",
+      "preview": "10737418240"
+    },
+    {
+      "path": "dataset.snapshot.owner.profile",
+      "type": "dict",
+      "preview": "{'id': 'fdc8df84-b6b8-308a-bda5-64e91569305c', '$ref': '/profiles/fdc8df84-b6b8-308a-bda5-64e91569305c'}"
+    },
+    {
+      "path": "dataset.snapshot.licence.url",
+      "type": "str",
+      "preview": "http://creativecommons.org/licenses/by/4.0"
+    },
+    {
+      "path": "dataset.snapshot.institutions[0].url",
+      "type": "str",
+      "preview": "www.uca.fr"
+    },
+    {
+      "path": "dataset.snapshot.contributors[0].profile",
+      "type": "dict",
+      "preview": "{'id': 'fdc8df84-b6b8-308a-bda5-64e91569305c', '$ref': '/profiles/fdc8df84-b6b8-308a-bda5-64e91569305c'}"
+    },
+    {
+      "path": "files",
+      "type": "dict",
+      "preview": "{'list': [], 'currentFile': {}, 'folders': [], 'currentFolder': {}, 'filesLoading': True, 'foldersLoading': True}"
+    },
+    {
+      "path": "files.currentFile",
+      "type": "dict",
+      "preview": "{}"
+    },
+    {
+      "path": "files.folders",
+      "type": "list",
+      "preview": "[]"
+    },
+    {
+      "path": "files.currentFolder",
+      "type": "dict",
+      "preview": "{}"
+    },
+    {
+      "path": "files.filesLoading",
+      "type": "bool",
+      "preview": "True"
+    },
+    {
+      "path": "files.foldersLoading",
+      "type": "bool",
+      "preview": "True"
+    },
+    {
+      "path": "fileViewer",
+      "type": "dict",
+      "preview": "{'navigationLoaded': False, 'metadataLoaded': False}"
+    },
+    {
+      "path": "versions",
+      "type": "dict",
+      "preview": "{'list': [], 'loading': True}"
+    }
+  ],
+  "state_chars": 7144
+}

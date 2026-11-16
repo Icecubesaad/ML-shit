@@ -1,0 +1,51 @@
+[
+  {
+    "url": "https://data.mendeley.com/datasets/j5ywpd2p27/2/download",
+    "status": 200,
+    "ctype": "text/html; charset=utf-8",
+    "length": "",
+    "disposition": "",
+    "first_bytes": "b'<!doctype html>\\n<html class=\"\" lang=\"en\">\\n<head>\\n  <script type=\"text/javascript\" src=\"https://cdn.cookielaw.org/consent'"
+  },
+  {
+    "url": "https://data.mendeley.com/datasets/j5ywpd2p27/2/download?folder=dermoscopic_image",
+    "status": 200,
+    "ctype": "text/html; charset=utf-8",
+    "length": "",
+    "disposition": "",
+    "first_bytes": "b'<!doctype html>\\n<html class=\"\" lang=\"en\">\\n<head>\\n  <script type=\"text/javascript\" src=\"https://cdn.cookielaw.org/consent'"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/files?folder=dermoscopic_image&page=1&limit=100&version=2",
+    "status": 200,
+    "ctype": "application/json; charset=utf-8",
+    "length": "13",
+    "disposition": "",
+    "first_bytes": "b'{\"error\":400}'"
+  },
+  {
+    "url": "https://data.mendeley.com/public-api/datasets/j5ywpd2p27/files?folder=dermoscopic_image&page=1&limit=100&version=1",
+    "status": 200,
+    "ctype": "application/json; charset=utf-8",
+    "length": "13",
+    "disposition": "",
+    "first_bytes": "b'{\"error\":400}'"
+  },
+  {
+    "html_hits": [
+      "C0 licensed dermoscopic images collected from ISIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary imag",
+      "opic images collected from ISIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_",
+      "SIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_mask folder contains a binar",
+      " covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_mask folder contains a binary segmentation mask for each of the images of the dermoscopic_image folder. In a segmentation mask image, white pixels represent skin hair and black pixels represent background. The overl",
+      "s from the primary image source. The hair_mask folder contains a binary segmentation mask for each of the images of the dermoscopic_image folder. In a segmentation mask image, white pixels represent skin hair and black pixels represent background. The overlay folder contains hair mask images superimposed on the original dermoscopic images",
+      "ication so that, other people can report any annotation mistakes and contribute to improving the dataset. Images in the hair_mask and overlay folders share the same names as the primary images in the dermoscopic_image folder. additional_materials folder contains codes and additional materials used for preparing the dataset.  additional_ma",
+      "to improving the dataset. Images in the hair_mask and overlay folders share the same names as the primary images in the dermoscopic_image folder. additional_materials folder contains codes and additional materials used for preparing the dataset.  additional_materials folder contents: - Inside the unet folder the U-net [2] model is defined",
+      "C0 licensed dermoscopic images collected from ISIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary imag",
+      "opic images collected from ISIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_",
+      "SIC 2018 dataset [1]. The dataset is organized into three folders namely dermoscopic_image, hair_mask, and overlay. The dermoscopic_image folder contains 500 handpicked dermoscopic images covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_mask folder contains a binar",
+      " covering different hair patterns. We retained the original names of the image files from the primary image source. The hair_mask folder contains a binary segmentation mask for each of the images of the dermoscopic_image folder. In a segmentation mask image, white pixels represent skin hair and black pixels represent background. The overl",
+      "s from the primary image source. The hair_mask folder contains a binary segmentation mask for each of the images of the dermoscopic_image folder. In a segmentation mask image, white pixels represent skin hair and black pixels represent background. The overlay folder contains hair mask images superimposed on the original dermoscopic images"
+    ],
+    "html_length": 137326
+  }
+]

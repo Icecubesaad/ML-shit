@@ -1,0 +1,210 @@
+{
+  "config": {
+    "resolution": 128,
+    "num_timesteps": 2000,
+    "start_t": 600,
+    "steps": 50,
+    "respaced": true,
+    "fp32": true,
+    "seed": 42
+  },
+  "gpu": "NVIDIA A100 80GB PCIe",
+  "image_ids": [
+    "ISIC_0025394",
+    "ISIC_0029241",
+    "ISIC_0032061",
+    "ISIC_0028228",
+    "ISIC_0031334"
+  ],
+  "hair_coverage": [
+    0.774333,
+    0.76713,
+    0.754996,
+    0.754967,
+    0.735122
+  ],
+  "checkpoints": {
+    "base": {
+      "path": "/vol/artifacts/exports/diffusion/repaired_trainer_iter050000_gen.pth",
+      "bytes": 391488412,
+      "sha256": "77031da6dbea73ad751adf9aaddf6c7cfb2cd762582eb1c8b2bb3956d188b845",
+      "n_state_keys": 374,
+      "strict_load": true,
+      "missing_unexpected": [],
+      "stats": {
+        "finite": true,
+        "shape": [
+          5,
+          3,
+          128,
+          128
+        ],
+        "respaced": true,
+        "num_timesteps": 2000,
+        "steps": 50,
+        "start_t": 600,
+        "bf16": false
+      },
+      "n_timesteps_visited": 50,
+      "reproducible_fixed_seed": true,
+      "stats_second_run_identical": true,
+      "output_stats": [
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 11,
+          "max": 218,
+          "std": 51.247,
+          "frac_extreme": 0.0,
+          "mean": 134.45
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 22,
+          "max": 228,
+          "std": 41.002,
+          "frac_extreme": 0.0,
+          "mean": 140.251
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 10,
+          "max": 217,
+          "std": 30.485,
+          "frac_extreme": 0.0,
+          "mean": 161.322
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 4,
+          "max": 255,
+          "std": 66.454,
+          "frac_extreme": 0.0001,
+          "mean": 153.415
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 0,
+          "max": 232,
+          "std": 42.996,
+          "frac_extreme": 6e-05,
+          "mean": 146.851
+        }
+      ],
+      "output_sha256": [
+        "073baa3598146afe8f5105e32d59e30fd0b12720dcded5cccaf3611200c705f9",
+        "5097c1b9684c84b355ab5e02b090f9056b7274907b68fee17f2bb78e1948c997",
+        "5d0c30e03908c27b78b9cc68f56a84edc2ce1e8386ae852d9d69b29608be4aea",
+        "087a0688120c0155e4d83126b2d48df18b9ba587588e7a6613e4edc76b7c747b",
+        "00a88e76fa52420a648a44893736c5b00e48b4a87ef5b7185b23d778844db02b"
+      ],
+      "persisted_and_reloaded": true
+    },
+    "finetuned": {
+      "path": "/vol/artifacts/exports/diffusion/cv2_sampler_dmahr_v2_final_gen.pth",
+      "bytes": 391486522,
+      "sha256": "dd06c2163e93c5348515ad9ac69f8858b2dd2e5154380471014bcde1b33e7130",
+      "n_state_keys": 374,
+      "strict_load": true,
+      "missing_unexpected": [],
+      "stats": {
+        "finite": true,
+        "shape": [
+          5,
+          3,
+          128,
+          128
+        ],
+        "respaced": true,
+        "num_timesteps": 2000,
+        "steps": 50,
+        "start_t": 600,
+        "bf16": false
+      },
+      "n_timesteps_visited": 50,
+      "reproducible_fixed_seed": true,
+      "stats_second_run_identical": true,
+      "output_stats": [
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 9,
+          "max": 224,
+          "std": 53.05,
+          "frac_extreme": 0.0,
+          "mean": 133.149
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 20,
+          "max": 228,
+          "std": 43.007,
+          "frac_extreme": 0.0,
+          "mean": 138.982
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 5,
+          "max": 221,
+          "std": 31.815,
+          "frac_extreme": 0.0,
+          "mean": 160.134
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 0,
+          "max": 255,
+          "std": 69.665,
+          "frac_extreme": 0.00625,
+          "mean": 152.632
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "min": 0,
+          "max": 238,
+          "std": 46.368,
+          "frac_extreme": 0.00024,
+          "mean": 145.44
+        }
+      ],
+      "output_sha256": [
+        "47551b0671686808eedbab440c04db20f71942edd5e73b13887fd0d9222bb437",
+        "fe83c83aa56743aed2df0a0e622e823ec50c2df32e2b3e6ebb7ab8fc156ca916",
+        "732d56b58e587f8517f66adff52c8595be9d6ad3c1fc72526e998ff70086f2da",
+        "5df8062272ead8a3cabe9f5ec0a55a2cb98164ea34913baa166d160824bba90e",
+        "1c6818a6ee66ed933736b1e7e2401a6b9ea2449b68baad58930a6283c879bfef"
+      ],
+      "persisted_and_reloaded": true
+    }
+  },
+  "contact_sheet": "/vol/artifacts/real_hair_validation/experiments/smoke_test/contact_sheet.png",
+  "gpu_seconds": 9.75
+}
