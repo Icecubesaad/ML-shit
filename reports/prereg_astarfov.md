@@ -57,3 +57,7 @@ modal run --detach modal_app.py::pooled_run          # 53 + 55 regenerate pooled
 Artifacts: `artifacts/logs/astarfov_build.json`, `artifacts/panels/astarfov_build.jpg`
 (agent-reviewed contact sheet), per-seed predictions under `artifacts/predictions/`, and the
 refreshed `artifacts/logs/pooled_per_seed.csv` / `statistical_comparisons*.csv`.
+
+## Implementation note — originals re-fetched onto this volume
+
+The icysolutionscorp volume did not contain the original ISIC JPEGs (the frozen data manifest points at the first account's volume). `modal_app.py::fetch_isic_images` re-fetches public ISIC collection 212 onto `/vol/data/raw/isic_212/images` before the build. The frozen split and hair-screen manifests still select the 10,015-image cohort; the extra collection images are never used. The 3 of 707 DERMAHAIR pairs with identical hairy/hairless images are excluded from the classical baseline exactly as in the released-checkpoint report (704 valid pairs).
