@@ -1,4 +1,4 @@
-"""Verification gates V1-V14 for the final deliverables.
+"""Verification gates V1-V16 for the final deliverables.
 
 Every gate reports its own evidence path. The script writes
 reports/deliverable_checklist.md from what it actually measured.
@@ -262,9 +262,10 @@ def v12() -> None:
     """Paper Table 8: the per-seed column lists seed:value pairs that match pooled_per_seed.csv.
 
     Every listed value must equal the CSV macro-F1 difference for that arm pair and seed
-    (cell shows 2 dp, so tolerance 0.0051), the bracket must equal the recomputed
-    '[k of N seeds favour first]', and the listed seeds must be exactly the seeds both
-    arms have in the analysis — eight for every A/A*/B/Cv2 comparison shown.
+    (cell shows 3 dp, so tolerance 0.00051), the bracket must equal the recomputed
+    '[k of N seeds favour first]' counted from the UNROUNDED CSV differences, and the listed
+    seeds must be exactly the seeds both arms have in the analysis — eight for every
+    A/A*/B/Cv2/A*-fov comparison shown.
     """
     import re  # noqa: PLC0415
 
@@ -308,12 +309,14 @@ def v12() -> None:
         if set(listed) != set(expected):
             problems.append(f"{comp}: listed seeds {sorted(listed)} != analysis seeds {sorted(expected)}")
         for s in sorted(set(listed) & set(expected)):
-            if abs(listed[s] - expected[s]) > 0.0051:
-                problems.append(f"{comp} seed {s}: cell {listed[s]:+.2f} vs csv {expected[s]:+.4f}")
+            if abs(listed[s] - expected[s]) > 0.00051:
+                problems.append(f"{comp} seed {s}: cell {listed[s]:+.3f} vs csv {expected[s]:+.4f}")
         k, n = int(m.group(1)), int(m.group(2))
-        if (k, n) != (sum(v > 0 for v in listed.values()), len(listed)):
-            problems.append(f"{comp}: bracket [{k} of {n}] != recomputed "
-                            f"[{sum(v > 0 for v in listed.values())} of {len(listed)}]")
+        # the rule under test: the bracket counts UNROUNDED differences from the CSV
+        n_fav_unrounded = sum(v > 0 for v in expected.values())
+        if (k, n) != (n_fav_unrounded, len(listed)):
+            problems.append(f"{comp}: bracket [{k} of {n}] != unrounded recomputed "
+                            f"[{n_fav_unrounded} of {len(listed)}]")
         if len(expected) == 8 and len(listed) != 8:
             problems.append(f"{comp}: only {len(listed)} of 8 seeds listed")
     ok = nrows >= 3 and not problems
@@ -386,8 +389,97 @@ def v14() -> None:
          + ("" if not missing else f"; missing keys {missing}"))
 
 
+def v15() -> None:
+    """Seed-count rule: the bracket counts UNROUNDED positive per-seed differences, the test
+    encodes that rule at 3 dp, and the reported A-Cv2 row reads [k of 8] from the CSV."""
+    import re  # noqa: PLC0415
+
+    import docx  # noqa: PLC0415
+
+    name = "Seed-count test and paper bracket use unrounded per-seed differences"
+    problems = []
+    test = ROOT / "tests" / "test_paper_build.py"
+    if not test.exists():
+        problems.append("tests/test_paper_build.py missing")
+    else:
+        src = test.read_text(encoding="utf-8")
+        if "sum(x > 0 for _, x in expect)" not in src:
+            problems.append("test does not count unrounded values")
+        if "0.00051" not in src:
+            problems.append("test tolerance is not the 3 dp 0.00051")
+        if 'float(f"{x:+.2f}") > 0' in src:
+            problems.append("old displayed-value bracket rule still in the test")
+
+    n_fav = n = -1
+    per = LOGS / "pooled_per_seed.csv"
+    paper = ART / "reports" / "Research_Paper.docx"
+    if not per.exists() or not paper.exists():
+        problems.append("pooled_per_seed.csv or Research_Paper.docx missing")
+    else:
+        df = pd.read_csv(per)
+        full = df[df["subset"] == "full"]
+        va = full[full["arm"] == "A"].set_index("seed")["macro_f1"]
+        vb = full[full["arm"] == "Cv2"].set_index("seed")["macro_f1"]
+        diffs = (va - vb).dropna()
+        n_fav, n = int((diffs > 0).sum()), len(diffs)
+        d = docx.Document(str(paper))
+        found = False
+        for t in d.tables:
+            for r in t.rows:
+                cells = [c.text for c in r.cells]
+                if cells and cells[0].strip().replace(" ", "") == "A-Cv2":
+                    found = True
+                    cell = cells[5] if len(cells) > 5 else ""
+                    m = re.search(r"\[(\d+) of (\d+) seeds favour first\]", cell)
+                    if not m:
+                        problems.append(f"A-Cv2 bracket missing in {cell!r}")
+                    elif (int(m.group(1)), int(m.group(2))) != (n_fav, n):
+                        problems.append(f"A-Cv2 [{m.group(1)} of {m.group(2)}] != unrounded CSV "
+                                        f"[{n_fav} of {n}]")
+                    break
+            if found:
+                break
+        if not found:
+            problems.append("A-Cv2 row not found in the paper")
+    gate("V15", name, not problems,
+         "tests/test_paper_build.py + artifacts/reports/Research_Paper.docx + artifacts/logs/pooled_per_seed.csv",
+         f"A-Cv2 unrounded positives={n_fav} of {n}; " + ("clean" if not problems else " | ".join(problems[:3])))
+
+
+def v16() -> None:
+    """The stale-phrase config is well-formed: every regex compiles, the retired-claim
+    fragments are still listed, and every path it names exists."""
+    import re  # noqa: PLC0415
+
+    name = "Stale-phrase list is well-formed and retains retired claims"
+    cfg = ROOT / "configs" / "stale_phrases.json"
+    if not cfg.exists():
+        gate("V16", name, False, str(cfg), "missing")
+        return
+    d = json.loads(cfg.read_text(encoding="utf-8"))
+    problems = []
+    for p in list(d.get("patterns", [])) + list(d.get("paper_patterns", [])):
+        try:
+            re.compile(p, re.I)
+        except re.error as e:
+            problems.append(f"bad regex {p!r}: {e}")
+    for frag in ("only manipulated variable", "larger share of the 128 px"):
+        if not any(frag in p for p in d.get("patterns", [])):
+            problems.append(f"retired claim {frag!r} missing from patterns")
+    for rel in list(d.get("files", [])) + list(d.get("paper_files", [])):
+        if not (ROOT / rel).exists():
+            problems.append(f"listed path missing: {rel}")
+    ddir = ROOT / d.get("docx_dir", "artifacts/reports")
+    if not ddir.exists():
+        problems.append(f"docx_dir missing: {ddir}")
+    gate("V16", name, not problems, str(cfg),
+         f"{len(d.get('patterns', []))} patterns, {len(d.get('paper_patterns', []))} paper_patterns; "
+         + ("clean" if not problems else " | ".join(problems[:3])))
+
+
 def main() -> int:
     v1(); v2(); v3(); v4(); v5(); v6(); v7(); v8(); v9(); v10(); v11(); v12(); v13(); v14()
+    v15(); v16()
     out = ART / "reports" / "deliverable_checklist.md"
     lines = ["# Deliverable verification checklist", "",
              "Generated by `scripts/20_deliverable_gates.py`. Each gate records the evidence path",

@@ -479,8 +479,8 @@ states what that cell does and why it exists. This section is the written index.
 | Notebook | Purpose | Needs |
 |---|---|---|
 | `01_results_walkthrough.ipynb` | reads the committed artifacts and explains the results | CPU only, no Modal, no download |
-| `02_pipeline_reproduction.ipynb` | runs every phase on Modal | Modal token |
-| `03_local_gpu_pipeline.ipynb` | runs every phase natively on a local GPU | a CUDA GPU, no Modal |
+| `02_pipeline_reproduction.ipynb` | runs every phase on Modal; cells shell out to paid `modal run` jobs — review before executing | Modal token; incurs GPU spend |
+| `03_local_gpu_pipeline.ipynb` | runs every phase natively on a local GPU | a local CUDA GPU, no Modal |
 
 ### `01_results_walkthrough.ipynb` — presenting the study
 

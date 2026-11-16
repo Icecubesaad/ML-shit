@@ -547,3 +547,58 @@ Authority order applied: `AGENTS.md` > `docs/ACCEPTANCE_CRITERIA.md` > `docs/DEV
 ## D46 - Checkpoint export
 
 - `scripts/71_export_checkpoints.py` wrote weights-only ViT checkpoints (38) and the Cv2 and repaired-trainer diffusion weights, with SHA-256 for each (`reports/export_manifest.csv`). Default location `exports/` in the workspace (git-ignored, 14 GB) and the Modal volume path `/artifacts/exports` of `icysolutionscorp`; fetch with `modal volume get dmahr-vit-vol /artifacts/exports exports`. The released third-party weights are not copied (licence); their hash is listed.
+
+## D47 - Grad-CAM ln_1 sanity check: the verdict gates the implementation; coverage is a finding
+
+- **Trigger.** An independent review challenged the paper's below-chance Grad-CAM lesion localization: if the production map were reshaped wrongly, every localization number would be meaningless. The paper now reports the check in section 3.5 (`scripts/80_build_paper.py`, data-driven sentence listing the four recalls) and deliverable gate V14 verifies `artifacts/logs/gradcam_sanity.json`.
+- **Design** (`scripts/64_gradcam_sanity.py`). Synthetic 224x224 ImageNet-normalised smooth noise with a fixed rng order, four planted squares in three styles: straddling bright x2, patch-aligned bright, patch-aligned checkerboard (straddling placements first, so the run reproduces the earlier attempt bit-for-bit). No dataset image, mask or label is read. The production `MultiLayerGradCAM` map at `last_ln1` is compared against pytorch-grad-cam 1.5.0 (installed at runtime only, never in the image) on the same input, plus a transposed-map control.
+- **Verdict semantics (pre-stated).** "passes" gates implementation criteria only: (1) reshape is exact - patch token k lands at ((k-1)//14, (k-1)%14); (2) the reference library agrees on every input (Spearman >= 0.9999999993 on all four stimuli); (3) the transposition control discriminates on a following stimulus. Planted-square coverage is reported per stimulus and never gated.
+- **Run.** Checkpoint C seed 42, SHA-256 `55c2f6f7...b02961` (A seed 42 was corrupt on the volume at the time; see D50). The sanity is NOT rerun on arm A after the restore: the gated criteria are properties of the CAM code path shared by all arms, while coverage numbers are model-and-stimulus findings. Commit `f62f9313`; artifacts `gradcam_sanity.json` and `gradcam_sanity.png` (local and on the volume).
+- **Result: verdict passes.** follow_ln1 recall 0.9631 / 0.8381 / 0.8225 / 0.0000 (straddling a, straddling b, aligned bright, checkerboard; chance 0.2); transposed control recall 0.055 / 0.021 / 0.085 / 0.111; reshape exact; reference Spearman >= 0.9999999993 in every row; n_following = 3.
+- **Coverage finding.** Coverage follows the model's salience on the specific synthetic realisation: the same aligned placement scored 0.139 in one rng realisation and 0.822 in another, and the checkerboard square (logit delta 0.080) was suppressed entirely. Below-chance recall on real images therefore reflects what this model attends to, not a broken map. Contact sheet reviewed by the agent (agent-reviewed): production matches the reference in every row, transposed maps differ visibly, the checkerboard map is flat.
+
+## D48 - Table 8 bracket counts the displayed values; deliverable-gate fixes V12 and V13 (SUPERSEDED by D51)
+
+> The bracket rule below was reversed by the client in the final fix round; see D51. The V12 and V13
+> gate fixes in this entry still stand.
+
+- **Bracket.** The paper's Table 8 per-seed column shows seed 2026's A-Cv2 difference as "+0.00" (raw +0.0034), so a reader counting displayed signs gets 5 of 8, but the bracket said [6 of 8] because it counted full-precision values. The bracket must describe what the reader sees: `scripts/80_build_paper.py` now counts `float(f'{x:+.2f}') > 0`, giving [5 of 8]; `tests/test_paper_build.py` asserts the same rule and gate V12 recomputes it identically. No number in any table was altered by hand.
+- **V12** previously paired the paper's seed list positionally against a sorted CSV order; it now compares seed sets and matches each value by seed id, so ordering can never mispair values.
+- **V13** required a "Heading 1" appendix style, but the Results Report writes its appendix heading in Normal style ("Appendix. First-look explanation rows (legacy, superseded)"); detection is now by paragraph text. The Results Report contains exactly one table with legacy x1_ rows and it is the last table, after the appendix paragraph.
+- **Verified.** `tests/test_paper_build.py` 3 passed; in-container deliverable gates 16/16 PASS (`reports/deliverable_checklist.md`); Research_Paper.docx rebuilt (454,628 bytes) and re-rendered to PDF (541,800 bytes, 17 pages).
+
+## D49 - Local environment repaired after an interrupted pip run
+
+- **Symptom.** Every local pytest collection failed with numpy binary-mismatch errors and pandas imports crashed the interpreter.
+- **Cause.** An earlier interrupted `pip` replacement had left nine half-installed packages as `~`-prefixed remnant directories in site-packages (torch 2.7.1 dist-info, torchgen, functorch, numpy and numpy.libs, tokenizers and dtype-module remnants); imports resolved against mismatched compiled modules. A `scikit-image` reinstall early in this session had additionally pulled numpy back to the 1.x line, breaking pandas.
+- **Repair.** Remnants deleted; clean pinned reinstalls: torch 2.7.0+cpu, numpy 2.2.6, pandas 2.2.3, scikit-image 0.24.0.
+- **Verified.** Full local suite `py -m pytest tests -q`: 95 passed, 2 skipped, 4 warnings in 2:49 (CPU only; the in-container run of the same suite is 92 passed, 5 skipped - the difference is platform-dependent skips, e.g. docx-build tests that need the local artifact tree).
+
+## D50 - A_seed42 checkpoint restored from parts
+
+- A seed 42 had been corrupt on the volume. The checkpoint was uploaded as 10 ~100 MB parts and reassembled in-container with `modal_app.py::assemble_ckpt`. The destination was replaced only after the assembled bytes matched the recorded SHA-256 (`33d93a7f…b6497`) and `torch.load` succeeded.
+- **Verified:** `artifacts/logs/restore_A_seed42.json` reports sha256_got == sha256_expected, torch_load_ok, n_top_level_keys=6, status=restored (8.09 s). `best.pt` was atomically replaced. Local parts are being removed and the volume `parts/` directory cleaned.
+
+## D51 - Final fix round: bracket rule, H3 wording, per-arm geometry, citation, gates V15/V16
+
+- **Bracket rule reversed (supersedes D48's bracket decision).** The client requires "k of 8 seeds favour first" to count **unrounded** per-seed differences and per-seed cells at **3 decimals**. `scripts/80_build_paper.py` now uses `sum(x > 0 for _, x in ps)` and `:+.3f`; `tests/test_paper_build.py` asserts the count equals the number of positive unrounded values with tolerance 0.00051; gate V12 recomputes from the CSV unrounded. Verified: A-Cv2 reads **6 of 8** (unrounded positives = 6; at 2 dp seed 2026's +0.0034 displayed as +0.00, which was the old rule's 5). No table number was edited by hand.
+- **H3 wording.** The sentence about the 128 px crop now states the data direction: full-resolution arms' masks fill a larger share of the frame (0.455 vs 0.374), giving a lower recall ceiling (0.468 vs 0.544); equivalently, the 128 px lesions occupy a smaller share and have a higher ceiling. Values come from `xai_geometry_by_arm` facts via `f()`.
+- **§3.1 / Limitations.** "The hair removal condition is the only manipulated variable" replaced: A* and the diffusion arms also change resolution, aspect ratio and field of view. A new data-driven per-arm transform table (stored size, resize→crop, fraction of the photo the ViT sees) is computed from `xai.geometry` constants: 57.9% for A/B (aspect preserved) vs 77.2% for the 128 px squash. Stated explicitly: A* controls resolution but not aspect ratio or field of view.
+- **Citation.** The 20,000-iteration reference recipe in §5.4 is cited `[14]` (Benjdira et al., DM-AHR, Cancers 2024;16(17):2947 — confirmed from the proposal's reference list).
+- **Off-centre finding** added to the abstract and §5.2 from `xai_val(..., frame="off-centre (shifted up to 30%)")`: rollout 0.476/0.540/0.542 vs translated Gaussian 0.357/0.379/0.379; Grad-CAM ln_1 stays below (max 0.175).
+- **Report** section 6 gets an explicit "H3 verdict: inconclusive (all between-arm rows struck)" bullet via the paper's `verdicts()` rule; sections 1-2 tables are labelled "3 seeds (42/123/2026)"; the "38 trained models" callout is now computed from the union of `(arm, seed)` pairs in `classification_metrics_all.csv` and `pooled_per_seed.csv`.
+- **New gates:** V15 (seed-count: test source encodes the unrounded rule at 3 dp and the paper's A-Cv2 bracket equals the unrounded CSV count) and V16 (stale-phrase list integrity: regexes compile, retired-claim fragments still listed, named paths exist). The dead path `reports/paper_draft.md` was removed from the config `files` list. Expected total: 18/18 gates.
+
+## D52 - A*-fov exploratory control (item 9)
+
+- Hair-present images are stored as the centre square of the original (side min(w,h) = 450 for a 600×450 photo) squashed to 128×128 BICUBIC; hair-absent images pass through at 600×450. The frozen evaluation transform then sees the same window as A (57.9% of the photo) at A*'s storage resolution. Hair-present flags come from the frozen `hair_screening.csv` (no re-screening); `xai.geometry` is unchanged; no XAI for this arm.
+- Design fixed before images were built or models trained in `reports/prereg_astarfov.md`. Eight seeds, same recipe, exploratory comparisons A*-fov−A* and A*-fov−A in `53_pooled_analysis.py` (exploratory family). `SHORT["Astarfov"] = "A*fov"` avoids the pair-separator collision with "A*-fov".
+- New `scripts/02b_astarfov_build.py` (+ CPU unit test `tests/test_astarfov_build.py`, 2 passing) and Modal entrypoints `astarfov_build`, `astarfov_pipeline`, `pooled_run`.
+
+## D53 - Frozen DullRazor on DERMAHAIR pairs (item 8)
+
+- `scripts/62b_dermahair_dullrazor.py` (CPU only) runs the frozen Arm-B hair screen + DullRazor on the public DERMAHAIR pairs and reports PSNR/SSIM/LPIPS next to the released checkpoint on identical pairs. 3 of 707 identical pairs are excluded (PSNR undefined), leaving 704. Metric conventions mirror `62_dermahair_repro.py` exactly; no parameter is tuned on DERMAHAIR. Output: `dermahair_dullrazor.json` + per-pair CSV. Modal entrypoint `dermahair_dullrazor` (CPU).
+
+## D54 - Notebooks verified
+
+- All three notebooks exist. `01_results_walkthrough.ipynb` executes 17/17 code cells under IPython (Agg backend; the F04 PENDING line is the acceptance checker's own pre-existing output). `02_pipeline_reproduction.ipynb` and `03_local_gpu_pipeline.ipynb` are valid IPython: the 8 apparent "syntax errors" are all `!` shell escapes. 02 shells out to paid `modal run` jobs. References in README, docs/CODE_GUIDE.md and the Results Report were corrected to state 01 needs only CPU, 02 incurs paid Modal jobs (review before executing), 03 needs a local CUDA GPU.

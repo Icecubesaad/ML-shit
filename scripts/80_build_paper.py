@@ -22,6 +22,10 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from dm_ahr_vit.xai.geometry import FULL_SIZE, SQUASHED_SIZE, eval_resize_size  # noqa: E402
+
 LOGS = ROOT / "artifacts" / "logs"
 FIGS = ROOT / "artifacts" / "figures"
 XAI = LOGS / "xai_v2_analysis"
@@ -30,8 +34,10 @@ SRC_DOC = ROOT / "docs" / "proposal.docx"
 
 LABEL = {"A": "A: original", "Astar": "A*: original, 128 px", "B": "B: DullRazor",
          "Cv2": "Cv2: rebuilt diffusion (final)", "Creleased": "Creleased: released checkpoint (exploratory)",
+         "Astarfov": "A*-fov: original, 128 px, A's field of view (exploratory)",
          "C": "C: first diffusion run, defective trainer"}
-SHORT = {"A": "A", "Astar": "A*", "B": "B", "Cv2": "Cv2", "Creleased": "Creleased", "C": "C"}
+SHORT = {"A": "A", "Astar": "A*", "B": "B", "Cv2": "Cv2", "Creleased": "Creleased",
+         "Astarfov": "A*fov", "C": "C"}
 EIGHT = (42, 123, 2026, 7, 11, 17, 23, 31)
 PRE = (42, 123, 2026)
 
@@ -60,6 +66,54 @@ def sgn(x, n=3):
 
 def p_fmt(p):
     return "<0.001" if p < 0.001 else f"{p:.3f}"
+
+
+def _resize_dims(w: int, h: int, side: int) -> tuple[int, int]:
+    """torchvision Resize(int): shorter side -> ``side``, aspect ratio preserved."""
+    r = side / min(w, h)
+    return int(round(w * r)), int(round(h * r))
+
+
+def transform_table_rows(crop: int, include_astarfov: bool = False) -> list[list[str]]:
+    """Stored size -> eval resize -> centre crop and the fraction of the ORIGINAL photo
+    the ViT actually sees. Everything is computed from the frozen geometry constants in
+    ``src/dm_ahr_vit/xai/geometry.py``; no number is typed by hand.
+
+    Full-size storage keeps the aspect ratio; 128 px storage squashes the whole 600 x 450
+    photo into a square; A*-fov squashes only the central min(w, h) square, so it recovers
+    A's field of view at A*'s storage resolution.
+    """
+    side = eval_resize_size(crop)  # 255
+    fw, fh = FULL_SIZE  # 600, 450
+    sqw, sqh = SQUASHED_SIZE  # 128, 128
+    photo_area = fw * fh
+
+    def seen_fraction(stored: tuple[int, int]) -> float:
+        rw, rh = _resize_dims(stored[0], stored[1], side)
+        return crop * crop / (rw * rh)
+
+    def row(label: str, stored: tuple[int, int], source_area: float) -> list[str]:
+        rw, rh = _resize_dims(stored[0], stored[1], side)
+        frac = seen_fraction(stored) * source_area / photo_area
+        return [label, f"{stored[0]} × {stored[1]}", f"{rw} × {rh} → {crop} × {crop}",
+                f"{100 * frac:.1f}%"]
+
+    # A/B: the whole aspect-preserving photo is available; the crop keeps `seen_fraction(full)` of it.
+    full_label = "A / B (hair-present)"
+    full_source = photo_area
+    # A*/Cv2: the whole photo is squashed into 128 x 128, so the crop keeps that fraction of it.
+    sq_source = photo_area
+    # A*-fov: only the central min(w, h) square is squashed to 128 x 128; the crop keeps the
+    # same fraction of that square, which is 450^2 / (600*450) = 0.75 of the photo's area.
+    short = min(fw, fh)
+    fov_source = short * short
+
+    rows = [row(full_label, FULL_SIZE, full_source),
+            row("A* / Cv2 / Creleased / C squash", SQUASHED_SIZE, sq_source)]
+    if include_astarfov:
+        rows.append(row("A*-fov centre-square squash", SQUASHED_SIZE, fov_source))
+    rows.append(row("all arms, hair-absent", FULL_SIZE, full_source))
+    return rows
 
 
 class Paper:
@@ -280,6 +334,9 @@ def build(args) -> Path:
     paper_psnr, paper_ssim = dh["provenance"]["paper"]["psnr"], dh["provenance"]["paper"]["ssim"]
     q, qrows, qcmp = quality_table(F)
     nq = len(q)
+    have_fov = "Astarfov" in set(F["per_seed"]["arm"])
+    dh_dull_path = LOGS / "dermahair_dullrazor.json"
+    dh_dull = json.loads(dh_dull_path.read_text()) if dh_dull_path.exists() else None
 
     # ---- numbers used in the abstract and verdicts
     f1 = {a: float(head.loc[a, "macro_f1_mean"]) for a in head.index}
@@ -299,6 +356,14 @@ def build(args) -> Path:
                     "(all between-arm differences were struck by the seed-spread rule)")
     roll_cv = xai_val(F, "Cv2", ROLL, "recall")
     roll_as = xai_val(F, "Astar", ROLL, "recall")
+    # Off-centre finding (image and mask translated together by up to +/-30%); all from data.
+    off_frame = "off-centre (shifted up to 30%)"
+    off_arms = ("A", "Astar", "Cv2")
+    off_roll = {a: xai_val(F, a, ROLL, "recall", frame=off_frame) for a in off_arms}
+    off_gc = {a: xai_val(F, a, GC1, "recall", frame=off_frame) for a in off_arms}
+    off_roll_vals = "/".join(f(off_roll[a]["mean"]) for a in off_arms)
+    off_gauss_vals = "/".join(f(off_roll[a]["baseline_gauss"]) for a in off_arms)
+    off_gc_max = max(off_gc[a]["mean"] for a in off_arms if off_gc[a] is not None)
     cmp = F["xai_cmp"]
     cv_as_roll = cmp[(cmp.a == "Cv2") & (cmp.b == "Astar") & (cmp.metric == "recall") & (cmp.method == ROLL)
                      & (cmp.frame == "as is")].iloc[0]
@@ -332,7 +397,9 @@ def build(args) -> Path:
         f"classifier on the seven-class HAM10000 benchmark. Methods: lesion-grouped 70/15/15 split "
         f"(test n={ntest}); matched ViT-B/16 recipe; arms A (original), A* (128 px original, resolution "
         "control), B (DullRazor-style removal), Cv2 (our rebuilt diffusion arm) and, exploratory, "
-        "Creleased (the authors' released checkpoint); eight seeds for A, A*, B and Cv2 and three for the "
+        "Creleased (the authors' released checkpoint)"
+        + (" and A*-fov (an exploratory field-of-view control)" if have_fov else "")
+        + "; eight seeds for A, A*, B and Cv2 and three for the "
         "others; lesion-cluster bootstrap with Holm correction; Grad-CAM and attention rollout scored "
         "against lesion masks in the geometry the classifier actually sees. "
         f"Results: macro-F1 was {f(f1['A'])} (A), {f(f1['Astar'])} (A*), {f(f1['Cv2'])} (Cv2) and "
@@ -349,6 +416,9 @@ def build(args) -> Path:
         f"against {f(xai_val(F, 'A', ROLL, 'recall')['mean'])} and {f(roll_as['mean'])} for attention rollout; "
         f"{'every' if all_struck else 'not every'} between-arm explanation difference "
         f"{'was struck by' if all_struck else 'passed'} the seed-spread rule. "
+        f"In the off-centre test (image and mask translated together by up to ±30%) attention-rollout recall was "
+        f"{off_roll_vals} for A/A*/Cv2, above the translated Gaussian's {off_gauss_vals}; Grad-CAM ln_1 stayed below "
+        f"(best {f(off_gc_max)}), so rollout follows image content to a degree a centre prior does not. "
         f"Conclusion: diffusion hair removal {'improved' if h1_supported else 'did not improve'} image quality over the "
         f"classical method on the synthetic-hair pairs, {'improved' if h2_supported else 'did not improve'} "
         f"classification, and {h3_concl} in this study.", size=10)
@@ -413,18 +483,39 @@ def build(args) -> Path:
     # ================= 3 Methodology
     P.h1("3. Methodology")
     P.h2("3.1. Design and arms")
-    P.p("The hair removal condition is the only manipulated variable. All arms share the split, the ViT-B/16 recipe, "
-        "the seeds and the evaluation code; Table 2 lists the arms as they were run.")
+    P.p("The split, the ViT-B/16 recipe, the seeds and the evaluation code are shared across arms (Table 2); "
+        "the input condition is not the only thing that changes. A* and the diffusion arms store hair-present "
+        "images at 128 px with an aspect-ratio squash, so they differ from A and B in resolution, aspect ratio "
+        "and the field of view the classifier receives (Table 3). A* is therefore a resolution-and-framing "
+        "control, not a hair-only control.")
+    arms_rows = [
+        ["A", "original (600 × 450)", "original", "primary control", "8"],
+        ["A*", "original resized to 128 px", "original", "resolution control", "8"],
+        ["B", "DullRazor-style removal (original resolution)", "original", "primary comparison", "8"],
+        ["Cv2", "output of our rebuilt diffusion model (128 px)", "original", "final diffusion arm (exploratory family)", "8"],
+        ["Creleased", "output of the authors' released checkpoint with a 25-step respaced schedule (128 px)", "original", "exploratory", "3"],
+        ["C", "output of our first diffusion model (trainer defect)", "original", "recorded failure, appendix only", "3"]]
+    if have_fov:
+        arms_rows.append(["A*-fov", "central 450 × 450 square of the original, resized to 128 px", "original",
+                          "field-of-view control (exploratory)", "8"])
     P.table("Arms as run. Hair-present = frozen screening coverage of at least 1%; hair-absent images are the "
             "original photograph in every arm.",
-            ["Arm", "Hair-present images", "Hair-absent images", "Status", "Seeds"],
-            [["A", "original (600 × 450)", "original", "primary control", "8"],
-             ["A*", "original resized to 128 px", "original", "resolution control", "8"],
-             ["B", "DullRazor-style removal (original resolution)", "original", "primary comparison", "8"],
-             ["Cv2", "output of our rebuilt diffusion model (128 px)", "original", "final diffusion arm (exploratory family)", "8"],
-             ["Creleased", "output of the authors' released checkpoint with a 25-step respaced schedule (128 px)", "original", "exploratory", "3"],
-             ["C", "output of our first diffusion model (trainer defect)", "original", "recorded failure, appendix only", "3"]],
+            ["Arm", "Hair-present images", "Hair-absent images", "Status", "Seeds"], arms_rows,
             widths=[0.7, 2.4, 1.0, 1.7, 0.5])
+    P.table("What the classifier actually sees, per stored image size (ViT input "
+            f"{int(F['vit']['image_size'])} × {int(F['vit']['image_size'])}). The evaluation transform resizes the shorter "
+            "side to "
+            f"{eval_resize_size(int(F['vit']['image_size']))} px and centre-crops to "
+            f"{int(F['vit']['image_size'])} × {int(F['vit']['image_size'])} (src/dm_ahr_vit/xai/geometry.py). The last "
+            "column is the fraction of the original 600 × 450 photograph's area contained in that crop; it is computed "
+            "from those constants, not measured from the data.",
+            ["Storage form (hair-present unless noted)", "Stored size", "Resize → crop", "Fraction of photo seen"],
+            transform_table_rows(int(F["vit"]["image_size"]),
+                                 include_astarfov=(have_fov)))
+    P.p("A* controls the storage resolution but not the aspect ratio or the field of view: because the 600 × 450 "
+        "photo is squashed into a 128 × 128 square, the classifier sees a larger fraction of the photo than it does "
+        "for A (Table 3). A*-fov is an exploratory control that keeps A's field of view at A*'s storage resolution; "
+        "hair-absent images remain 600 × 450 in every arm.")
     P.p("The three pre-registered seeds are 42, 123 and 2026; five further seeds (7, 11, 17, 23, 31) were added "
         "for A, A*, B and Cv2 in a pre-registered follow-up (Stage E) after an independent review pointed out that three seeds "
         "cannot resolve differences of 0.02 macro-F1. Both analyses are reported.")
@@ -541,6 +632,10 @@ def build(args) -> Path:
         f"Rule fixed beforehand: reproduced = within 2 dB of the paper's {paper_psnr:.2f} dB and above the hairy-input floor. "
         f"Verdict: {'reproduced' if repro_any else 'not reproduced'}.")
     rows = [["Hairy input (do nothing)", f(floor["psnr_up"], 2), f(floor["ssim_up"], 4), f(floor["lpips"], 4), "-"]]
+    if dh_dull is not None:
+        dm = dh_dull["metrics"]
+        rows.append(["DullRazor (frozen, classical)", f(dm["psnr_up"], 2), f(dm["ssim_up"], 4),
+                     f(dm["lpips"], 4), f"{dh_dull['provenance']['n_valid']} pairs"])
     for k, nm in (("respaced_10_bf16", "Released, 10 strided steps"), ("respaced_25_bf16", "Released, 25 strided steps"),
                   ("respaced_50_bf16", "Released, 50 strided steps"), ("full_2000_bf16", "Released, 2,000 steps (full schedule)"),
                   ("truncated_10_bf16", "Released, 10-step rebuilt schedule")):
@@ -553,6 +648,13 @@ def build(args) -> Path:
     P.figure(FIGS / "fig_dermahair.png", "PSNR of the released checkpoint on DERMAHAIR by sampling setting.", 4.8)
     P.p("Because the matching effort stops once the pre-stated rule fails, no diffusion model was trained on DERMAHAIR; "
         "the downstream experiments use the rebuilt model Cv2 and the released checkpoint as a labelled exploratory arm.")
+    if dh_dull is not None:
+        dm = dh_dull["metrics"]
+        P.p(f"For context we also ran the frozen classical DullRazor removal on the same public pairs "
+            f"({dh_dull['provenance']['n_valid']} of {dh_dull['provenance']['n_pairs']} pairs; "
+            f"{dh_dull['provenance']['n_excluded_identical']} identical pairs excluded, PSNR undefined): "
+            f"{f(dm['psnr_up'], 2)} dB PSNR, {f(dm['ssim_up'], 4)} SSIM and {f(dm['lpips'], 4)} LPIPS (AlexNet). "
+            "This places the released checkpoint's reproduction attempt beside a classical baseline on identical data.")
 
     P.h2("4.2. Image quality on held-out synthetic-hair pairs (H1)")
     P.table(f"Mean image quality on {nq} held-out synthetic-hair test pairs (higher is better).",
@@ -567,7 +669,10 @@ def build(args) -> Path:
 
     P.h2("4.3. Classification (H2)")
     rows = []
-    for a in ("A", "Astar", "B", "Cv2", "Creleased", "C"):
+    arm_order = ["A", "Astar", "B", "Cv2", "Creleased", "C"]
+    if have_fov:
+        arm_order.append("Astarfov")
+    for a in arm_order:
         h = head.loc[a]
         s3 = seed_f1(F, a, PRE)
         rows.append([LABEL[a], int(h["seeds"]), f"{h['macro_f1_mean']:.3f} ± {h['macro_f1_sd']:.3f}",
@@ -580,20 +685,26 @@ def build(args) -> Path:
     P.h2("4.4. Statistical comparisons")
     rows = []
     fam_label = {"planned": "planned", "secondary_control": "control", "exploratory": "exploratory"}
-    for comp in ("A-B", "A-Astar", "A-Cv2", "B-Cv2", "Cv2-Astar"):
+    comps = ["A-B", "A-Astar", "A-Cv2", "B-Cv2", "Cv2-Astar"]
+    if have_fov:
+        comps += ["Astarfov-Astar", "Astarfov-A"]
+    for comp in comps:
         r = stat_row(F, "macro_f1", comp)
         ll = stat_row(F, "log_loss", comp)
         a, b = comp.split("-")
         ps = per_seed_diff(F, a, b)
-        rows.append([comp.replace("Astar", "A*"), fam_label[r["family"]], f"{sgn(r['difference'])} ({sgn(r['ci_low'])} to {sgn(r['ci_high'])})",
+        rows.append([comp.replace("Astarfov", "A*fov").replace("Astar", "A*"), fam_label[r["family"]],
+                     f"{sgn(r['difference'])} ({sgn(r['ci_low'])} to {sgn(r['ci_high'])})",
                      p_fmt(r["p_holm"]), "yes" if r["established"] else "no",
-                     " ".join(f"{s}:{x:+.2f}" for s, x in ps)
-                     + f" [{sum(float(f'{x:+.2f}') > 0 for _, x in ps)} of {len(ps)} seeds favour first]",
+                     " ".join(f"{s}:{x:+.3f}" for s, x in ps)
+                     + f" [{sum(x > 0 for _, x in ps)} of {len(ps)} seeds favour first]",
                      f"{sgn(ll['difference'])} ({sgn(ll['ci_low'])} to {sgn(ll['ci_high'])})"])
     P.table("Pooled analysis, eight seeds, test macro-F1 (full test set). Differences are first arm minus second; "
-            "per-seed differences are labelled seed:value in seed order 42, 123, 2026, 7, 11, 17, 23, 31, read from "
-            "pooled_per_seed.csv (an arm that lacks a seed would have it omitted). The last column is the per-image "
-            "log-loss difference (negative favours the first arm).",
+            "per-seed macro-F1 differences are labelled seed:value at three decimals, in seed order 42, 123, 2026, "
+            "7, 11, 17, 23, 31, read from pooled_per_seed.csv (an arm that lacks a seed would have it omitted). "
+            "The [k of N] bracket counts seeds whose UNROUNDED difference favours the first arm (a displayed value "
+            "can round across zero). The last column is the per-image log-loss difference (negative favours the "
+            "first arm).",
             ["Comparison", "Family", "Macro-F1 difference (95% CI)", "Holm p", "Established", "Per-seed differences", "Log-loss difference (95% CI)"], rows, size=7)
     ex = F["expl"]
     erows = []
@@ -653,19 +764,27 @@ def build(args) -> Path:
         f"from DullRazor by {sgn(cv_vs_b_psnr[0], 2)} dB PSNR ({sgn(cv_vs_b_psnr[1], 2)} to {sgn(cv_vs_b_psnr[2], 2)}) and "
         f"{sgn(cv_vs_b_ssim[0], 3)} SSIM ({sgn(cv_vs_b_ssim[1], 3)} to {sgn(cv_vs_b_ssim[2], 3)}); both methods improve on the hairy "
         "input, but the classical method is closer to the clean image. The evidence is synthetic hair composited on clean photographs, "
-        "not real hair, so it bounds the answer for real photographs only loosely.")
+        "not real hair, so it bounds the answer for real photographs only loosely."
+        + (f" On the public real-hair DERMAHAIR pairs the frozen classical removal reached "
+           f"{f(dh_dull['metrics']['psnr_up'], 2)} dB PSNR / {f(dh_dull['metrics']['ssim_up'], 4)} SSIM / "
+           f"{f(dh_dull['metrics']['lpips'], 4)} LPIPS (Section 4.1), the classical reference point for the "
+           "unreproduced diffusion figure." if dh_dull is not None else ""))
     P.p(f"H2 (classification): {'supported' if h2_supported else 'not supported'}. Original images scored highest "
         f"(macro-F1 {f(f1['A'])}); Cv2 {f(f1['Cv2'])} does not differ from the resolution control A* {f(f1['Astar'])} "
         f"(difference {sgn(cva['difference'])}, CI {sgn(cva['ci_low'])} to {sgn(cva['ci_high'])}), and DullRazor is lower "
         f"({f(f1['B'])}). Only A over B is established; the eight-seed minimum detectable difference is about "
         f"{f(float(ab['mdd_80pct']), 2)} macro-F1, so differences of 0.02 cannot be resolved here. Hair removal did not help the classifier; "
-        "this DullRazor implementation lowered macro-F1 and damages lesions on real photos.")
+        "this DullRazor implementation lowered macro-F1 and damages lesions on real photos."
+        + (f" The exploratory field-of-view control A*-fov scored {f(f1['Astarfov'])} macro-F1 against "
+           f"{f(f1['A'])} for A and {f(f1['Astar'])} for A* (Table 4), so recovering A's field of view at "
+           "A*'s storage resolution did not by itself close the gap." if have_fov else ""))
     P.p(f"H3 (explainability): {h3_state}. After correcting the mask geometry, the "
         f"remaining between-arm differences are explained by the working frame, not by hair removal: attention-rollout recall is "
         f"{f(roll_as['mean'])} for A* and {f(roll_cv['mean'])} for Cv2 (difference {sgn(cv_as_roll['difference'])}, "
-        f"CI {sgn(cv_as_roll['ci_low'])} to {sgn(cv_as_roll['ci_high'])}), while the full-resolution arms differ from the 128 px arms "
-        "mainly because lesions occupy a larger share of the 128 px centre crop. Rows whose seed spread exceeds the difference are struck "
-        "from the planned family.")
+        f"CI {sgn(cv_as_roll['ci_low'])} to {sgn(cv_as_roll['ci_high'])}), and the full-resolution arms sit lower mainly because "
+        f"their masks fill a larger share of their frame ({f(g_a['mean_mask_area'])} versus {f(g_s['mean_mask_area'])} of the model "
+        f"view), which lowers the top-20% recall ceiling ({f(g_a['recall_ceiling'])} versus {f(g_s['recall_ceiling'])}). "
+        "Rows whose seed spread exceeds the difference are struck from the planned family.")
     P.h2("5.2. Why a centred Gaussian competes with the saliency maps")
     P.p(f"Lesions in HAM10000 are large and centred: in the model's frame the mean mask covers {f(g_a['mean_mask_area'])} of the image for "
         f"arms A and B and {f(g_s['mean_mask_area'])} for the 128 px arms; {100 * g_a['share_masks_containing_centre']:.1f}% of masks contain "
@@ -673,7 +792,9 @@ def build(args) -> Path:
         f"{f(g_a['recall_ceiling'])} (A, B) and {f(g_s['recall_ceiling'])} (128 px arms), and a fixed centred Gaussian already reaches "
         f"{f(gauss_a)} and {f(gauss_s)}, i.e. about {100 * gauss_a / g_a['recall_ceiling']:.0f}% of the ceiling. A map has to beat that to show "
         "localisation beyond a centre prior; attention rollout does not (Section 4.5), and Grad-CAM at the last block is lower still. In the off-centre "
-        "test the Gaussian loses its advantage while rollout holds its recall, which indicates that rollout does track image content to some degree, "
+        "test (image and mask translated together by up to ±30%) rollout recall is "
+        f"{off_roll_vals} for A/A*/Cv2 while the translated Gaussian falls to {off_gauss_vals}; Grad-CAM ln_1 remains "
+        f"below both (best {f(off_gc_max)}). This indicates that rollout does track image content to some degree, "
         "but the as-is numbers cannot separate content from position.")
     P.h2("5.3. Reproduction of the published result")
     P.p(f"The released checkpoint, run through our adapter on the public DERMAHAIR pairs, reached {f(full2000['psnr_up'], 2)} dB PSNR / "
@@ -698,7 +819,9 @@ def build(args) -> Path:
     P.h2("5.4. Limitations")
     P.bullets([
         "Image-quality evidence uses synthetic hair on clean photographs; real-hair removal quality is not validated.",
-        "The diffusion models work at 128 px and the classifier at 224 px; A* controls the resolution but not the loss of fine texture.",
+        "The diffusion models work at 128 px and the classifier at 224 px; because the 600 × 450 photo is squashed "
+        "into a square, A* changes aspect ratio and field of view as well as resolution, so it is not a hair-only "
+        "control and fine texture is lost.",
         "Eight seeds (three for Creleased and C) leave a minimum detectable difference near 0.04–0.05 macro-F1.",
         "Lesion masks come from a single rater and are large and central, which limits what localisation metrics can show.",
         "The explanation analysis re-scored the same test images after the geometry correction (decision D40); the first-look results are kept in the appendix.",
@@ -706,7 +829,7 @@ def build(args) -> Path:
         f"{', '.join(f'{v:,}' for v in snap_iters)} iterations (Figure 5); the continuation was stopped by the project owner at "
         "56,300 of a planned 100,000 iterations (reports/decision_log.md), and the model was then fine-tuned for "
         f"{ft_iter:,} iterations on pasted real strands (artifacts/logs/dmahr_v2_train.json). For scale: the development kit's "
-        "reference recipe specifies 20,000 iterations (decision D1), the shipped upstream config asks for "
+        "reference recipe specifies 20,000 iterations [14] (decision D1), the shipped upstream config asks for "
         f"{n_iter_cfg:,} (third_party/dmahr/config/akiec.json), and the released checkpoint is labelled {rel_iter:,} "
         f"(reports/export_manifest.csv). One-step error at t=1,500 across the snapshots in that order is "
         f"{', '.join(f'{v:.4f}' for v in snap_mae)} — not monotonically improving — so iterations beyond about 56,000 are "

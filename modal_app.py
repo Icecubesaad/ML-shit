@@ -978,6 +978,53 @@ def reproduction_check():
     return _run("11_reproduction_check.py")
 
 
+# --- Client fix round: items 8 (CPU) and 9 (exploratory A*-fov arm) ---
+
+@app.function(image=image, cpu=8, memory=16384, timeout=7200, volumes={"/vol": vol})
+def astarfov_build(commit: str = "unknown", limit: int = 0):
+    """CPU: write the exploratory A*-fov images from the frozen hair screen (item 9)."""
+    vol.reload()
+    args = ["--commit", commit]
+    if limit:
+        args += ["--limit", str(limit)]
+    return _run("02b_astarfov_build.py", args)
+
+
+@app.function(image=image, gpu="A100-80GB", timeout=86400, volumes={"/vol": vol},
+              retries=modal.Retries(max_retries=3, initial_delay=10.0))
+def astarfov_pipeline(seeds: str = "42,123,2026,7,11,17,23,31"):
+    """Train + evaluate all eight A*-fov seeds sequentially. 06 resumes from last.pt,
+    so a re-run continues rather than restarting; no XAI (not requested)."""
+    vol.reload()
+    done = []
+    for s in seeds.split(","):
+        seed = int(s)
+        _run("06_train_vit.py", ["--arm", "Astarfov", "--seed", str(seed)])
+        _run("07_eval_vit.py", ["--arm", "Astarfov", "--seed", str(seed)])
+        done.append(seed)
+        vol.commit()
+    return done
+
+
+@app.function(image=image, cpu=8, memory=16384, timeout=3600, volumes={"/vol": vol})
+def pooled_run(commit: str = "unknown"):
+    """Regenerate the pooled analysis (53) and the headline table (55) after new arms land."""
+    vol.reload()
+    a = _run("53_pooled_analysis.py", ["--commit", commit])
+    b = _run("55_headline_table.py")
+    return [a, b]
+
+
+@app.function(image=image, cpu=8, memory=16384, timeout=7200, volumes={"/vol": vol})
+def dermahair_dullrazor(commit: str = "unknown", limit: int = 0):
+    """CPU: frozen classical DullRazor on the public DERMAHAIR pairs (item 8)."""
+    vol.reload()
+    args = ["--commit", commit]
+    if limit:
+        args += ["--limit", str(limit)]
+    return _run("62b_dermahair_dullrazor.py", args)
+
+
 # Separate image: PDF rendering needs LibreOffice, which is far too large for the
 # shared compute image. Fonts are included so tables do not fall back to replacement
 # fonts; the profile flag keeps repeated conversions isolated and headless-safe.

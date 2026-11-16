@@ -37,12 +37,13 @@ from dm_ahr_vit.stats.pooled import (  # noqa: E402
 from dm_ahr_vit.utils import setup_logging  # noqa: E402
 
 log = setup_logging()
-ARMS = ("A", "Astar", "B", "Cv2")
+ARMS = ("A", "Astar", "B", "Cv2", "Astarfov")
 SEEDS = (42, 123, 2026, 7, 11, 17, 23, 31)
 REPS, BOOT_SEED = 10_000, 20261113
 COMPARISONS = [("A", "B", "planned"), ("A", "Astar", "secondary_control"),
                ("A", "Cv2", "exploratory"), ("B", "Cv2", "exploratory"),
-               ("Cv2", "Astar", "exploratory")]
+               ("Cv2", "Astar", "exploratory"),
+               ("Astarfov", "Astar", "exploratory"), ("Astarfov", "A", "exploratory")]
 
 
 def load(arm: str, seed: int, subset: str) -> pd.DataFrame:

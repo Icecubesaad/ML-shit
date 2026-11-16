@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from dm_ahr_vit.paths import artifact_dir  # noqa: E402
 
 PRED = artifact_dir("predictions")
-ARMS = {"A": 8, "Astar": 8, "B": 8, "Cv2": 8, "Creleased": 3, "C": 3}
+ARMS = {"A": 8, "Astar": 8, "B": 8, "Cv2": 8, "Creleased": 3, "C": 3, "Astarfov": 8}
 SEEDS_ALL = (42, 123, 2026, 7, 11, 17, 23, 31)
 RANGES = {"accuracy": (0.82, 0.90), "macro_f1": (0.65, 0.80), "balanced_accuracy": (0.65, 0.80),
           "auc_macro": (0.94, 0.98), "melanoma_recall": (0.55, 0.80)}

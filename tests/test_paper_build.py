@@ -52,7 +52,10 @@ def test_per_seed_diff_covers_all_analysis_seeds():
     F = mod.load_facts()
     full = F["per_seed"]
     full = full[full["subset"] == "full"]
-    for a, b in (("A", "B"), ("A", "Astar"), ("A", "Cv2"), ("B", "Cv2"), ("Cv2", "Astar")):
+    have = set(full["arm"])
+    pairs = [("A", "B"), ("A", "Astar"), ("A", "Cv2"), ("B", "Cv2"), ("Cv2", "Astar"),
+             ("Astarfov", "Astar"), ("Astarfov", "A")]
+    for a, b in [(a, b) for a, b in pairs if a in have and b in have]:
         ps = mod.per_seed_diff(F, a, b)
         assert [s for s, _ in ps] == list(mod.EIGHT), (a, b, [s for s, _ in ps])
         for s, v in ps:
@@ -85,7 +88,9 @@ def test_table8_cells_label_every_seed(tmp_path):
         listed = [(int(s), float(v)) for s, v in re.findall(r"(\d+):([+-]\d+\.\d+)", cell)]
         expect = mod.per_seed_diff(F, a, b)
         assert listed and [s for s, _ in listed] == [s for s, _ in expect], (comp, cell)
-        assert all(abs(v - x) <= 0.0051 for (_, v), (_, x) in zip(listed, expect)), (comp, cell)
+        # cells show 3 dp, so a listed value may differ from the CSV by at most half a ulp
+        assert all(abs(v - x) <= 0.00051 for (_, v), (_, x) in zip(listed, expect)), (comp, cell)
         assert len(expect) == 8, (comp, len(expect))
-        n_fav = sum(float(f"{x:+.2f}") > 0 for _, x in expect)
+        # the bracket counts seeds whose UNROUNDED per-seed difference is positive
+        n_fav = sum(x > 0 for _, x in expect)
         assert re.search(rf"\[{n_fav} of {len(expect)} seeds favour first\]", cell), cell

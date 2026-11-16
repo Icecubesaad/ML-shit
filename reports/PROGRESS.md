@@ -307,3 +307,12 @@ See decision log D30. The fixed trainer was tested on validation pairs only; the
 - Done: all 38 test-split corrected explanation runs, statistics (`scripts/59_xai_stats.py`), DERMAHAIR reproduction (`scripts/62_dermahair_repro.py`, result in `artifacts/logs/dermahair_repro.json`), results report regenerated, paper generated (`scripts/80_build_paper.py`), final-status block (`scripts/82_final_status.py`), checkpoint export with hashes (`reports/export_manifest.csv`), spend log, gates, secret scan.
 - Not done, by rule: own diffusion training on DERMAHAIR (Step 2 applies only if the released checkpoint reproduces; see D42), the learning-curve continuation (snapshots beyond 55k were never evaluated; the `dmahr_lc*` runs stopped at 70k), Colab notebooks (D43).
 - Open for a person: human ratings of `artifacts/review_kit/`; the licence question (HAM10000 CC BY-NC 4.0; DM-AHR README and LICENSE contradict each other).
+
+## 2026-11-17 - Final fix round (D50-D54): paper/report corrections, gates V15/V16, optional arms
+
+- Restored A_seed42 from 10 uploaded parts; in-container SHA-256 + torch.load verified (D50).
+- Code edits (all locally validated): Table 8 bracket from unrounded per-seed diffs, 3 dp, A-Cv2 = 6 of 8; H3 direction and §3.1/Limitations wording; per-arm transform table from geometry constants (57.9% vs 77.2%); [14] citation for 20,000 iterations; off-centre finding in abstract/discussion; Results Report section 6 H3 verdict + "3 seeds" labels + computed model count; notebook wording in README/CODE_GUIDE/Results Report. New gates V15 (seed-count) and V16 (stale-phrase list).
+- Verified locally: `tests/test_paper_build.py` 3 passed; `tests/test_astarfov_build.py` 2 passed; paper and Results Report build cleanly; V16 PASS. V15 will PASS once Research_Paper.docx is regenerated (the tracked copy still has the old [5 of 8]).
+- New: `scripts/02b_astarfov_build.py`, `scripts/62b_dermahair_dullrazor.py`, `reports/prereg_astarfov.md`, Modal entrypoints (astarfov_build, astarfov_pipeline, pooled_run, dermahair_dullrazor); arm-list edits in 06/07/53/55.
+- NEXT: commit; run item 8 (CPU DullRazor on DERMAHAIR) and item 9 (A*-fov build -> 8-seed train/eval -> 53/55 rerun) on Modal with Tee logs; regenerate reports/docx/PDFs; in-container gates (expect 18/18); pull deliverables; clean parts; final commit/push.
+- Spend: ~$24.60 of $60 already recorded; item 9 budget ~$3 (authorized).

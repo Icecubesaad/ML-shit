@@ -5,8 +5,7 @@
     "reports/final_research_report.md",
     "reports/stageE_results.md",
     "reports/stageC_results.md",
-    "reports/xai_corrected_results.md",
-    "reports/paper_draft.md"
+    "reports/xai_corrected_results.md"
   ],
   "docx_dir": "artifacts/reports",
   "patterns": [
@@ -21,7 +20,9 @@
     "Grad-CAM[^.\\n]{0,60}(visual )?faithfulness has been validated",
     "attributable to the hair-removal condition alone",
     "classical removal hurt it",
-    "drives both its quality scores and its classification deficit"
+    "drives both its quality scores and its classification deficit",
+    "only manipulated variable",
+    "larger share of the 128 px"
   ],
   "paper_files": ["artifacts/reports/Research_Paper.docx"],
   "paper_patterns": [

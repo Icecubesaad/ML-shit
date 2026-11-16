@@ -32,7 +32,20 @@ ARM_LABEL = {"A": "A — original", "Astar": "A* — 128 px control",
              "C": "C — first diffusion run (defective trainer)",
              "Creleased": "Creleased — released ckpt",
              "Cv2": "Cv2 — rebuilt diffusion"}
+ARM_LABEL["Astarfov"] = "A*-fov — 128 px, A's field of view (exploratory)"
 REPO = Path(__file__).resolve().parents[1]
+
+
+def _paper_verdicts() -> dict:
+    """H1-H3 verdicts by the pre-stated rule, from the same facts the paper uses."""
+    import importlib.util  # noqa: PLC0415
+
+    p = REPO / "scripts" / "80_build_paper.py"
+    spec = importlib.util.spec_from_file_location("build_paper", p)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["build_paper"] = mod
+    spec.loader.exec_module(mod)
+    return mod.verdicts(mod.load_facts())
 
 
 def cv2_seed_metrics(subset: str = "full") -> dict:
@@ -120,15 +133,27 @@ def build() -> Path:
     best = full.loc[full["macro_f1_mean"].idxmax()]
     worst = full.loc[full["macro_f1_mean"].idxmin()]
     pooled = pd.read_csv(logs / "pooled_per_seed.csv")
+    # Distinct (arm, seed) checkpoints: the pre-registered summary and the eight-seed
+    # pooled table are the two sources; take the union so no model is counted twice.
+    _cma = pd.read_csv(logs / "classification_metrics_all.csv")
+    pairs = set(zip(_cma[_cma["subset"] == "full"]["arm"], _cma[_cma["subset"] == "full"]["seed"]))
+    pairs |= set(zip(pooled[pooled["subset"] == "full"]["arm"],
+                     pooled[pooled["subset"] == "full"]["seed"]))
+    n_models = len(pairs)
+    ntest = int(pooled[pooled["subset"] == "full"]["n"].iloc[0])
+    nhp = int(pooled[pooled["subset"] == "hair_present"]["n"].iloc[0])
+    have_fov = "Astarfov" in set(pooled["arm"])
 
     def pf1(arm, subset="full"):
         v = pooled[(pooled["arm"] == arm) & (pooled["subset"] == subset)]["macro_f1"]
         return float(v.mean()), float(v.std(ddof=1)), int(v.size)
 
     callout(doc, "In one sentence",
-            f"Across 38 trained models (Original, the 128 px control, DullRazor and the rebuilt "
+            f"Across {n_models} trained models (Original, the 128 px control, DullRazor and the rebuilt "
             f"diffusion arm Cv2 at eight seeds each; the released checkpoint and our first, failed "
-            f"diffusion run at three) evaluated on a locked test set of 1,502 images, Original "
+            f"diffusion run at three"
+            + (f", plus the eight-seed exploratory A*-fov control" if "Astarfov" in set(pooled["arm"]) else "")
+            + f") evaluated on a locked test set of {ntest:,} images, Original "
             f"scored highest at macro-F1 {pf1('A')[0]:.3f}. Our first diffusion run "
             f"({worst['macro_f1_mean']:.3f}) failed because of a training-script defect. After "
             f"repairing it, retraining and teaching the model with real hair strands, the rebuilt "
@@ -144,11 +169,13 @@ def build() -> Path:
 
     h1(doc, "1. What was trained and how")
     body(doc,
-         "The first fifteen Vision Transformers (sections 2 to 7) are five input conditions (arms) at three random "
-         "seeds each; Stage C added three Cv2 runs and Stage E twenty more (section 8). Everything except the arm is identical — same frozen split, same manifests, "
-         "same architecture, hyperparameters, augmentation and evaluation code — so a difference "
-         "between arms reflects the whole condition as run: the hair-removal processing and "
-         "everything it does to the images, not hair removal in isolation. Creleased is the "
+         "The tables in sections 1 and 2 use three seeds (42/123/2026): the first fifteen Vision "
+         "Transformers (sections 2 to 7) are five input conditions (arms) at three seeds each; "
+         "Stage C added three Cv2 runs and Stage E twenty more (section 8). The split, manifests, "
+         "architecture, hyperparameters, augmentation and evaluation code are shared, but the input "
+         "condition is not the only thing that changes: A* and the diffusion arms also change image "
+         "resolution, aspect ratio and field of view (Section 3.1 of the paper), so a between-arm "
+         "difference reflects the whole condition as run, not hair removal in isolation. Creleased is the "
          "authors' released DM-AHR checkpoint run through our pipeline at a 25-step respaced "
          "schedule; it was added after the protocol was frozen and is reported as exploratory.")
     table(doc, ["Arm", "Input the classifier sees", "Macro-F1 (mean ± SD)"],
@@ -181,8 +208,9 @@ def build() -> Path:
 
     h1(doc, "2. Classification results")
     body(doc,
-         "All metrics are computed on the held-out test set of 1,502 images. Macro-F1 is the "
-         "primary endpoint because classes are severely imbalanced: nv is two thirds of the "
+         f"All metrics in the tables below are computed on the held-out test set of {ntest:,} images "
+         "over three seeds (42/123/2026); the eight-seed pooled analysis is in section 8. Macro-F1 "
+         "is the primary endpoint because classes are severely imbalanced: nv is two thirds of the "
          "data, so plain accuracy rewards ignoring the rare classes.")
     table(doc, ["Arm", "Macro-F1", "Accuracy", "Balanced acc.", "Macro AUC"],
           [[ARM_LABEL[r.arm], f"{r.macro_f1_mean:.3f} ± {r.macro_f1_sd:.3f}",
@@ -406,6 +434,10 @@ def build() -> Path:
                 "arm) must be re-read from the baseline rows in section 4: " +
                 " ".join(xt.baseline_verdicts(x2, "recall")) + " Whether H3 is supported is read from the "
                 "planned comparison above and the Cv2 rows, not from this sentence.")
+    bullet(doc, f"H3 verdict (pre-stated rule): {_paper_verdicts()['h3']}. Every between-arm recall row "
+                "in the planned family was struck because the seed-to-seed spread exceeded the "
+                "difference, so the study is inconclusive on H3 — it neither supports nor refutes "
+                "the claim that diffusion makes explanations more lesion-focused.")
     body(doc, "Resolution control: ", space_after=2)
     bullet(doc, f"A vs A*: {verdict(row(stats, 'test_macro_f1', 'A-Astar', 'full'))}. Because "
                 "this is inconclusive, the 128 px round-trip alone does not explain Arm C's "
@@ -488,16 +520,29 @@ def build() -> Path:
     def pcell(a, sub):
         m, sd, _ = pf1(a, sub)
         return f"{m:.3f} ± {sd:.3f}"
-    table(doc, ["Arm", "Full test (n=1,502)", "Hair-present (n=1,316)"],
+    table(doc, ["Arm", f"Full test (n={ntest:,})", f"Hair-present (n={nhp:,})"],
           [[ARM_LABEL[a], pcell(a, "full"), pcell(a, "hair_present")]
            for a in ("A", "Astar", "B", "Cv2")] +
           [[ARM_LABEL["Creleased"], seedcell("Creleased", "full"), seedcell("Creleased", "hair_present")],
-           [ARM_LABEL["C"], seedcell("C", "full"), seedcell("C", "hair_present")]],
+           [ARM_LABEL["C"], seedcell("C", "full"), seedcell("C", "hair_present")]] +
+          ([[ARM_LABEL["Astarfov"], pcell("Astarfov", "full"), pcell("Astarfov", "hair_present")]]
+           if have_fov else []),
           widths=[2.5, 2.0, 2.0], align_right_from=1)
+    if have_fov:
+        body(doc, "A*-fov is an exploratory post-hoc control: hair-present images are centre-cropped "
+                  "to A's field of view before the 128 px squash, so it isolates framing from "
+                  "resolution. It is trained with the same recipe and eight seeds; its comparisons "
+                  "are reported in their own exploratory rows below.", size=9.5, italic=True)
     rows8 = pooled_an[(pooled_an["endpoint"] == "macro_f1") & (pooled_an["subset"] == "full")]
-    for comp, label in (("A-B", "A vs B"), ("A-Astar", "A vs A* (resolution control)"),
-                        ("A-Cv2", "A vs Cv2"), ("B-Cv2", "B vs Cv2"),
-                        ("Cv2-Astar", "Cv2 vs A* (resolution control)")):
+    pooled_pairs = [("A-B", "A vs B"), ("A-Astar", "A vs A* (resolution control)"),
+                    ("A-Cv2", "A vs Cv2"), ("B-Cv2", "B vs Cv2"),
+                    ("Cv2-Astar", "Cv2 vs A* (resolution control)")]
+    if have_fov:
+        pooled_pairs += [("Astarfov-Astar", "A*-fov vs A* (exploratory)"),
+                         ("Astarfov-A", "A*-fov vs A (exploratory)")]
+    for comp, label in pooled_pairs:
+        if comp not in set(rows8["comparison"]):
+            continue
         r = rows8[rows8["comparison"] == comp].iloc[0]
         bullet(doc, f"{r['difference']:+.3f} (95% CI {r['ci_low']:+.3f} to {r['ci_high']:+.3f}, "
                     f"{r['family']}); Holm p {r['p_holm']:.3f}; with seeds held fixed the interval "
@@ -622,9 +667,10 @@ def build() -> Path:
         bullet(doc, "the frozen split hash was reproduced byte for byte across two Modal "
                     "accounts, and the full data-preparation chain was re-run natively with no "
                     "Modal present, giving the identical hash.", "Portability — ")
-    bullet(doc, "notebooks/01_results_walkthrough.ipynb reads the committed artifacts and "
-                "explains these tables interactively; notebooks/02 and 03 reproduce the pipeline "
-                "on Modal or a local GPU.", "How to explore — ")
+    bullet(doc, "notebooks/01_results_walkthrough.ipynb runs on any CPU and reads the committed "
+                "artifacts; notebooks/02_pipeline_reproduction.ipynb shells out to paid `modal run` "
+                "jobs (review the commands before executing); "
+                "notebooks/03_local_gpu_pipeline.ipynb needs a local CUDA GPU.", "How to explore — ")
     body(doc,
          "Every table here is generated from artifacts/logs/: classification_seed_summary.csv, "
          "classification_per_class.csv, paired_psnr_ssim_test.csv, xai_localization_*.csv and "
