@@ -1,0 +1,209 @@
+{
+  "n_csv": 3,
+  "csvs": [
+    {
+      "path": "/vol/data/external/dermartifactdb/DermArtifactDB/annotations/annotations_ISIC2019.csv",
+      "rows": 20599,
+      "columns": [
+        "image",
+        "dark_corner",
+        "hair",
+        "gel_border",
+        "gel_bubble",
+        "ruler",
+        "ink",
+        "patches"
+      ],
+      "sample": [
+        {
+          "image": "ISIC_0000000",
+          "dark_corner": 0,
+          "hair": 0,
+          "gel_border": 0,
+          "gel_bubble": 0,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        },
+        {
+          "image": "ISIC_0000001",
+          "dark_corner": 0,
+          "hair": 1,
+          "gel_border": 0,
+          "gel_bubble": 1,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        },
+        {
+          "image": "ISIC_0000002",
+          "dark_corner": 1,
+          "hair": 0,
+          "gel_border": 0,
+          "gel_bubble": 0,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        }
+      ],
+      "notable_columns": {
+        "image": {
+          "n_unique": 20599,
+          "top": [
+            "ISIC_0000000",
+            "ISIC_0057405",
+            "ISIC_0057554",
+            "ISIC_0057552",
+            "ISIC_0057550",
+            "ISIC_0057547",
+            "ISIC_0057544",
+            "ISIC_0057540"
+          ]
+        },
+        "hair": {
+          "n_unique": 2,
+          "top": [
+            "1",
+            "0"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/vol/data/external/dermartifactdb/DermArtifactDB/annotations/annotations_PH2.csv",
+      "rows": 200,
+      "columns": [
+        "image",
+        "dark_corner",
+        "hair",
+        "gel_border",
+        "gel_bubble",
+        "ruler",
+        "ink",
+        "patches"
+      ],
+      "sample": [
+        {
+          "image": "IMD002",
+          "dark_corner": 1,
+          "hair": 1,
+          "gel_border": 0,
+          "gel_bubble": 0,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        },
+        {
+          "image": "IMD003",
+          "dark_corner": 1,
+          "hair": 1,
+          "gel_border": 0,
+          "gel_bubble": 0,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        },
+        {
+          "image": "IMD004",
+          "dark_corner": 1,
+          "hair": 1,
+          "gel_border": 0,
+          "gel_bubble": 0,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        }
+      ],
+      "notable_columns": {
+        "image": {
+          "n_unique": 200,
+          "top": [
+            "IMD002",
+            "IMD360",
+            "IMD305",
+            "IMD306",
+            "IMD312",
+            "IMD328",
+            "IMD331",
+            "IMD339"
+          ]
+        },
+        "hair": {
+          "n_unique": 2,
+          "top": [
+            "0",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/vol/data/external/dermartifactdb/DermArtifactDB/annotations/annotations_derm7pt.csv",
+      "rows": 1011,
+      "columns": [
+        "image",
+        "dark_corner",
+        "hair",
+        "gel_border",
+        "gel_bubble",
+        "ruler",
+        "ink",
+        "patches"
+      ],
+      "sample": [
+        {
+          "image": "Aal002",
+          "dark_corner": 0,
+          "hair": 1,
+          "gel_border": 0,
+          "gel_bubble": 1,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        },
+        {
+          "image": "Aal002bis",
+          "dark_corner": 0,
+          "hair": 1,
+          "gel_border": 0,
+          "gel_bubble": 1,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        },
+        {
+          "image": "Aal004",
+          "dark_corner": 0,
+          "hair": 0,
+          "gel_border": 0,
+          "gel_bubble": 1,
+          "ruler": 0,
+          "ink": 0,
+          "patches": 0
+        }
+      ],
+      "notable_columns": {
+        "image": {
+          "n_unique": 1011,
+          "top": [
+            "Aal002",
+            "Ndl005",
+            "Ncl056",
+            "Ncl063",
+            "Ncl064",
+            "Ncl069",
+            "Ncl071",
+            "Ncl076"
+          ]
+        },
+        "hair": {
+          "n_unique": 2,
+          "top": [
+            "1",
+            "0"
+          ]
+        }
+      }
+    }
+  ]
+}

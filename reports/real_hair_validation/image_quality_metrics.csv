@@ -1,0 +1,3 @@
+source,method,n,psnr_db,ssim,lpips,note
+DERMAHAIR synthetic pairs,released checkpoint (best),707,35.23948914684275,0.9174804641781232,0.06831064956482309,"SYNTHETIC hair, not natural-hair evidence"
+DERMAHAIR synthetic pairs,frozen DullRazor (classical),704,25.32673876394456,0.7591175021761308,0.3379666448824785,"SYNTHETIC hair, not natural-hair evidence"

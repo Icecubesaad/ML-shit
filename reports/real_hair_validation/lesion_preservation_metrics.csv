@@ -1,0 +1,3 @@
+metric,value,reason
+lesion_pixel_change,NOT VERIFIED,no lesion masks in the independent external set; never auto-generated
+lesion_boundary_displacement,NOT VERIFIED,no lesion masks in the independent external set

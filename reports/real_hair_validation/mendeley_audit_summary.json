@@ -1,0 +1,17 @@
+{
+  "n_images": 500,
+  "n_masks": 500,
+  "n_valid_pairs": 500,
+  "n_bad": 0,
+  "bad": [],
+  "matched_stems": 500,
+  "n_duplicate_hashes": 0,
+  "duplicate_excess": 0,
+  "binary_masks": 500,
+  "nonbinary_masks": 0,
+  "coverage_min": 0.0,
+  "coverage_median": 0.06866,
+  "coverage_max": 0.65679,
+  "hair_positive_ge_1pct": 443,
+  "contact_sheet": "/vol/reports/real_hair_validation/mendeley_contact_sheet.png"
+}

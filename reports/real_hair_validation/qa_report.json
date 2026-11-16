@@ -1,0 +1,226 @@
+{
+  "passed": 44,
+  "total": 44,
+  "checks": [
+    {
+      "check": "exists:discovery_report.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:checkpoint_inventory.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:checkpoint_smoke_test.json",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:dataset_download_manifest.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:dataset_integrity_report.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:overlap_audit.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:external_evaluation_manifest.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:hair_detector_metrics.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:real_hair_inference_metrics.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:lesion_preservation_metrics.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:base_vs_finetuned_comparison.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:image_quality_metrics.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:per_image_predictions.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:failure_cases.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:experiment_config.json",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:spend_summary.csv",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exists:final_real_hair_validation_report.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:base:finite",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:base:reproducible",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:base:shape",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:base:strict",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:finetuned:finite",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:finetuned:reproducible",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:finetuned:shape",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "smoke:finetuned:strict",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "overlap:500_rows",
+      "status": "PASS",
+      "detail": "500"
+    },
+    {
+      "check": "overlap:classes_sum",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "overlap:independent>=100",
+      "status": "PASS",
+      "detail": "395"
+    },
+    {
+      "check": "manifest:395",
+      "status": "PASS",
+      "detail": "395"
+    },
+    {
+      "check": "manifest:no_overlap",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "manifest:pixel_labels",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "metrics:3_methods",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "metrics:1185_rows",
+      "status": "PASS",
+      "detail": "1185"
+    },
+    {
+      "check": "comparison:has_ci_p",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "lesion:not_fabricated",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "outputs:original:395",
+      "status": "PASS",
+      "detail": "395"
+    },
+    {
+      "check": "outputs:dm_ahr_base:395",
+      "status": "PASS",
+      "detail": "395"
+    },
+    {
+      "check": "outputs:dm_ahr_finetuned:395",
+      "status": "PASS",
+      "detail": "395"
+    },
+    {
+      "check": "outputs:dullrazor:395",
+      "status": "PASS",
+      "detail": "395"
+    },
+    {
+      "check": "outputs:comparisons:395",
+      "status": "PASS",
+      "detail": "395"
+    },
+    {
+      "check": "kit:mapping",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "kit:sheet",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "kit:form",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "config:production",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

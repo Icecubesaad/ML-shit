@@ -1,0 +1,20 @@
+{
+  "n": 395,
+  "hair_present": 344,
+  "hair_negative_controls": 51,
+  "density_groups": {
+    "sparse": 67,
+    "moderate": 169,
+    "dense": 159
+  },
+  "thresholds": {
+    "hair_present": ">=1% mask coverage",
+    "sparse": "<2%",
+    "moderate": "2-10%",
+    "dense": ">=10%"
+  },
+  "excluded": {
+    "B_exact": 7,
+    "C_near_duplicate": 98
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "mendeley": {
+    "exists": true,
+    "dirs": [
+      "A skin lesion hair mask dataset with fine-grained annotations"
+    ],
+    "n_dirs": 1,
+    "extensions": {
+      ".png": 1500,
+      ".ipynb": 3,
+      "": 2,
+      ".py": 2,
+      ".zip": 1,
+      ".mp4": 1
+    },
+    "examples": {
+      "A skin lesion hair mask dataset with fine-grained annotations": {
+        "n": 1507,
+        "sample": [
+          "check_annotation.ipynb",
+          "mask_editing_process.mp4",
+          "metrics.py",
+          "model.py",
+          "predict_mask.ipynb"
+        ]
+      }
+    }
+  },
+  "zenodo": {
+    "exists": true,
+    "dirs": [
+      "DermArtifactDB"
+    ],
+    "n_dirs": 1,
+    "extensions": {
+      ".png": 21811,
+      ".csv": 3,
+      "": 1,
+      ".zip": 1,
+      ".md": 1,
+      ".txt": 1,
+      ".xlsx": 1
+    },
+    "examples": {
+      "DermArtifactDB": {
+        "n": 21817,
+        "sample": [
+          "README.md",
+          "annotations_ISIC2019.csv",
+          "annotations_PH2.csv",
+          "annotations_derm7pt.csv",
+          "color_legend.png"
+        ]
+      }
+    }
+  },
+  "mendeley_detail": {
+    "img_dir": "/vol/data/external/mendeley_hair_masks/A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image",
+    "n_imgs": 500,
+    "mask_dir": "/vol/data/external/mendeley_hair_masks/A skin lesion hair mask dataset with fine-grained annotations/hair_mask",
+    "n_masks": 500,
+    "img_sample": [
+      "ISIC_0000004.png",
+      "ISIC_0000022.png",
+      "ISIC_0000032.png"
+    ],
+    "mask_sample": [
+      "ISIC_0000004.png",
+      "ISIC_0000022.png",
+      "ISIC_0000032.png"
+    ],
+    "image_sizes": [
+      [
+        512,
+        512
+      ],
+      [
+        512,
+        512
+      ],
+      [
+        512,
+        512
+      ],
+      [
+        512,
+        512
+      ],
+      [
+        512,
+        512
+      ]
+    ],
+    "masks_binary_5samples": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "matched_stems": 500,
+    "unmatched_imgs": 0,
+    "unmatched_masks": 0
+  }
+}

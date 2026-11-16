@@ -1,0 +1,6 @@
+item,seconds,usd
+"primary inference (395 images, A100-80GB)",348.6,0.2419
+exploratory t0=1000 (A100-80GB),252.2,0.175
+"smoke tests (A100-80GB, measured)",30.05,0.0209
+"GPU total (estimate, not invoice)",630.8,0.4378
+workspace billed cost at capture,,0.0

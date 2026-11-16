@@ -1,0 +1,3 @@
+source_dataset,n_independent,n_scored,metrics
+mendeley_hair_masks,395,395,pixel-change / residual-hair proxies (no paired hairless reference)
+dermartifactdb,0,0,NOT AVAILABLE: annotation archive has no images; source image access requires registration (ISIC2019/PH2/Derm7pt)

@@ -1,0 +1,153 @@
+{
+  "bundle_srcs": [
+    "/datasets/bundle.js?c2c2cda645a5424c6f37"
+  ],
+  "bundle_len": 653791,
+  "findings": [
+    {
+      "needle": "/zip",
+      "ctx": "chine\"],[\"z3\",\"application/x-zmachine\"],[\"z4\",\"application/x-zmachine\"],[\"z5\",\"application/x-zmachine\"],[\"z6\",\"application/x-zmachine\"],[\"z7\",\"application/x-zmachine\"],[\"z8\",\"application/x-zmachine\"],[\"zaz\",\"application/vnd.zzazz.deck+xml\"],[\"zip\",\"application/zip\"],[\"zir\",\"application/vnd.zul\"],[\"zirz\",\"application/vnd.zul\"],[\"zmm\",\"application/vnd.handheld-entertainment+xml\"],[\"zsh\",\"text/x-scriptzsh\"]]);function Pc(e,t,n){const i=function(e){const{name:t}=e;if(t&&-1!==t.lastIndexOf(\".\")&&!e.type){const n=t.split(\".\").pop().toLowerCase(),i=Mc.get(n);i&&Object.defineProperty(e,\"type\",{value:i,writable:!1,configurable:!1,enumerable:!0})}return e}(e),{webkitRelativePath:r}"
+    },
+    {
+      "needle": "/zip",
+      "ctx": "0},r(\"downloadAll\")));const d=`${i.name.substring(0,250)}.zip`;return n().createElement(Uu,{onBlur:e=>!e.currentTarget.contains(e.relatedTarget)&&l(!1)},n().createElement(\"a\",{\"aria-describedby\":\"zip-details\",className:\"mdui-button secondary\",href:`/public-api/zip/${i.id}/download/${i.version}`,id:\"download-all\",onClick:async()=>{if(xp(i.doi),window.pageDataTracker){const e=function(e){return{content:[{id:`MD:MDDATA_DATASET:ID:${e.id}.${e.version}`,format:\"application/zip\",type:\"MD:MDDATA_DATASET\",detail:`MD:MDDATA_ITEM:${fp(e)}`}]}}(i);window.pageDataTracker.trackEvent(\"contentDownload\",e)}}},r(\"downloadAll\"),Ld(o)),n().createElement(Mt,{\"aria-label\":r(\"zipDetails\"),butt"
+    },
+    {
+      "needle": "/zip",
+      "ctx": "ssName:\"mdui-button secondary\",href:`/public-api/zip/${i.id}/download/${i.version}`,id:\"download-all\",onClick:async()=>{if(xp(i.doi),window.pageDataTracker){const e=function(e){return{content:[{id:`MD:MDDATA_DATASET:ID:${e.id}.${e.version}`,format:\"application/zip\",type:\"MD:MDDATA_DATASET\",detail:`MD:MDDATA_ITEM:${fp(e)}`}]}}(i);window.pageDataTracker.trackEvent(\"contentDownload\",e)}}},r(\"downloadAll\"),Ld(o)),n().createElement(Mt,{\"aria-label\":r(\"zipDetails\"),buttonType:\"action\",className:\"info\",onClick:()=>l(!s)},n().createElement(Fu,{height:20})),n().createElement(\"div\",{className:\"mdui-tooltip\",style:s?null:{display:\"none\"}},n().createElement(Bu,{height:16}),n().create"
+    },
+    {
+      "needle": "/zip",
+      "ctx": ".isRequired};const Vu=(0,c.connect)((function({archive:e,dataset:t}){return{archive:e.data,dataset:t.snapshot}}))(Gu),Ku=(e,t,n)=>async(i,r)=>{i({type:Q});try{const{configClient:a}=r();i((e=>({type:Y,payload:e}))(await e.makeCall(`${a.apiBaseUrl}/datasets/${t}/zip?version=${n}`,{allowAnonymous:!0,rawUrl:!0})))}catch(e){console.log(\"Archive.js - Error fetching zip file\"),i((a=e.data.statusCode,{type:J,payload:a}))}var a};class Wu extends n().Component{componentDidMount(){const{snapshot:e,getArchive:t}=this.props,{id:n,version:i}=e;t(this.context.client,n,i)}componentDidUpdate(e){const{snapshot:t,getArchive:n}=this.props,{id:i,version:r}=t;e.snapshot.version!==r&&n(this.con"
+    },
+    {
+      "needle": "archive",
+      "ctx": "eateElement(\"a\",{href:\"/accessibility\"},this.props.t(\"footer.accessibility\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\")),!e&&n().createElement(n().Fragment,null,n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/archive-process\"},this.props.t(\"footer.archiveProcess\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\"))),n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/file-formats\"},this.props.t(\"footer.fileFormats\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\")),n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/api/docs\"},this.props.t(\"fo"
+    },
+    {
+      "needle": "archive",
+      "ctx": ",this.props.t(\"footer.accessibility\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\")),!e&&n().createElement(n().Fragment,null,n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/archive-process\"},this.props.t(\"footer.archiveProcess\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\"))),n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/file-formats\"},this.props.t(\"footer.fileFormats\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\")),n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/api/docs\"},this.props.t(\"footer.api\"))),n().createElement(\"li\",nul"
+    },
+    {
+      "needle": "archive",
+      "ctx": "io/x-aiff\"],[\"aifc\",\"audio/x-aiff\"],[\"aiff\",\"audio/x-aiff\"],[\"air\",\"application/vnd.adobe.air-application-installer-package+zip\"],[\"ait\",\"application/vnd.dvb.ait\"],[\"ami\",\"application/vnd.amiga.ami\"],[\"amr\",\"audio/amr\"],[\"apk\",\"application/vnd.android.package-archive\"],[\"apng\",\"image/apng\"],[\"appcache\",\"text/cache-manifest\"],[\"application\",\"application/x-ms-application\"],[\"apr\",\"application/vnd.lotus-approach\"],[\"arc\",\"application/x-freearc\"],[\"arj\",\"application/x-arj\"],[\"asc\",\"application/pgp-signature\"],[\"asf\",\"video/x-ms-asf\"],[\"asm\",\"text/x-asm\"],[\"aso\",\"application/vnd.accpac.simply.aso\"],[\"asx\",\"video/x-ms-asf\"],[\"atc\",\"application/vnd.acucorp\"],[\"atom\",\"application"
+    },
+    {
+      "needle": "archive",
+      "ctx": "\"dvb\",\"video/vnd.dvb.file\"],[\"dvi\",\"application/x-dvi\"],[\"dwd\",\"application/atsc-dwd+xml\"],[\"dwf\",\"model/vnd.dwf\"],[\"dwg\",\"image/vnd.dwg\"],[\"dxf\",\"image/vnd.dxf\"],[\"dxp\",\"application/vnd.spotfire.dxp\"],[\"dxr\",\"application/x-director\"],[\"ear\",\"application/java-archive\"],[\"ecelp4800\",\"audio/vnd.nuera.ecelp4800\"],[\"ecelp7470\",\"audio/vnd.nuera.ecelp7470\"],[\"ecelp9600\",\"audio/vnd.nuera.ecelp9600\"],[\"ecma\",\"application/ecmascript\"],[\"edm\",\"application/vnd.novadigm.edm\"],[\"edx\",\"application/vnd.novadigm.edx\"],[\"efif\",\"application/vnd.picsel\"],[\"ei6\",\"application/vnd.pg.osasli\"],[\"elc\",\"application/octet-stream\"],[\"emf\",\"image/emf\"],[\"eml\",\"message/rfc822\"],[\"emma\",\"application/e"
+    },
+    {
+      "needle": "archive",
+      "ctx": "na.informed.formtemplate\"],[\"its\",\"application/its+xml\"],[\"ivp\",\"application/vnd.immervision-ivp\"],[\"ivu\",\"application/vnd.immervision-ivu\"],[\"jad\",\"text/vnd.sun.j2me.app-descriptor\"],[\"jade\",\"text/jade\"],[\"jam\",\"application/vnd.jam\"],[\"jar\",\"application/java-archive\"],[\"jardiff\",\"application/x-java-archive-diff\"],[\"java\",\"text/x-java-source\"],[\"jhc\",\"image/jphc\"],[\"jisp\",\"application/vnd.jisp\"],[\"jls\",\"image/jls\"],[\"jlt\",\"application/vnd.hp-jlyt\"],[\"jng\",\"image/x-jng\"],[\"jnlp\",\"application/x-java-jnlp-file\"],[\"joda\",\"application/vnd.joost.joda-archive\"],[\"jp2\",\"image/jp2\"],[\"jpe\",\"image/jpeg\"],[\"jpeg\",\"image/jpeg\"],[\"jpf\",\"image/jpx\"],[\"jpg\",\"image/jpeg\"],[\"jpg2\",\"image/"
+    },
+    {
+      "needle": "archive",
+      "ctx": "ation/its+xml\"],[\"ivp\",\"application/vnd.immervision-ivp\"],[\"ivu\",\"application/vnd.immervision-ivu\"],[\"jad\",\"text/vnd.sun.j2me.app-descriptor\"],[\"jade\",\"text/jade\"],[\"jam\",\"application/vnd.jam\"],[\"jar\",\"application/java-archive\"],[\"jardiff\",\"application/x-java-archive-diff\"],[\"java\",\"text/x-java-source\"],[\"jhc\",\"image/jphc\"],[\"jisp\",\"application/vnd.jisp\"],[\"jls\",\"image/jls\"],[\"jlt\",\"application/vnd.hp-jlyt\"],[\"jng\",\"image/x-jng\"],[\"jnlp\",\"application/x-java-jnlp-file\"],[\"joda\",\"application/vnd.joost.joda-archive\"],[\"jp2\",\"image/jp2\"],[\"jpe\",\"image/jpeg\"],[\"jpeg\",\"image/jpeg\"],[\"jpf\",\"image/jpx\"],[\"jpg\",\"image/jpeg\"],[\"jpg2\",\"image/jp2\"],[\"jpgm\",\"video/jpm\"],[\"jpgv\",\"video"
+    },
+    {
+      "needle": "/files",
+      "ctx": "ing};const sp=op,lp=e=>({type:V,payload:e}),cp=e=>({type:Z,payload:e}),dp=1e3,pp={cancelled:!1},up=(e,t,n,i,r=pp)=>async(a,o)=>{const{configClient:s,hostname:l}=o();let c=0,d=!0;for(;d&&!r.cancelled;)try{const o=`https://${l}${s.publicApiBaseUrl}/datasets/${t}/files?folder_id=${i}&version=${n}&$start=${c}&$limit=1000`,p=await e.makeCall(o,{allowAnonymous:!0,headers:{Accept:\"application/vnd.mendeley-public-dataset.1+json\"},rawUrl:!0,rawResponse:!0}),u=await p.json();if(r.cancelled)return;a(lp(u)),d=u.length===dp,c+=dp}catch(e){console.log(\"Datasets.js - Error fetching files\"),d=!1}},mp=e=>({type:ae,payload:e});function hp(e,t){return e.map((e=>e[t])).join(\",\")}function fp("
+    },
+    {
+      "needle": "/files",
+      "ctx": "etFile:a,resetFileViewerLoad:o}=this.props;o(),a(r.find((t=>t.id===e.id))),window.pageDataTracker&&window.pageDataTracker.trackEvent(\"buttonClick\",{buttonType:\"md:data:location=dataset_page:name=view_individual_file\"}),t.push(`${i.baseUrl}/${n.id}/${n.version}/files/${e.id}`)}}setToRoot(){this.setState({currentPath:[{contents:{folders:this.getFolders(\"root\"),files:this.getFiles(\"root\")},id:\"root\",label:\"Root\"}],loading:!1})}async setFolderPath(e){const{id:t,version:n}=e,i=this.startFilesFetch();await this.props.fetchFolders(this.context.client,t,n,i),i.cancelled||(await this.props.fetchFiles(this.context.client,t,n,\"root\",i),i.cancelled||this.setToRoot())}getRowHeight(e,t"
+    },
+    {
+      "needle": "/files",
+      "ctx": "o,params:s,setLoaded:l}){const c=(0,e.useContext)(R),p=function(t){const n=(0,e.useRef)();return(0,e.useEffect)((()=>{n.current=t})),n.current}(i),u=(0,d.useHistory)();(0,e.useEffect)((()=>{(p&&p.id!==i.id||t?.id)&&(l(!0),u.push(`/datasets/${t.id}/${t.version}/files/${i.id}`))}),[t,i]);const{t:m}=(0,N.useTranslation)();if(t&&!t.id)return o(c.client,s.id,s.version),r&&n().createElement(F.A,null);let h=i.content_details.download_url;const f=new URL(h);h=h.replace(f.hostname,window.location.hostname);const g=a?a.name:\"Mendeley Data\";return n().createElement(n().Fragment,null,r?n().createElement(n().Fragment,null,n().createElement(Rt,null,n().createElement(\"title\",null,`${i.f"
+    },
+    {
+      "needle": "/files",
+      "ctx": "t:e,files:t,configClient:n,hostname:i}){return{currentFile:t.currentFile,configClient:n,dataset:e.snapshot,hostname:i}}),{getFile:(e,t,n)=>async(i,r)=>{try{const{configClient:a,hostname:o}=r(),s=await e.makeCall(`https://${o}${a.publicApiBaseUrl}/datasets/${t}/files/${n}`,{allowAnonymous:!0,rawUrl:!0});i(cp(s))}catch(e){console.log(`Datasets.js - Error fetching file ${n}`)}}})((0,N.withTranslation)()(Ih))};(0,T.setDefaultOptions)({locale:O.enGB});const Ph=function(e){const t=D(e);return[{component:I,routes:[{...Mh,path:`${t.baseUrl}/:id/:version/files/:fileId`},{...rh,path:`${t.baseUrl}/:id/:version`},{...rh,path:`${t.baseUrl}/:id`}]}]},Ah={data:{status:\"PENDING\"},error:n"
+    },
+    {
+      "needle": "/files",
+      "ctx": ",rawUrl:!0});i(cp(s))}catch(e){console.log(`Datasets.js - Error fetching file ${n}`)}}})((0,N.withTranslation)()(Ih))};(0,T.setDefaultOptions)({locale:O.enGB});const Ph=function(e){const t=D(e);return[{component:I,routes:[{...Mh,path:`${t.baseUrl}/:id/:version/files/:fileId`},{...rh,path:`${t.baseUrl}/:id/:version`},{...rh,path:`${t.baseUrl}/:id`}]}]},Ah={data:{status:\"PENDING\"},error:null,loading:!1},zh={list:[],loading:!0},Lh={data:{},count:0,error:!1,loading:!0},Dh={snapshot:{},contributors:[],doi:\"\",status:null,loading:!0},jh={list:[],currentFile:{},folders:[],currentFolder:{},filesLoading:!0,foldersLoading:!0},$h=(e,t)=>{return[...e,...t].filter((n=new Set,e=>!n.has("
+    },
+    {
+      "needle": "idToken",
+      "ctx": "-logo\",src:lo(this.props.s3,e.folder,e.logo2),alt:\"second logo\"}))))}}class po extends n().PureComponent{static propTypes={appName:$().string,customer:$().shape({customer_moderation:$().string}),environment:$().string.isRequired,hostname:$().string.isRequired,idToken:$().shape({\"dcd:roles\":$().arrayOf($().string).isRequired,email:$().string.isRequired,name:$().string.isRequired}),institution:$().object,mainContentId:$().string.isRequired,pathname:$().string.isRequired,public:$().bool,publicLinks:$().arrayOf($().shape({id:$().string.isRequired,label:$().string.isRequired,href:$().string.isRequired,type:$().string.isRequired})),s3:$().string.isRequired,subHeader:$().node,t:"
+    },
+    {
+      "needle": "idToken",
+      "ctx": "href=\"/logout\",onClickPrimaryCtaSignedOut:()=>window.location.href=`/auth?returnUrl=${this.props.pathname}&public=true`,primaryCtaLabel:this.props.t(\"header.signInLink\"),profileItems:e,secondaryCtaOption:\"none\",signInOption:\"signInButton\",userEmail:this.props.idToken?this.props.idToken.email:null,userFullName:this.props.idToken?this.props.idToken.name:null})}renderSpineContent(e){return n().createElement(Sa,{profileNav:e,utilitiesNav:this.renderUtilities(\"vertical\")})}renderSpineHeader(){return n().createElement(Ga,{onClickPrimaryCtaSignedIn:()=>window.location.href=\"/logout\",onClickPrimaryCtaSignedOut:()=>window.location.href=`/auth?returnUrl=${this.props.pathname}&publi"
+    },
+    {
+      "needle": "idToken",
+      "ctx": "ickPrimaryCtaSignedOut:()=>window.location.href=`/auth?returnUrl=${this.props.pathname}&public=true`,primaryCtaLabel:this.props.t(\"header.signInLink\"),profileItems:e,secondaryCtaOption:\"none\",signInOption:\"signInButton\",userEmail:this.props.idToken?this.props.idToken.email:null,userFullName:this.props.idToken?this.props.idToken.name:null})}renderSpineContent(e){return n().createElement(Sa,{profileNav:e,utilitiesNav:this.renderUtilities(\"vertical\")})}renderSpineHeader(){return n().createElement(Ga,{onClickPrimaryCtaSignedIn:()=>window.location.href=\"/logout\",onClickPrimaryCtaSignedOut:()=>window.location.href=`/auth?returnUrl=${this.props.pathname}&public=true`,primaryCtaL"
+    },
+    {
+      "needle": "idToken",
+      "ctx": "href=`/auth?returnUrl=${this.props.pathname}&public=true`,primaryCtaLabel:this.props.t(\"header.signInLink\"),profileItems:e,secondaryCtaOption:\"none\",signInOption:\"signInButton\",userEmail:this.props.idToken?this.props.idToken.email:null,userFullName:this.props.idToken?this.props.idToken.name:null})}renderSpineContent(e){return n().createElement(Sa,{profileNav:e,utilitiesNav:this.renderUtilities(\"vertical\")})}renderSpineHeader(){return n().createElement(Ga,{onClickPrimaryCtaSignedIn:()=>window.location.href=\"/logout\",onClickPrimaryCtaSignedOut:()=>window.location.href=`/auth?returnUrl=${this.props.pathname}&public=true`,primaryCtaLabel:this.props.t(\"header.signInLink\"),seco"
+    },
+    {
+      "needle": "idToken",
+      "ctx": "rl=${this.props.pathname}&public=true`,primaryCtaLabel:this.props.t(\"header.signInLink\"),profileItems:e,secondaryCtaOption:\"none\",signInOption:\"signInButton\",userEmail:this.props.idToken?this.props.idToken.email:null,userFullName:this.props.idToken?this.props.idToken.name:null})}renderSpineContent(e){return n().createElement(Sa,{profileNav:e,utilitiesNav:this.renderUtilities(\"vertical\")})}renderSpineHeader(){return n().createElement(Ga,{onClickPrimaryCtaSignedIn:()=>window.location.href=\"/logout\",onClickPrimaryCtaSignedOut:()=>window.location.href=`/auth?returnUrl=${this.props.pathname}&public=true`,primaryCtaLabel:this.props.t(\"header.signInLink\"),secondaryCtaOption:\"non"
+    },
+    {
+      "needle": "idToken",
+      "ctx": "lickPrimaryCtaSignedIn:()=>window.location.href=\"/logout\",onClickPrimaryCtaSignedOut:()=>window.location.href=`/auth?returnUrl=${this.props.pathname}&public=true`,primaryCtaLabel:this.props.t(\"header.signInLink\"),secondaryCtaOption:\"none\",userEmail:this.props.idToken?this.props.idToken.email:null,userFullName:this.props.idToken?this.props.idToken.name:null})}renderUtilities(e){return this.props.hostname.startsWith(\"admin\")?null:n().createElement(Xr,{direction:e,help:n().createElement(Zr,{href:\"/faq\",label:this.props.t(\"header.faqLink\"),moveToMobile:!0,type:\"link\"}),type:\"utilities\"})}render(){const e=this.getName();let t=function(e,t,n,i){return[{active:/^\\/((collections\\"
+    },
+    {
+      "needle": "download",
+      "ctx": "aw\",\"application/applixware\"],[\"azf\",\"application/vnd.airzip.filesecure.azf\"],[\"azs\",\"application/vnd.airzip.filesecure.azs\"],[\"azv\",\"image/vnd.airzip.accelerator.azv\"],[\"azw\",\"application/vnd.amazon.ebook\"],[\"b16\",\"image/vnd.pco.b16\"],[\"bat\",\"application/x-msdownload\"],[\"bcpio\",\"application/x-bcpio\"],[\"bdf\",\"application/x-font-bdf\"],[\"bdm\",\"application/vnd.syncml.dm+wbxml\"],[\"bdoc\",\"application/x-bdoc\"],[\"bed\",\"application/vnd.realvnc.bed\"],[\"bh2\",\"application/vnd.fujitsu.oasysprs\"],[\"bin\",\"application/octet-stream\"],[\"blb\",\"application/x-blorb\"],[\"blorb\",\"application/x-blorb\"],[\"bmi\",\"application/vnd.bmi\"],[\"bmml\",\"application/vnd.balsamiq.bmml+xml\"],[\"bmp\",\"image/bmp\"]"
+    },
+    {
+      "needle": "download",
+      "ctx": "msclip\"],[\"cmc\",\"application/vnd.cosmocaller\"],[\"cmdf\",\"chemical/x-cmdf\"],[\"cml\",\"chemical/x-cml\"],[\"cmp\",\"application/vnd.yellowriver-custom-menu\"],[\"cmx\",\"image/x-cmx\"],[\"cod\",\"application/vnd.rim.cod\"],[\"coffee\",\"text/coffeescript\"],[\"com\",\"application/x-msdownload\"],[\"conf\",\"text/plain\"],[\"cpio\",\"application/x-cpio\"],[\"cpp\",\"text/x-c\"],[\"cpt\",\"application/mac-compactpro\"],[\"crd\",\"application/x-mscardfile\"],[\"crl\",\"application/pkix-crl\"],[\"crt\",\"application/x-x509-ca-cert\"],[\"crx\",\"application/x-chrome-extension\"],[\"cryptonote\",\"application/vnd.rig.cryptonote\"],[\"csh\",\"application/x-csh\"],[\"csl\",\"application/vnd.citationstyles.style+xml\"],[\"csml\",\"chemical/x-csml\"],[\"c"
+    },
+    {
+      "needle": "download",
+      "ctx": "l\"],[\"ms\",\"text/troff\"],[\"mscml\",\"application/mediaservercontrol+xml\"],[\"mseed\",\"application/vnd.fdsn.mseed\"],[\"mseq\",\"application/vnd.mseq\"],[\"msf\",\"application/vnd.epson.msf\"],[\"msg\",\"application/vnd.ms-outlook\"],[\"msh\",\"model/mesh\"],[\"msi\",\"application/x-msdownload\"],[\"msl\",\"application/vnd.mobius.msl\"],[\"msm\",\"application/octet-stream\"],[\"msp\",\"application/octet-stream\"],[\"msty\",\"application/vnd.muvee.style\"],[\"mtl\",\"model/mtl\"],[\"mts\",\"model/vnd.mts\"],[\"mus\",\"application/vnd.musician\"],[\"musd\",\"application/mmt-usd+xml\"],[\"musicxml\",\"application/vnd.recordare.musicxml+xml\"],[\"mvb\",\"application/x-msmediaview\"],[\"mvt\",\"application/vnd.mapbox-vector-tile\"],[\"mwf\",\"applic"
+    },
+    {
+      "needle": "download",
+      "ctx": " n;return n=\"root\"===e?t.filter((e=>!e.folder_id)):t.filter((t=>t.folder_id===e)),n.map((e=>({className:e.description?\"with-description\":null,id:e.id,label:e.filename||\"\",size:e.content_details.size,description:e.description,parent:e.folder_id,status:e.status,download_url:this.replaceHostname(e.content_details.download_url),view_url:this.replaceHostname(e.content_details.view_url),contentType:e.content_details.content_type})))}getFolders(e){const{folders:t}=this.props;let n;return n=\"root\"===e?t.filter((e=>!e.parent_id)):t.filter((t=>t.parent_id===e)),n.map((e=>({className:e.description?\"with-description\":null,id:e.id,label:e.name,description:e.description,parent:e.parent"
+    },
+    {
+      "needle": "download",
+      "ctx": ".filter((t=>t.folder_id===e)),n.map((e=>({className:e.description?\"with-description\":null,id:e.id,label:e.filename||\"\",size:e.content_details.size,description:e.description,parent:e.folder_id,status:e.status,download_url:this.replaceHostname(e.content_details.download_url),view_url:this.replaceHostname(e.content_details.view_url),contentType:e.content_details.content_type})))}getFolders(e){const{folders:t}=this.props;let n;return n=\"root\"===e?t.filter((e=>!e.parent_id)):t.filter((t=>t.parent_id===e)),n.map((e=>({className:e.description?\"with-description\":null,id:e.id,label:e.name,description:e.description,parent:e.parent_id})))}replaceHostname=e=>{if(e){const t=new URL(e)"
+    },
+    {
+      "needle": "download",
+      "ctx": "FolderChange,rowHeight:this.getRowHeight,readOnly:!0,breadcrumbsSubtitle:this.renderFolderDescription(),folderControls:[{component:({item:e})=>this.renderDescription(e)}],fileControls:[{component:({innerRef:e,item:i,tabIndex:r})=>n().createElement(\"a\",{href:i.download_url,className:\"COMPLETED\"===i.status?\"file-enabled\":\"file-disabled\",\"aria-label\":\"Download file\",onClick:async()=>{if(xp(t.doi),window.pageDataTracker&&\"COMPLETED\"===i.status){const e=vp(t,i.id,i.contentType);window.pageDataTracker.trackEvent(\"contentDownload\",e)}},ref:e,tabIndex:r},n().createElement(ip,null)),interactive:!0},{component:({item:e})=>this.renderDescription(e)}]}))}}Cp.propTypes={configClient:$"
+    }
+  ],
+  "attempts": [
+    {
+      "method": "GET",
+      "url": "https://data.mendeley.com/api/datasets-v2/datasets/j5ywpd2p27/zip",
+      "status": 500,
+      "ctype": "text/plain; charset=utf-8",
+      "body": "Internal Server Error"
+    },
+    {
+      "method": "POST",
+      "url": "https://data.mendeley.com/api/datasets-v2/datasets/j5ywpd2p27/zip",
+      "status": 404,
+      "ctype": "text/html; charset=utf-8",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot POST /api/datasets-v2/datasets/j5ywpd2p27/zip</pre>\n</body>\n</html>\n"
+    },
+    {
+      "method": "GET",
+      "url": "https://data.mendeley.com/api/datasets-v2/datasets/j5ywpd2p27/archive",
+      "status": 404,
+      "ctype": "text/html; charset=utf-8",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /api/datasets-v2/datasets/j5ywpd2p27/archive</pre>\n</body>\n</html>\n"
+    },
+    {
+      "method": "POST",
+      "url": "https://data.mendeley.com/api/datasets-v2/datasets/j5ywpd2p27/archive",
+      "status": 404,
+      "ctype": "text/html; charset=utf-8",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot POST /api/datasets-v2/datasets/j5ywpd2p27/archive</pre>\n</body>\n</html>\n"
+    },
+    {
+      "method": "GET",
+      "url": "https://data.mendeley.com/api/datasets-v2/datasets/j5ywpd2p27/versions/2/zip",
+      "status": 404,
+      "ctype": "text/html; charset=utf-8",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot GET /api/datasets-v2/datasets/j5ywpd2p27/versions/2/zip</pre>\n</body>\n</html>\n"
+    }
+  ]
+}

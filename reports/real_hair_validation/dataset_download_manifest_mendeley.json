@@ -1,0 +1,34 @@
+{
+  "attempts": [
+    {
+      "url": "https://data.mendeley.com/public-api/zip/j5ywpd2p27/download/2",
+      "status": 200,
+      "ctype": "application/zip",
+      "length": "444270971"
+    }
+  ],
+  "download": {
+    "status": "downloaded",
+    "path": "/vol/data/external/mendeley_hair_masks/Mendeley_hair_masks.zip",
+    "bytes": 444270971,
+    "sha256": "3516674e2527b7dd3c0ddc9c65b7b2018dc63eea3e062785cddcb8769da735f5"
+  },
+  "valid_zip": true,
+  "zip_error": "",
+  "source": "https://data.mendeley.com/datasets/j5ywpd2p27/2",
+  "doi": "10.17632/j5ywpd2p27.2",
+  "license": "CC0",
+  "n_members": 1507,
+  "member_sample": [
+    "A skin lesion hair mask dataset with fine-grained annotations/additional_materials/check_annotation.ipynb",
+    "A skin lesion hair mask dataset with fine-grained annotations/additional_materials/mask_editing_process.mp4",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000004.png",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000042.png",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000043.png",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000071.png",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000046.png",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000059.png",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000074.png",
+    "A skin lesion hair mask dataset with fine-grained annotations/dermoscopic_image/ISIC_0000022.png"
+  ]
+}

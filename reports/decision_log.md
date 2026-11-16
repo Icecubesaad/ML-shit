@@ -602,3 +602,8 @@ Authority order applied: `AGENTS.md` > `docs/ACCEPTANCE_CRITERIA.md` > `docs/DEV
 ## D54 - Notebooks verified
 
 - All three notebooks exist. `01_results_walkthrough.ipynb` executes 17/17 code cells under IPython (Agg backend; the F04 PENDING line is the acceptance checker's own pre-existing output). `02_pipeline_reproduction.ipynb` and `03_local_gpu_pipeline.ipynb` are valid IPython: the 8 apparent "syntax errors" are all `!` shell escapes. 02 shells out to paid `modal run` jobs. References in README, docs/CODE_GUIDE.md and the Results Report were corrected to state 01 needs only CPU, 02 incurs paid Modal jobs (review before executing), 03 needs a local CUDA GPU.
+
+### D52 addendum — originals absent from this account's volume
+
+- The A*-fov build smoke failed: all 8 sampled images raised `FileNotFoundError`, because the icysolutionscorp volume holds checkpoints and derived images but not the original ISIC JPEGs (the data manifest points to the first account's volume `vo-Yfgbqu0raQMBZb7syrtU35`). No other accessible volume or secret contains them; the C arm's stored images are 128 px squashed diffusion outputs and cannot reconstruct the original 600 × 450 photograph.
+- Resolution: re-fetch public ISIC collection 212 onto this volume with a new CPU entrypoint `modal_app.py::fetch_isic_images` (commit 4337fa1). The frozen split/hair-screen manifests still decide which images enter any arm; the ~1,705 extra collection images remain quarantined. The rebuild is retried only after the fetch succeeds and the manifest SHA-256s verify.

@@ -1,0 +1,12 @@
+{
+  "status": "downloaded",
+  "path": "/vol/data/external/dermartifactdb/DermArtifactDB.zip",
+  "bytes": 4139370781,
+  "sha256": "6b02ee2981ec075b5e3661ba7c1d67553a1a8224e20ef1f131681712c3f0b01d",
+  "valid_zip": true,
+  "zip_error": "",
+  "url": "https://zenodo.org/api/records/18324962/files/DermArtifactDB.zip/content",
+  "doi": "10.5281/zenodo.18324962",
+  "title": "DermArtifactDB: A multi-label dataset for artifact annotation in public dermoscopic image repositories",
+  "license": "cc-by-4.0"
+}

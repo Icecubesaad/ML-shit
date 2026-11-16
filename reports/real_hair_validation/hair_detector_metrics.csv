@@ -1,0 +1,16 @@
+metric,value,scope
+pixel_precision,0.2494142560625001,global
+pixel_recall_sensitivity,0.8162096971535758,global
+pixel_specificity,0.7248439828750919,global
+pixel_f1,0.3820753724466608,global
+dice,0.3820753724466608,global
+iou,0.2361515276669244,global
+image_sensitivity,0.9977426636568849,image_level
+image_specificity,0.017543859649122806,image_level
+image_false_positive_rate,0.9824561403508771,image_level
+image_false_negative_rate,0.002257336343115124,image_level
+n_images,500,count
+TP,10776979,pixels
+FP,32432175,pixels
+FN,2426710,pixels
+TN,85436136,pixels

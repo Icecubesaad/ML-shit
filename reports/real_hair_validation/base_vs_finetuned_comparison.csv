@@ -1,0 +1,4 @@
+metric,n_pairs,difference_finetuned_minus_base,ci_low,ci_high,bootstrap_p_raw,bootstrap_p_holm,test
+hair_region_changed,395,0.017293609835055658,0.012105285907293338,0.022312393941441473,0.0,0.0,"paired two-level (image) bootstrap, 5000 reps, seed 20261117"
+nonhair_region_changed,395,0.01578170868515119,0.011528144751067542,0.019807292147992008,0.0,0.0,"paired two-level (image) bootstrap, 5000 reps, seed 20261117"
+residual_hair_proxy,395,-0.0272109759645435,-0.036313174609873544,-0.018242162443367807,0.0,0.0,"paired two-level (image) bootstrap, 5000 reps, seed 20261117"

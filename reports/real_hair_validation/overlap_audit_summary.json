@@ -1,0 +1,21 @@
+{
+  "n_candidates": 500,
+  "classes": {
+    "A": 395,
+    "C": 98,
+    "B": 7
+  },
+  "independent_A": 395,
+  "existing_B": 7,
+  "near_duplicate_C": 98,
+  "uncertain_D": 0,
+  "n_ham_manifest": 10015,
+  "n_dermahair_hashes": 707,
+  "methods": [
+    "exact source ID",
+    "byte SHA-256",
+    "128px pixel SHA-256",
+    "project dHash Hamming<=5",
+    "HSV histogram cosine>=0.99"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "n_scripts": 9,
+  "srcs": [
+    "https://cdn.cookielaw.org/consent/a2567f1b-8a60-4464-b725-6c59f84a5801/OtAutoBlock.js",
+    "https://cdn.cookielaw.org/scripttemplates/otSDKStub.js",
+    "&#x2F;&#x2F;&#x2F;assets.adobedtm.com&#x2F;376c5346e33126fdb6b2dbac81e307cbacfd7935&#x2F;satelliteLib-4a7497b2b1d1900fe42ef2c13e32daeedf9c1642.js",
+    "https://cdn.jsdelivr.net/npm/@datacite/datacite-tracker",
+    "https://unpkg.com/xlsx@0.14.3/dist/jszip.js",
+    "https://unpkg.com/xlsx@0.14.3/dist/xlsx.min.js",
+    "https://static.data.mendeley.com/scripts/script-v2.0.8.min.js",
+    "/datasets/bundle.js?c2c2cda645a5424c6f37",
+    "//cdn.plu.mx/widget-summary.js"
+  ],
+  "findings": [
+    {
+      "src": "https://cdn.cookielaw.org/consent/a2567f1b-8a60-4464-b725-6c59f84a5801/OtAutoBlock.js",
+      "needle": "datasets-v2",
+      "context": "data.mendeley.com/datasets/5742kchy9b\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/26n8thh5g9\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/api/datasets-v2/datasets/w3943fx6c6/zip\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/3wp859vzn8\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/api/datasets-v2/datasets/snkgywmggx\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/978nzm2hbn\","
+    },
+    {
+      "src": "https://cdn.cookielaw.org/consent/a2567f1b-8a60-4464-b725-6c59f84a5801/OtAutoBlock.js",
+      "needle": "public-api",
+      "context": "|(a.removeAttribute(\"src\"),a.setAttribute(\"data-src\",c)))}var u=JSON.parse('[{\"Tag\":\"https://data.mendeley.com/datasets/pzmfksk3rr\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/public-api/datasets/rxjf27bg9m/versions\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/cswcg6h4fr\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/c7kg9m7gv9\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/5742kchy9b\",\"CategoryId\""
+    },
+    {
+      "src": "https://cdn.cookielaw.org/consent/a2567f1b-8a60-4464-b725-6c59f84a5801/OtAutoBlock.js",
+      "needle": "/files",
+      "context": "asets/k5w973bbxg/zip\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/mfr6wx73tf\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/zycdwchd9h/1/files/17e08eed-b383-4236-9d5e-83f9747c3602\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/rvnxv67f22\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/public-api/datasets/7h4rd77gx5/versions\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/datasets/"
+    },
+    {
+      "src": "https://cdn.cookielaw.org/consent/a2567f1b-8a60-4464-b725-6c59f84a5801/OtAutoBlock.js",
+      "needle": "archive",
+      "context": "sets/vywwvbbvgs/folders/1\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/api/datasets-v2/datasets/y2gbrd7xb9\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/archive-process\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/public-api/datasets/3c2szhbdn5/versions\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/public-api/datasets/vhvg2xdm98/versions\",\"CategoryId\":[\"2\"],\"Vendor\":null},{\"Tag\":\"https://data.mendeley.com/public-api/datase"
+    },
+    {
+      "src": "&#x2F;&#x2F;&#x2F;assets.adobedtm.com&#x2F;376c5346e33126fdb6b2dbac81e307cbacfd7935&#x2F;satelliteLib-4a7497b2b1d1900fe42ef2c13e32daeedf9c1642.js",
+      "needle": "archive",
+      "context": "an></li><li><a href=\"/about\">About</a></li><li><span class=\"separator\">|</span></li><li><a href=\"/accessibility\">Accessibility Statement</a></li><li><span class=\"separator\">|</span></li><li><a href=\"/archive-process\">Archive Policy</a></li><li><span class=\"separator\">|</span></li><li><a href=\"/file-formats\">File Formats</a></li><li><span class=\"separator\">|</span></li><li><a href=\"/api/docs\">API Docs</a></li><li><span class=\"separator\">|</span></li><li><a href=\"/oai?verb=Identify\">OAI</a></li><li><span class=\"separ"
+    },
+    {
+      "src": "https://unpkg.com/xlsx@0.14.3/dist/jszip.js",
+      "needle": "/files",
+      "context": "ons treat everything as 32bits.\n            see https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Operators/Bitwise_Operators\n            and http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf section 8.5\n            */\n\n            // should look for a zip64 EOCD locator\n            offset = this.reader.lastIndexOfSignature(sig.ZIP64_CENTRAL_DIRECTORY_LOCATOR);\n            if (offset === -1) {\n                throw new Error(\"Corrupted zip : can't find the ZIP64 end of central di"
+    },
+    {
+      "src": "https://unpkg.com/xlsx@0.14.3/dist/jszip.js",
+      "needle": "archive",
+      "context": "ip needs at least one extra\n        // field to correctly handle unicode path, so using the path is as good\n        // as any other information. This could improve the situation with\n        // other archive managers too.\n        // This field is usually used without the utf8 flag, with a non\n        // unicode path in the header (winrar, winzip). This helps (a bit)\n        // with the messy Windows' default compressed folders feature but\n        // breaks on p7zip which doesn't seek the unicode path extra field.\n "
+    },
+    {
+      "src": "/datasets/bundle.js?c2c2cda645a5424c6f37",
+      "needle": "datasets-v2",
+      "context": "s))i.setRequestHeader(e,t);return i}}const R=n().createContext(),T=DateFns,O=DateFnsLocale;var N=o(653);const I=(0,N.withTranslation)()((e=>{const{route:t}=e;return u(t.routes)})),M={apiBaseUrl:\"/api/datasets-v2\",publicApiBaseUrl:\"/public-api\",baseUrl:\"/datasets\",baseAssetsUrl:\"/datasets\",adobeAnalytics:{newPage:{page:{businessUnit:\"els:rp:st\",language:\"en\",productName:\"md\",environment:\"dev\",noTracking:\"false\",sectionName:\"md:data\",type:\"cp-ca\"},content:{type:\"md:datasets\",format:\"MIME-HTML\"}}}},P={environment:\"dev"
+    },
+    {
+      "src": "/datasets/bundle.js?c2c2cda645a5424c6f37",
+      "needle": "public-api",
+      "context": "n i}}const R=n().createContext(),T=DateFns,O=DateFnsLocale;var N=o(653);const I=(0,N.withTranslation)()((e=>{const{route:t}=e;return u(t.routes)})),M={apiBaseUrl:\"/api/datasets-v2\",publicApiBaseUrl:\"/public-api\",baseUrl:\"/datasets\",baseAssetsUrl:\"/datasets\",adobeAnalytics:{newPage:{page:{businessUnit:\"els:rp:st\",language:\"en\",productName:\"md\",environment:\"dev\",noTracking:\"false\",sectionName:\"md:data\",type:\"cp-ca\"},content:{type:\"md:datasets\",format:\"MIME-HTML\"}}}},P={environment:\"dev\",recaptchaV3SiteKey:\"6LcUYMQZAA"
+    },
+    {
+      "src": "/datasets/bundle.js?c2c2cda645a5424c6f37",
+      "needle": "/files",
+      "context": "ayload:e}),dp=1e3,pp={cancelled:!1},up=(e,t,n,i,r=pp)=>async(a,o)=>{const{configClient:s,hostname:l}=o();let c=0,d=!0;for(;d&&!r.cancelled;)try{const o=`https://${l}${s.publicApiBaseUrl}/datasets/${t}/files?folder_id=${i}&version=${n}&$start=${c}&$limit=1000`,p=await e.makeCall(o,{allowAnonymous:!0,headers:{Accept:\"application/vnd.mendeley-public-dataset.1+json\"},rawUrl:!0,rawResponse:!0}),u=await p.json();if(r.cancelled)return;a(lp(u)),d=u.length===dp,c+=dp}catch(e){console.log(\"Datasets.js - Error fetching files\""
+    },
+    {
+      "src": "/datasets/bundle.js?c2c2cda645a5424c6f37",
+      "needle": "downloadFile",
+      "context": ",rel:\"noopener noreferrer\",className:\"mdui-button secondary\",onClick:async()=>{if(window.pageDataTracker){const e=vp(t,i.id,i.contentType);window.pageDataTracker.trackEvent(\"contentDownload\",e)}}},m(\"downloadFile\"))))):null)}Ch.propTypes={dataset:$().shape({id:$().string,licence:$().shape({id:$().string.isRequired,short_name:$().string.isRequired}),version:$().number}).isRequired,file:sh.isRequired,visible:$().bool,getSnapshot:$().func.isRequired,institution:$().shape({name:$().string.isRequired}),setLoaded:$().fun"
+    },
+    {
+      "src": "/datasets/bundle.js?c2c2cda645a5424c6f37",
+      "needle": "getFiles",
+      "context": "(r[n]=e[n])}return r}var Td=(0,e.forwardRef)((function(t,n){var i=t.children,r=function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=Sd(Sd({},Od),t),i=n.accept,r=n.disabled,a=n.getFilesFromEvent,o=n.maxSize,s=n.minSize,l=n.multiple,c=n.maxFiles,d=n.onDragEnter,p=n.onDragLeave,u=n.onDragOver,m=n.onDrop,h=n.onDropAccepted,f=n.onDropRejected,g=n.onFileDialogCancel,v=n.onFileDialogOpen,b=n.useFsAccessApi,y=n.autoFocus,w=n.preventDropOnDocument,x=n.noClick,_=n.noKeyboard,C=n.noDrag,E=n.noDragEvent"
+    },
+    {
+      "src": "/datasets/bundle.js?c2c2cda645a5424c6f37",
+      "needle": "archive",
+      "context": ".accessibility\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\")),!e&&n().createElement(n().Fragment,null,n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/archive-process\"},this.props.t(\"footer.archiveProcess\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"separator\"},\"|\"))),n().createElement(\"li\",null,n().createElement(\"a\",{href:\"/file-formats\"},this.props.t(\"footer.fileFormats\"))),n().createElement(\"li\",null,n().createElement(\"span\",{className:\"sep"
+    }
+  ]
+}

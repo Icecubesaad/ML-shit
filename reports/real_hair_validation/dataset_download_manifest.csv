@@ -1,0 +1,3 @@
+dataset,source_url,doi,license,archive_bytes,sha256,valid_archive,n_members,status
+mendeley_hair_masks,https://data.mendeley.com/datasets/j5ywpd2p27/2,10.17632/j5ywpd2p27.2,CC0,444270971,3516674e2527b7dd3c0ddc9c65b7b2018dc63eea3e062785cddcb8769da735f5,True,1507,downloaded_and_extracted
+dermartifactdb,https://zenodo.org/api/records/18324962/files/DermArtifactDB.zip/content,10.5281/zenodo.18324962,cc-by-4.0,4139370781,6b02ee2981ec075b5e3661ba7c1d67553a1a8224e20ef1f131681712c3f0b01d,True,,downloaded

@@ -1,0 +1,21 @@
+{
+  "label": "exploratory",
+  "start_t": 1000,
+  "n_requested": 395,
+  "n_done": 395,
+  "n_skipped": 0,
+  "n_failed": 0,
+  "seconds": 252.2,
+  "gpu": "NVIDIA A100-SXM4-80GB",
+  "checkpoints": {
+    "dm_ahr_base": "77031da6dbea73ad751adf9aaddf6c7cfb2cd762582eb1c8b2bb3956d188b845",
+    "dm_ahr_finetuned": "dd06c2163e93c5348515ad9ac69f8858b2dd2e5154380471014bcde1b33e7130"
+  },
+  "config": {
+    "resolution": 128,
+    "steps": 50,
+    "fp32": true,
+    "seed": 42,
+    "respaced": true
+  }
+}

@@ -1,0 +1,34 @@
+﻿=== modal billing summary (captured 2026-11-17) ===
+                                     
+  Metered Cost:                5.46  
+    Ephemeral Apps:            4.58  
+    Endpoint:                  0.70  
+    Volumes:                   0.18  
+    Network Egress:            0.00  
+  Credits:                    -5.28  
+  Network Egress Allowance:   -0.00  
+  Free Storage:               -0.18  
+  Billed Cost:                $0.00  
+                                     
+
+=== modal billing rates (GPU/CPU/volume) ===
+                                                                               
+  CPU:                                       $0.0473 / core / hour             
+  CPU (Sandbox):                             $0.1419 / core / hour             
+  Memory:                                      $0.008 / GiB / hour             
+  Memory (Sandbox):                            $0.024 / GiB / hour             
+  GPUs:                                                                        
+    Nvidia A100 (40 GB):                              $2.10 / hour             
+    Nvidia A100 (80 GB):                              $2.50 / hour             
+    Nvidia A10G:                                      $1.10 / hour             
+    Nvidia B200:                                      $6.25 / hour             
+    Nvidia B300:                                      $7.10 / hour             
+    Nvidia H100:                                      $3.95 / hour             
+    Nvidia H200:                                      $4.54 / hour             
+    Nvidia L4:                                        $0.80 / hour             
+    Nvidia L40S:                                      $1.95 / hour             
+    Nvidia RTX PRO 6000:                              $3.03 / hour             
+    Nvidia T4:                                        $0.59 / hour             
+  Volumes:                                     $0.09 / GiB / month             
+  Network Egress:                                      $0.04 / GiB             
+  LLM Tokens:                                                                  
