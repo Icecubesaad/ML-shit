@@ -21,7 +21,8 @@ image = (
                  "pillow==11.0.0", "opencv-python-headless==4.10.0.84", "scikit-image==0.24.0",
                  "lpips==0.1.4", "scipy==1.14.1", "tqdm==4.67.1")
     .env({"PYTHONPATH": "/root/proj/src:/root/proj/scripts", "PYTHONUNBUFFERED": "1",
-          "TOKENIZERS_PARALLELISM": "false"})
+          "TOKENIZERS_PARALLELISM": "false", "DATA_ROOT": "/vol/data",
+          "ARTIFACT_ROOT": "/vol/artifacts"})
     .add_local_dir("src", "/root/proj/src")
     .add_local_dir("scripts", "/root/proj/scripts")
     .add_local_dir("configs", "/root/proj/configs")
