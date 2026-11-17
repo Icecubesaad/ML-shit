@@ -236,7 +236,7 @@ def score_snapshot(name: str, rel_path: str) -> dict:
                "partial_gain_db": float(np.mean(p_psnr) - np.mean(floor_psnr)),
                "pure_gain_db": float(np.mean(pu_psnr) - np.mean(floor_psnr[:N_PURE])),
                "one_step_eps_mae": one_step, "condition_usage": usage,
-               "config_sha256": sha256_file("configs/dmahr.json"),
+               "config_sha256": sha256_file("/root/proj/configs/dmahr.json"),
                "sampler": "respaced DDIM, start_t=600, 50 steps, fp32 (seed 42)",
                "seconds": round(time.time() - t0, 1)}
     (out / f"curve_{name}_summary.json").write_text(json.dumps(summary, indent=2))
