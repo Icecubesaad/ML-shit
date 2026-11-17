@@ -60,14 +60,14 @@ Two-level lesion-group bootstrap: 10,000 replicates, lesion groups shared across
 seeds resampled within each arm; two-sided p floored as above. Holm is applied separately
 within the `planned` and `secondary_control` families.
 
-| subset | A | B | Cv2 | comparison | difference (95% CI) | Holm p |
-|---|---:|---:|---:|---|---:|---:|
-| full (n=1502) | 0.751 | 0.732 | 0.721 | A−B | +0.019 (−0.016 to +0.056) | 0.550 |
-| full | | | | A−Cv2 | +0.030 (−0.009 to +0.074) | 0.406 |
-| full | | | | B−Cv2 | +0.011 (−0.027 to +0.046) | 0.550 |
-| hair-present (n=109) | 0.614 | 0.567 | 0.490 | A−B | +0.047 (−0.098 to +0.176) | 0.459 |
-| hair-present | | | | A−Cv2 | +0.125 (−0.012 to +0.247) | 0.219 |
-| hair-present | | | | B−Cv2 | +0.078 (−0.023 to +0.175) | 0.247 |
+| subset | A | B | A* | Cv2 | comparison | difference (95% CI) | Holm p |
+|---|---:|---:|---:|---:|---|---:|---:|
+| full (n=1502) | 0.751 | 0.732 | 0.740 | 0.721 | A−B | +0.019 (−0.016 to +0.056) | 0.550 |
+| full | | | | | A−Cv2 | +0.030 (−0.009 to +0.074) | 0.406 |
+| full | | | | | B−Cv2 | +0.011 (−0.027 to +0.046) | 0.550 |
+| hair-present (n=109) | 0.614 | 0.567 | 0.578 | 0.490 | A−B | +0.047 (−0.098 to +0.176) | 0.459 |
+| hair-present | | | | | A−Cv2 | +0.125 (−0.012 to +0.247) | 0.219 |
+| hair-present | | | | | B−Cv2 | +0.078 (−0.023 to +0.175) | 0.247 |
 
 **Finding:** no comparison reaches Holm p < 0.05. On the 109 hair-present test images the
 point estimates favour the original images over both hair-removal arms, with Cv2 lowest,
