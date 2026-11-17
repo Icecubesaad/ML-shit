@@ -91,9 +91,11 @@ def md_table(df: pd.DataFrame, fmt="{:.3f}") -> str:
     out = ["| " + " | ".join(df.columns) + " |", "|" + "|".join("---" for _ in df.columns) + "|"]
     for _, r in df.iterrows():
         cells = []
-        for v in r:
+        for col, v in zip(df.columns, r):
             if isinstance(v, (float, np.floating)):
-                cells.append("" if np.isnan(v) else fmt.format(v))
+                # p-values are floored at 2/(reps+1) = 0.0002; 3 dp would hide that.
+                f = "{:.5f}" if "p_raw" in str(col) or "p_holm" in str(col) else fmt
+                cells.append("" if np.isnan(v) else f.format(v))
             else:
                 cells.append(str(v))
         out.append("| " + " | ".join(cells) + " |")
@@ -130,17 +132,49 @@ def main() -> None:
                           "per_pair_ci": "NOT AVAILABLE"})
     dd = pd.DataFrame(doubl)
 
-    # curve plot: archived base lineage partial gain vs iterations
-    fig, ax = plt.subplots(figsize=(7.0, 4.0))
-    ax.plot(arch["iteration"] / 1000, arch["partial_gain_db"], marker="o", label="base lineage (archived)")
+    # paired snapshot comparisons on the same validation pairs
+    snap_by = {r["snapshot"]: pd.read_csv(DEC / f"curve_{r['snapshot']}_per_pair.csv")
+               for _, r in snap.iterrows()} if not snap.empty else {}
+    pair_rows = []
+    if {"base50k", "ft_v2"} <= set(snap_by):
+        a, b = snap_by["base50k"], snap_by["ft_v2"]
+        m = a[["pair_id", "partial_gain_db", "group_id"]].merge(
+            b[["pair_id", "partial_gain_db"]], on="pair_id", suffixes=("_a", "_b"))
+        ci = paired_group_ci((m["partial_gain_db_b"] - m["partial_gain_db_a"]).to_numpy(),
+                             m["group_id"].to_numpy())
+        pair_rows.append({"comparison": "ft_v2(70k) - base50k", "iterations": "50k -> 70k (1.4x)",
+                          **ci})
+    if {"base50k", "released"} <= set(snap_by):
+        a, b = snap_by["base50k"], snap_by["released"]
+        m = a[["pair_id", "partial_gain_db", "group_id"]].merge(
+            b[["pair_id", "partial_gain_db"]], on="pair_id", suffixes=("_a", "_b"))
+        ci = paired_group_ci((m["partial_gain_db_b"] - m["partial_gain_db_a"]).to_numpy(),
+                             m["group_id"].to_numpy())
+        pair_rows.append({"comparison": "released(~725k) - base50k", "iterations": "50k -> ~725k (14.5x)",
+                          **ci})
+    pairs_df = pd.DataFrame(pair_rows)
+    pairs_df.to_csv(DEC / "snapshot_pairwise_v2.csv", index=False)
+
+    # curve plot: archived base lineage + re-scored snapshots (log x so 25k and 725k both visible)
+    fig, ax = plt.subplots(figsize=(7.6, 4.4))
+    ax.plot(arch["iteration"] / 1000, arch["partial_gain_db"], marker="o",
+            label="base lineage (archived, bf16)", color="#1f77b4")
+    xpos = {"base50k": 50, "ft_v2": 70, "released": 725}
+    markers = {"base50k": "s", "ft_v2": "^", "released": "X"}
     for _, r in snap.iterrows():
-        ax.scatter([70], [r["partial_gain_db"]], marker="s", label=f"{r['snapshot']} (re-scored fp32)" if r["snapshot"] == "ft_v2" else None, color="#d62728", zorder=5)
-    ax.set_xlabel("Generator iterations (thousands)")
+        x = xpos.get(r["snapshot"])
+        if x is None:
+            continue
+        ax.scatter([x], [r["partial_gain_db"]], marker=markers[r["snapshot"]], s=70,
+                   label=f"{r['snapshot']} (re-scored fp32)", zorder=5)
+    ax.set_xscale("log")
+    ax.set_xticks([25, 50, 70, 100, 725])
+    ax.set_xticklabels(["25k", "50k", "70k", "100k", "725k"])
+    ax.set_xlabel("Generator iterations")
     ax.set_ylabel("Partial-noise PSNR gain over hairy input (dB)")
     ax.set_title("Validation-only learning curve — t0=600, 50 DDIM steps")
-    ax.grid(alpha=0.3)
-    if len(snap):
-        ax.legend(fontsize=8)
+    ax.grid(alpha=0.3, which="both")
+    ax.legend(fontsize=8, loc="lower right")
     p = FIG / "iteration_curve.png"
     fig.savefig(p, dpi=180, bbox_inches="tight")
     plt.close(fig)
@@ -160,10 +194,19 @@ def main() -> None:
             a_ok = slope < 0
             a_evidence = f"last-10k val-L1 slope = {slope:+.6f} per 1k iterations"
     b_ok = False
-    b_evidence = "NOT VERIFIED: no pair of saved checkpoints spans a doubling with per-pair outputs"
+    b_evidence = "NOT ESTABLISHED: no doubling pair exists with per-pair outputs"
     if not dd.empty:
         best = dd["gain_db"].max()
         b_evidence += f"; archived 25k->50k doubling = {best:+.3f} dB but no per-pair CI (checkpoints absent)"
+    if not pairs_df.empty:
+        rel = pairs_df[pairs_df["comparison"].str.startswith("released")]
+        if not rel.empty:
+            r = rel.iloc[0]
+            b_evidence += (f"; released (~725k) minus base50k = {r['mean']:+.3f} dB "
+                           f"(95% CI {r['ci_low']:+.3f} to {r['ci_high']:+.3f}), "
+                           f"so the long-horizon evidence is {'negative' if r['ci_high'] < 0 else 'not positive'}")
+            if r["ci_high"] < 0:
+                b_ok = False  # explicitly negative: more training degrades this endpoint
     c_evidence = "NOT RUN — decision already STOP; see cost log for estimate"
     d_evidence = "NOT RUN — decision already STOP; see cost log for estimate"
     verdict = "GO" if (a_ok and b_ok) else "STOP"
@@ -178,6 +221,8 @@ def main() -> None:
          "## Step 2b — re-scored snapshots (fp32, committed sampler, paired bootstrap over lesion groups)", "",
          md_table(snap) if not snap.empty else "NOT VERIFIED — no snapshots were re-scored", "",
          "## Step 2c — gain per doubling", "", md_table(dd) if not dd.empty else "NOT VERIFIED", "",
+         "## Step 2d — paired snapshot comparisons (same validation pairs, 10k lesion-group bootstrap)", "",
+         md_table(pairs_df) if not pairs_df.empty else "NOT VERIFIED", "",
          "![Learning curve](artifacts/figures/iteration_curve.png)", "",
          "## Gates", "",
          f"- (a) val L1 still falling: **{'PASS' if a_ok else 'FAIL'}** — {a_evidence}",

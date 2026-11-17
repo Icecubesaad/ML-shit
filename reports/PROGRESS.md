@@ -325,3 +325,12 @@ See decision log D30. The fixed trainer was tested on validation pairs only; the
 - Phase 6 (Modal, A100-80GB) RUNNING: retrained A at 42/123/2026 (originals absent except 42, D57), evaluated all 4 arms x 3 seeds (36 prediction/metric files), running corrected XAI (last-block ln_1 + patch grid, off-centre) then aggregation. Scripts: modal_phase6.py, phase6_stats.py. Log: phase6_v2_eval_xai_stats__A100-80GB.log. Stats module local tests: tests/test_phase6_stats.py 3 passed; pyflakes 0.
 - NEXT: Phase 6 aggregate tables; Phase 7 final docs/report integration; remaining 5 seeds (7/11/17/23/31) training+eval; commit/push scripts + ledgers.
 - Blockers: none. Note A/123, A/2026 checkpoints were absent on the volume and were retrained, not fabricated.
+
+## 2026-11-17 - Iteration decision (pre-registered, validation-only)
+
+- Rule committed BEFORE any run (`reports/iteration_rule.md`, 9255474): GO only if all four gates hold; hard cap USD 10; validation data only; test set never read.
+- Scripts + cost log committed BEFORE running (5533910 and follow-ups). Five early GPU attempts failed on real path/size/hash bugs; each fixed and re-run, never bypassed. Total spend ~USD 0.54 (0.5% of cap) in `reports/iteration_cost_log.md`.
+- Step 1 (free): `dmahr_train.json`/`dmahr_v2_train.json` hold only summaries; history in `dmahr_v2_train_log.json`. Last-20k val-L1 slope -0.112/1k (PASS by rule) but best at 13k and last-5k rising (+0.161/1k); train/val gap mean -0.00065.
+- Step 2: validation synthetic pairs regenerated deterministically from raw val images (archived assets absent on this volume; val_pairs_hash 7043ff... matches archived). Three available snapshots scored fp32 with committed sampler: base50k +9.730 dB (CI 9.110-10.320), ft_v2/70k +10.209 dB (CI 9.589-10.834), released ~725k +6.853 dB (CI 6.447-7.313). Paired: ft_v2-base50k +0.479 dB (CI 0.186-0.769, p 0.0012); released-base50k -2.877 dB (CI -3.295 to -2.466, p 0.0002). Checkpoints 25k/55k absent -> archived-only, no per-pair CI.
+- Gates: (a) PASS with caveat; (b) FAIL (no doubling with per-pair CI; long-horizon evidence negative); (c),(d) NOT RUN (decision already STOP). Verdict STOP. Steps 3-4 not launched.
+- Output: `reports/iteration_decision.md`, `reports/iteration_decision/` tables, `artifacts/figures/iteration_curve.png` (agent visually reviewed).

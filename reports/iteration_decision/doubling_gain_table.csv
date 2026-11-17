@@ -1,0 +1,2 @@
+from_k,to_k,gain_db,ci_low,ci_high,per_pair_ci
+25,50,0.9533421206278554,,,NOT AVAILABLE (checkpoints absent)

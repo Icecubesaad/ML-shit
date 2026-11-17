@@ -31,8 +31,17 @@ used as evidence but carry no per-pair data, so no paired CI can be computed for
 |---|---|---|---:|---:|---|
 | Step 2 attempt 1 (failed at import in `prepare_val`, no GPU work) | 2026-11-17 | none | 0 | 0.00 | `iteration_curve__A100-80GB.log`: ImportError relative import |
 | Step 2 attempt 2 (failed at missing archived val assets, no GPU work) | 2026-11-17 | none | 0 | 0.00 | FileNotFoundError on old-account asset path |
-| Step 2 attempt 3 (sampling completed, failed at strand-metric size mismatch) | 2026-11-17 | A100-80GB | ~140 (model load + partial + 2000-step pure + grid + LPIPS) | ~0.10 | log: IndexError boolean mask 128 vs 450; pure-noise loop reached 2000/2000 in 1:45 |
-| Running total | | | | ~0.10 | |
+| Step 2 attempt 3 (sampling completed, failed at strand-metric size mismatch) | 2026-11-17 | A100-80GB | ~140 | 0.097 | log: IndexError boolean mask 128 vs 450 |
+| Step 2 attempt 4 (sampling completed, failed at LPIPS size mismatch) | 2026-11-17 | A100-80GB | ~140 | 0.097 | log: RuntimeError tensor sizes 31 vs 149 |
+| Step 2 attempt 5 (base50k, failed at final config hash path) | 2026-11-17 | A100-80GB | ~130 | 0.090 | log: FileNotFoundError configs/dmahr.json |
+| Step 2 base50k SUCCESS | 2026-11-17 | A100-80GB | 129.1 | 0.090 | `iteration_curve_base50k__A100-80GB.log`: partial gain 9.730 dB |
+| Step 2 ft_v2 SUCCESS | 2026-11-17 | A100-80GB | 120.4 | 0.084 | `iteration_curve_ft_v2__A100-80GB.log`: partial gain 10.209 dB |
+| Step 2 released SUCCESS | 2026-11-17 | A100-80GB | 120.3 | 0.084 | `iteration_curve_released__A100-80GB.log`: partial gain 6.853 dB |
+| Local analysis (step1, analyze, figures, docx) | 2026-11-17 | none | 0 | 0.000 | CPU only |
+| **TOTAL SPENT** | | | **~779** | **~0.54** | **0.5% of the USD 10 cap** |
+
+Steps 3 and 4 were not launched because the pre-registered rule already yields STOP
+on gates (b) (and independently the negative long-horizon evidence). No further spend.
 
 ## Notes
 
