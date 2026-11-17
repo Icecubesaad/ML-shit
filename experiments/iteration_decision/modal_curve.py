@@ -128,7 +128,6 @@ def score_snapshot(name: str, rel_path: str) -> dict:
 
     from dm_ahr_vit.config import load_config, sha256_file
     from dm_ahr_vit.diffusion import dmahr_adapter as ad
-    from dm_ahr_vit.diffusion.train import _resolve_manifest_path
 
     v.reload()
     nv.reload()
