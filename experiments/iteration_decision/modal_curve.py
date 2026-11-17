@@ -1,4 +1,4 @@
-"""Step 2: score each saved DM-AHR snapshot on the SAME validation synthetic pairs.
+﻿"""Step 2: score each saved DM-AHR snapshot on the SAME validation synthetic pairs.
 
 Validation only. No test row is read. fp32, committed sampler (respaced DDIM,
 t0=600, 50 steps for partial noise), fixed noise seeds, per-pair CSVs so a paired
@@ -52,16 +52,14 @@ def _score_arrays(outs, refs, win):
 @app.function(image=image, cpu=4, memory=16384, timeout=1800, volumes={"/vol": v, "/new": nv})
 def prepare_val() -> dict:
     import hashlib
-    import importlib.util
     from pathlib import Path
 
     import pandas as pd
 
+    from dm_ahr_vit.diffusion.train import _resolve_manifest_path
+
     v.reload()
     nv.reload()
-    spec = importlib.util.spec_from_file_location("trainmod", "/root/proj/src/dm_ahr_vit/diffusion/train.py")
-    tm = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(tm)
 
     pairs = pd.read_csv("/vol/data/manifests/synthetic_pairs.csv")
     val = pairs[pairs["split"] == "val"].reset_index(drop=True)
@@ -71,7 +69,7 @@ def prepare_val() -> dict:
     ids_hash = hashlib.sha256("".join(val["pair_id"].astype(str)).encode()).hexdigest()
     for r in val.itertuples(index=False):
         for p in (r.hairy_path, r.reference_path, r.hair_mask_path):
-            if not tm._resolve_manifest_path(p).exists():
+            if not _resolve_manifest_path(p).exists():
                 raise FileNotFoundError(f"validation pair asset missing: {p}")
     masks = pd.read_csv("/vol/data/manifests/mask_manifest_x1.csv")
     masks = masks[masks["split"] == "val"]
@@ -108,12 +106,10 @@ def score_snapshot(name: str, rel_path: str) -> dict:
 
     from dm_ahr_vit.config import load_config, sha256_file
     from dm_ahr_vit.diffusion import dmahr_adapter as ad
+    from dm_ahr_vit.diffusion.train import _resolve_manifest_path
 
     v.reload()
     nv.reload()
-    spec = importlib.util.spec_from_file_location("trainmod", "/root/proj/src/dm_ahr_vit/diffusion/train.py")
-    tm = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(tm)
     spec2 = importlib.util.spec_from_file_location("condusage", "/root/proj/scripts/51_condition_usage.py")
     cu = importlib.util.module_from_spec(spec2)
     spec2.loader.exec_module(cu)
@@ -125,9 +121,9 @@ def score_snapshot(name: str, rel_path: str) -> dict:
     pairs = pd.read_csv(out / "validation_pairs.csv")
     refs, conds, hair = [], [], []
     for r in pairs.itertuples(index=False):
-        refs.append(Image.open(tm._resolve_manifest_path(r.reference_path)).convert("RGB"))
-        conds.append(Image.open(tm._resolve_manifest_path(r.hairy_path)).convert("RGB"))
-        m = np.array(Image.open(tm._resolve_manifest_path(r.hair_mask_path)).convert("L"))
+        refs.append(Image.open(_resolve_manifest_path(r.reference_path)).convert("RGB"))
+        conds.append(Image.open(_resolve_manifest_path(r.hairy_path)).convert("RGB"))
+        m = np.array(Image.open(_resolve_manifest_path(r.hair_mask_path)).convert("L"))
         m = cv2.resize(m, (128, 128), interpolation=cv2.INTER_NEAREST) > 127
         hair.append(cv2.dilate(m.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0)
 
@@ -173,7 +169,7 @@ def score_snapshot(name: str, rel_path: str) -> dict:
         mp = mask_of.get(r.image_id)
         changed = float("nan")
         if mp is not None:
-            lm = Image.open(tm._resolve_manifest_path(mp)).convert("L")
+            lm = Image.open(_resolve_manifest_path(mp)).convert("L")
             lm = cv2.resize(np.array(lm), (out_a.shape[1], out_a.shape[0]), interpolation=cv2.INTER_NEAREST) > 127
             if lm.any():
                 changed = float((np.abs(out_a - hairy_a).mean(axis=2) > 10 / 255)[lm].mean())
@@ -239,6 +235,7 @@ def main(limit: int = 0):
     }
     for name, rel in specs.items():
         if not exists.remote(rel):
-            print(name, "SKIPPED — checkpoint absent on volume:", rel, flush=True)
+            print(name, "SKIPPED â€” checkpoint absent on volume:", rel, flush=True)
             continue
         print(name, "score:", score_snapshot.remote(name, rel), flush=True)
+
