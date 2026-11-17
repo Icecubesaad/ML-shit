@@ -124,6 +124,7 @@ def train_arm(
     last_path = run_dir / "last.pt"
     best_path = run_dir / "best.pt"
     start_epoch, best_f1, bad_epochs, history = 0, -1.0, 0, []
+    already_finished = False
     if last_path.exists():
         ckpt = torch.load(last_path, map_location="cpu", weights_only=False)
         model.load_state_dict(ckpt["model"])
@@ -133,10 +134,25 @@ def train_arm(
         best_f1 = ckpt["best_val_macro_f1"]
         bad_epochs = ckpt["meta"].get("bad_epochs", 0)
         history = ckpt["meta"].get("history", [])
-        log.info("resumed %s/%d at epoch %d", arm, seed, start_epoch)
+        already_finished = bool(ckpt["meta"].get("completed", False)
+                                or ckpt["meta"].get("early_stopped", False))
+        log.info("resumed %s/%d at epoch %d (finished=%s)", arm, seed, start_epoch,
+                 already_finished)
 
     patience = int(cfg["early_stopping_patience"])
     t0 = time.time()
+    # `epoch` must exist even when the loop body never runs (finished run, or
+    # max_epochs <= start_epoch). A finished/early-stopped run must not train on.
+    epoch = start_epoch - 1
+    if already_finished or start_epoch >= epochs:
+        result = {
+            "arm": arm, "seed": seed, "best_val_macro_f1": best_f1,
+            "epochs_run": len(history), "seconds": round(time.time() - t0, 1),
+            "history": history, "resumed_completed_run": True,
+        }
+        save_json(result, run_dir / "train_result.json")
+        return result
+    early_stopped = False
     for epoch in range(start_epoch, epochs):
         model.train()
         run_loss, seen = 0.0, 0
@@ -174,14 +190,18 @@ def train_arm(
             save_checkpoint(best_path, model, optimizer, scheduler, epoch, best_f1, meta)
         else:
             bad_epochs += 1
-        meta_epoch = {**meta, "bad_epochs": bad_epochs, "history": history}
+        early_stopped = bad_epochs >= patience
+        meta_epoch = {**meta, "bad_epochs": bad_epochs, "history": history,
+                      "early_stopped": early_stopped,
+                      "completed": epoch == epochs - 1 or early_stopped}
         save_checkpoint(last_path, model, optimizer, scheduler, epoch, best_f1, meta_epoch)
-        if bad_epochs >= patience:
+        if early_stopped:
             log.info("%s/%d early stop at epoch %d (best %.4f)", arm, seed, epoch, best_f1)
             break
 
     save_checkpoint(run_dir / "final.pt", model, optimizer, scheduler, epoch, best_f1,
-                    {**meta, "bad_epochs": bad_epochs, "history": history})
+                    {**meta, "bad_epochs": bad_epochs, "history": history,
+                     "early_stopped": early_stopped, "completed": True})
     result = {
         "arm": arm,
         "seed": seed,
