@@ -177,9 +177,9 @@ def score_snapshot(name: str, rel_path: str) -> dict:
     for i, r in enumerate(pairs.itertuples(index=False)):
         if i >= N_PARTIAL:
             break
-        out_a = np.asarray(outs[i].convert("RGB"), np.float32) / 255.0
-        ref_a = np.asarray(refs[i], np.float32) / 255.0
-        hairy_a = np.asarray(conds[i], np.float32) / 255.0
+        out_a = cv2.resize(np.asarray(outs[i].convert("RGB"), np.float32) / 255.0, (128, 128))
+        ref_a = cv2.resize(np.asarray(refs[i], np.float32) / 255.0, (128, 128))
+        hairy_a = cv2.resize(np.asarray(conds[i], np.float32) / 255.0, (128, 128))
         hm = hair[i]
         before = float(np.abs(hairy_a[hm] - ref_a[hm]).mean())
         after = float(np.abs(out_a[hm] - ref_a[hm]).mean())
@@ -188,7 +188,7 @@ def score_snapshot(name: str, rel_path: str) -> dict:
         changed = float("nan")
         if mp is not None and Path(mp).exists():
             lm = Image.open(mp).convert("L")
-            lm = cv2.resize(np.array(lm), (out_a.shape[1], out_a.shape[0]), interpolation=cv2.INTER_NEAREST) > 127
+            lm = cv2.resize(np.array(lm), (128, 128), interpolation=cv2.INTER_NEAREST) > 127
             if lm.any():
                 changed = float((np.abs(out_a - hairy_a).mean(axis=2) > 10 / 255)[lm].mean())
         lesion_changed.append(changed)
