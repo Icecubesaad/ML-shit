@@ -168,8 +168,10 @@ def score_snapshot(name: str, rel_path: str) -> dict:
     # LPIPS on the partial-noise outputs
     lnet = lpips.LPIPS(net="alex", verbose=False).to(dev).eval()
     def lp(a, b):
-        ta = torch.from_numpy(np.asarray(a.convert("RGB")).copy()).permute(2, 0, 1)[None].float().div(127.5).sub(1).to(dev)
-        tb = torch.from_numpy(np.asarray(b.convert("RGB")).copy()).permute(2, 0, 1)[None].float().div(127.5).sub(1).to(dev)
+        aa = np.asarray(a.convert("RGB").resize((128, 128), Image.Resampling.BICUBIC)).copy()
+        bb = np.asarray(b.convert("RGB").resize((128, 128), Image.Resampling.BICUBIC)).copy()
+        ta = torch.from_numpy(aa).permute(2, 0, 1)[None].float().div(127.5).sub(1).to(dev)
+        tb = torch.from_numpy(bb).permute(2, 0, 1)[None].float().div(127.5).sub(1).to(dev)
         return float(lnet(ta, tb).mean())
 
     # strand removal and lesion-pixel change, per pair
@@ -199,18 +201,22 @@ def score_snapshot(name: str, rel_path: str) -> dict:
     hair_t = torch.from_numpy(np.stack(hair[:N_GRID])).to(dev)
     eps = torch.randn(x0.shape, generator=torch.Generator().manual_seed(EPS_SEED)).to(dev)
     one_step, usage = {}, []
-    with torch.no_grad():
-        for t in ONE_STEP_T:
-            maps = torch.cat([cu.err_map(net, cond[i:i + 8], x0[i:i + 8], t, eps[i:i + 8])
-                              for i in range(0, N_GRID, 8)])
-            one_step[str(t)] = float(maps.mean())
-        for t in USAGE_T:
-            e = cu.region_errors(net, cond, x0, t, eps, hair_t)
-            row = {"t": t, **{f"{c}_{reg}": e[c][reg] for c in e for reg in e[c]}}
-            for reg in ("hair", "other"):
-                row[f"zeroed_over_kept_{reg}"] = e["zeroed"][reg] / e["kept"][reg]
-                row[f"shuffled_over_kept_{reg}"] = e["shuffled"][reg] / e["kept"][reg]
-            usage.append(row)
+    try:
+        with torch.no_grad():
+            for t in ONE_STEP_T:
+                maps = torch.cat([cu.err_map(net, cond[i:i + 8], x0[i:i + 8], t, eps[i:i + 8])
+                                  for i in range(0, N_GRID, 8)])
+                one_step[str(t)] = float(maps.mean())
+            for t in USAGE_T:
+                e = cu.region_errors(net, cond, x0, t, eps, hair_t)
+                row = {"t": t, **{f"{c}_{reg}": e[c][reg] for c in e for reg in e[c]}}
+                for reg in ("hair", "other"):
+                    row[f"zeroed_over_kept_{reg}"] = e["zeroed"][reg] / e["kept"][reg]
+                    row[f"shuffled_over_kept_{reg}"] = e["shuffled"][reg] / e["kept"][reg]
+                usage.append(row)
+    except Exception as exc:  # keep the primary metrics if an optional diagnostic fails
+        one_step["error"] = repr(exc)
+        usage.append({"error": repr(exc)})
 
     rows = []
     for i, r in enumerate(pairs.itertuples(index=False)):

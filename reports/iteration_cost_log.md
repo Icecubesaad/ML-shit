@@ -29,7 +29,10 @@ used as evidence but carry no per-pair data, so no paired CI can be computed for
 
 | Job | Date | GPU | Wall seconds | USD | Evidence |
 |---|---|---|---:|---:|---|
-| (filled after each run) | | | | | |
+| Step 2 attempt 1 (failed at import in `prepare_val`, no GPU work) | 2026-11-17 | none | 0 | 0.00 | `iteration_curve__A100-80GB.log`: ImportError relative import |
+| Step 2 attempt 2 (failed at missing archived val assets, no GPU work) | 2026-11-17 | none | 0 | 0.00 | FileNotFoundError on old-account asset path |
+| Step 2 attempt 3 (sampling completed, failed at strand-metric size mismatch) | 2026-11-17 | A100-80GB | ~140 (model load + partial + 2000-step pure + grid + LPIPS) | ~0.10 | log: IndexError boolean mask 128 vs 450; pure-noise loop reached 2000/2000 in 1:45 |
+| Running total | | | | ~0.10 | |
 
 ## Notes
 
