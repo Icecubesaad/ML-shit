@@ -613,3 +613,14 @@ Authority order applied: `AGENTS.md` > `docs/ACCEPTANCE_CRITERIA.md` > `docs/DEV
 - Regenerated 13/14/15/80/82 locally from artifacts, rebuilt Research_Paper.docx and rendered all four PDFs in-container. The updated Research_Paper.pdf (17 pages, commit 8a166345fd) contains: Table 8 at 3 decimals with A-Cv2 [6 of 8] counted from unrounded per-seed diffs, the per-arm transform table, corrected H3 direction, the [14] citation for 20,000 iterations, the off-centre finding, and the frozen DullRazor result on 704 DERMAHAIR pairs (25.33 dB / 0.7591 / 0.3380).
 - Item 9 (A*-fov) remains deferred: no A*-fov predictions exist on the volume, so the builders' have_fov branches are dormant and no A*-fov row is printed. This is reported rather than fabricated.
 - In-container deliverable gates: 16/18 PASS. V12 and V15 (the paper-specific bracket and seed-count gates) PASS. V3 and V16 FAIL on container path resolution (/root/proj/artifacts absent for some scripts), not on artifact content; the corresponding local tests (5 passed) and the docx/PDF content checks pass.
+
+## D56 - Retuned hair detector drives every v2 processed arm and H1 quality
+
+- Phase 3 retuned the hair detector on the 395 independent labelled images (197 TUNE / 198 HELD_OUT, split sha256 3fe3f2c...). Held-out image specificity rose from 0.038 (old frozen) to 0.923 (retuned); pixel Dice 0.302 -> 0.420. Config sha256 9b2226e2910955b94fbe2f6a3dbc045041631d51080541902fa1270c8f3f648d.
+- Decision: the retuned detector (the same 12-orientation morphology used by Phase 4) now drives the v2 re-screen (622 hair-present / 9,393 absent), the B and Astar processed arms, and the DullRazor step inside H1 image quality. The old `hair_screen.json` detector is NOT used for v2 quality; otherwise H1's B-quality numbers would describe different images than the B checkpoint evaluated in Phase 6. The old detector's numbers stay in the original artifacts, superseded.
+- Why: the audit's central finding was that the old detector flagged ~88% of test images. A v2 result using it would repeat that defect. Test images/labels/masks never entered the tuning grid.
+
+## D57 - Missing A-arm checkpoints retrained; matched 3-seed arms restored
+
+- The volume holds only `A_seed42`; `A_seed123` and `A_seed2026` are absent (verified with `modal volume ls`). A is data-identical to the original run (original ISIC JPEGs, unchanged frozen split), so dropping seeds or reusing other arms' checkpoints would break the matched-arm design.
+- Decision: retrain A/123 and A/2026 with the unchanged `scripts/06_train_vit.py` recipe into `/vol/phase4/artifacts/checkpoints/vit/`, then evaluate all four arms (A, B, Astar, Cv2) at seeds 42/123/2026. This replaces lost artifacts with like-for-like ones; no result is fabricated and no split/config changes.

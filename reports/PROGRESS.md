@@ -316,3 +316,12 @@ See decision log D30. The fixed trainer was tested on validation pairs only; the
 - New: `scripts/02b_astarfov_build.py`, `scripts/62b_dermahair_dullrazor.py`, `reports/prereg_astarfov.md`, Modal entrypoints (astarfov_build, astarfov_pipeline, pooled_run, dermahair_dullrazor); arm-list edits in 06/07/53/55.
 - NEXT: commit; run item 8 (CPU DullRazor on DERMAHAIR) and item 9 (A*-fov build -> 8-seed train/eval -> 53/55 rerun) on Modal with Tee logs; regenerate reports/docx/PDFs; in-container gates (expect 18/18); pull deliverables; clean parts; final commit/push.
 - Spend: ~$24.60 of $60 already recorded; item 9 budget ~$3 (authorized).
+
+## 2026-11-17 - Audit revalidation Phases 3-6 (in progress)
+
+- Phase 3 (Modal, CPU) PASS: 395 independent labelled images split 197 TUNE / 198 HELD_OUT (sha 3fe3f2c...); retuned detector config sha256 9b2226e2..., held-out image specificity 0.923 vs old 0.038, pixel Dice 0.420 vs 0.302. HAM hair-present rate 5.76%/7.39%/7.26% (train/val/test). Scripts: modal_phase3.py. Log: artifacts/logs/modal_runs/phase3_detector_retune__CPU.log.
+- Phase 4 (Modal, A100-80GB) PASS: v2 re-screen 622 hair present / 9,393 absent; Cv2 re-sampled (622 outputs, 2758.7 s); 9 retrainings B/Astar/Cv2 x {42,123,2026} all exit 0 under /vol/phase4/artifacts. Old artifacts untouched. Script: modal_phase4.py. Log: phase4_rerun_arms__A100-80GB.log.
+- Phase 5 (Modal) PASS: 400 held-out synthetic pairs (standard + hard renderers) from the frozen test split; 400 Cv2 cleanings; H1 PSNR/SSIM at 128px and native policies; DERMAHAIR 250 pairs descriptive only (psnr 25.5 dB; provenance unknown, NOT independent evidence). H1 quality re-run with the SAME retuned detector as Arm B (D56). Outputs on dedicated volume: image_quality_v2.csv, dermahair_psnr_ssim_v2.csv, phase567_notes.md. Logs: phase567_h1_h2_xai__A100-80GB.log, phase5_quality_retuned__CPU.log.
+- Phase 6 (Modal, A100-80GB) RUNNING: retrained A at 42/123/2026 (originals absent except 42, D57), evaluated all 4 arms x 3 seeds (36 prediction/metric files), running corrected XAI (last-block ln_1 + patch grid, off-centre) then aggregation. Scripts: modal_phase6.py, phase6_stats.py. Log: phase6_v2_eval_xai_stats__A100-80GB.log. Stats module local tests: tests/test_phase6_stats.py 3 passed; pyflakes 0.
+- NEXT: Phase 6 aggregate tables; Phase 7 final docs/report integration; remaining 5 seeds (7/11/17/23/31) training+eval; commit/push scripts + ledgers.
+- Blockers: none. Note A/123, A/2026 checkpoints were absent on the volume and were retrained, not fabricated.

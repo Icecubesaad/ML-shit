@@ -119,3 +119,50 @@ None.
 ## Status
 
 Phases 1 and 2: **PASS**. Stopping here, as instructed, before any retraining. Phase 3 (detector retune on the 395 independent images, with its specificity ≥ 0.5 gate) has not been started.
+
+## Phases 3-6 - audit revalidation (2026-11-17)
+
+### 3a. Detector retune gate - PASS
+Command: `modal run experiments/real_hair_validation/modal_phase3.py` (log `phase3_detector_retune__CPU.log`).
+Three earlier attempts failed for recorded reasons: missing `vol.commit()` after writing the split
+manifest; numpy `int64` in the config hash JSON; and `vol.commit()` vs `v.commit()` naming. Each
+was fixed and the gate re-run, not bypassed. Final: 395 images -> 197 TUNE / 198 HELD_OUT;
+retuned config sha256 9b2226e2...; held-out specificity 0.923 (old 0.038), pixel Dice 0.420
+(old 0.302). HAM hair-present rate 5.76% / 7.39% / 7.26%. No test data used in tuning.
+
+### 4a. Matched retraining - PASS
+Command: `modal run experiments/real_hair_validation/modal_phase4.py` (log `phase4_rerun_arms__A100-80GB.log`).
+Failures fixed along the way: wrong detector-config path (`/new/artifacts/...` -> `/new/reports/...`),
+wrong diffusion checkpoint path (export copy used), and a missing `shutil` import. Re-screen:
+622 hair-present / 9,393 absent. Cv2 sampling: 622 outputs in 2,758.7 s. Nine retrainings
+B/A*/Cv2 x {42,123,2026} all exit 0. Old artifacts untouched.
+
+### 5a. H1 quality + DERMAHAIR - PASS
+Command: `modal run experiments/real_hair_validation/modal_phase567.py` (log `phase567_h1_h2_xai__A100-80GB.log`),
+then `modal run experiments/real_hair_validation/modal_phase567.py --step quality`
+(log `phase5_quality_retuned__CPU.log`) after changing H1 to use the retuned detector so H1's
+B arm matches the evaluated B checkpoint (D56). Fixed before running: missing `from PIL import Image`,
+non-deterministic `hash(iid)` seed (now sha256-derived). 400 pairs; 250 DERMAHAIR pairs, PSNR
+25.5 dB, descriptive only (provenance unknown).
+
+### 6a. Classification + XAI + statistics - PASS
+Commands: `modal run experiments/real_hair_validation/modal_phase6.py` then
+`modal run experiments/real_hair_validation/modal_phase6.py --step aggregate`
+(logs `phase6_v2_eval_xai_stats__A100-80GB.log`, `phase6_aggregate__CPU.log`).
+All 3 A retrainings, 12 evals and 12 corrected-XAI runs exited 0. The first attempt failed only at
+the final aggregation because the module path was `experiments/phase6_stats.py` instead of
+`experiments/real_hair_validation/phase6_stats.py`; fixed and re-ran aggregation alone, so no
+expensive GPU work was repeated. Outputs: 24 classification rows, 10 statistical rows, 12 H1
+rows, 72 XAI summary rows, 60 XAI comparison rows. Local tests `tests/test_phase6_stats.py`
+3 passed; pyflakes 0. Bootstrap p is floored at 2/(10,000+1) = 0.00019998 (verified by a unit test);
+two Holm families (planned / secondary_control) are applied separately.
+
+### 6b. Eight-seed extension - RUNNING
+`modal run experiments/real_hair_validation/modal_phase6.py --step extra`; writes
+`phase6*_v2_8seed.csv` so the 3-seed tables are not overwritten.
+
+### Result summary (real numbers, in `reports/real_hair_validation/v2/`)
+Full-test macro-F1 A 0.751 / B 0.732 / Cv2 0.721; hair-present A 0.614 / B 0.567 / Cv2 0.490;
+no Holm p < 0.05. H1 128px PSNR B 37.81 vs Cv2 35.18 dB (Cv2-B -2.63 dB, Holm p 0.0006);
+native Cv2 SSIM 0.865 below hairy input 0.908. These are null/negative findings for the
+diffusion hypothesis and are reported as found.
