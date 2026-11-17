@@ -40,6 +40,9 @@ def main() -> None:
     copy(ROOT / "reports/colab_notebook_code_guide.md", STAGE / "code_guide/colab_notebook_code_guide.md")
     copy(ROOT / "notebooks/05_colab_standalone_training.ipynb",
          STAGE / "code_guide/05_colab_standalone_training.ipynb")
+    # Also place the notebook at the ZIP root so it is immediately visible.
+    copy(ROOT / "notebooks/05_colab_standalone_training.ipynb",
+         STAGE / "05_colab_standalone_training.ipynb")
     copy(ROOT / "docs/CODE_GUIDE.md", STAGE / "code_guide/CODE_GUIDE.md")
     copy(ROOT / "artifacts/reports/Code_Guide_Report.docx", STAGE / "code_guide/Code_Guide_Report.docx")
     copy(ROOT / "artifacts/reports/Code_Guide_Report.pdf", STAGE / "code_guide/Code_Guide_Report.pdf")
@@ -87,8 +90,8 @@ Contents
 document/       The client's proposal-derived document, edited with the full audit
                 findings, verification table and 11 embedded figures. The untouched
                 original is docs/proposal.docx in the repository.
-code_guide/     Standalone Colab notebook (80 cells), its dedicated code guide,
-                and the project code guide/report.
+05_colab_standalone_training.ipynb  The standalone 80-cell Colab notebook (also in code_guide/).
+code_guide/     The notebook's dedicated code guide and the project code guide/report.
 reports/        All markdown reports, the v2 CSV tables, and the Word/PDF reports.
 research_paper/ Research_Paper.docx and Research_Paper.pdf.
 figures/v2/     Figures generated from the audited v2 tables.
