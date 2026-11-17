@@ -105,6 +105,12 @@ def main() -> None:
     FIG.mkdir(parents=True, exist_ok=True)
 
     l1 = pd.read_csv(LOGS / "iteration_l1_history.csv") if (LOGS / "iteration_l1_history.csv").exists() else pd.DataFrame()
+    hist = json.loads((ROOT / "artifacts" / "diagnosis" / "dmahr_v2_train_log.json").read_text())
+    hv = pd.DataFrame(hist["history"]).sort_values("iteration")
+    last5 = hv.tail(5)["val_l1"].to_numpy(dtype=float)
+    slope5 = float(np.polyfit(np.arange(len(last5), dtype=float), last5, 1)[0]) * 1000
+    best_iter = int(hv["iteration"].iloc[int(hv["val_l1"].to_numpy().argmin())])
+    best_val = float(hv["val_l1"].min())
     arch = load_archived()
     snap, notes = load_snapshots()
 
@@ -175,6 +181,8 @@ def main() -> None:
          "![Learning curve](artifacts/figures/iteration_curve.png)", "",
          "## Gates", "",
          f"- (a) val L1 still falling: **{'PASS' if a_ok else 'FAIL'}** — {a_evidence}",
+         f"  - Caveat: best val L1 {best_val:.6f} at iteration {best_iter}; last-5k slope "
+         f"{slope5:+.6f} per 1k, so the most recent 5k are {'rising' if slope5 > 0 else 'still falling'}.",
          f"- (b) >=0.5 dB/doubling with CI>0: **{'PASS' if b_ok else 'FAIL'}** — {b_evidence}",
          f"- (c) ceiling within 0.01: **NOT RUN** — {c_evidence}",
          f"- (d) no recipe shortcut: **NOT RUN** — {d_evidence}", "",
