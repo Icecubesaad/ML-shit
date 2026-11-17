@@ -22,7 +22,9 @@ PREFIX = "/__modal/volumes/vo-TbNx5IITKUKx9iVQZHZpNF/"
 GLOBS = ["artifacts/reports/*.docx", "artifacts/reports/*.pdf", "artifacts/reports/*.md", "artifacts/figures/*.png",
          "artifacts/logs/xai_v2_analysis/*", "artifacts/logs/dermahair_repro*", "artifacts/logs/split_summary.json",
          "artifacts/logs/run_registry.jsonl", "artifacts/logs/modal_runs/*", "artifacts/logs/acceptance_report.json",
-         "reports/*.md", "reports/*.csv", "reports/archive/*", "configs/*.json", "scripts/8*.py", "tests/test_paper_build.py"]
+         "reports/*.md", "reports/*.csv", "reports/archive/*", "reports/real_hair_validation/audit_v2_integration.md",
+         "reports/real_hair_validation/v2/*", "configs/*.json", "scripts/8*.py",
+         "experiments/real_hair_validation/*.py", "tests/test_paper_build.py", "tests/test_phase6_stats.py"]
 
 
 def kind_of(rel: str) -> str:

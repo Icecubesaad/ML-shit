@@ -54,6 +54,7 @@ def main() -> None:
     ]
     for name in report_files:
         copy(ROOT / "reports" / name, STAGE / "reports" / name, required=False)
+    copy(ROOT / "reports/artifact_inventory.csv", STAGE / "reports/artifact_inventory.csv", required=False)
     for p in sorted((ROOT / "reports/real_hair_validation").glob("*.md")):
         copy(p, STAGE / "reports/real_hair_validation" / p.name)
     for p in sorted((ROOT / "reports/real_hair_validation/v2").iterdir()):
