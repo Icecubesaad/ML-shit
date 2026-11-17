@@ -55,7 +55,9 @@ def prepare_val() -> dict:
     from pathlib import Path
 
     import pandas as pd
+    from PIL import Image
 
+    from dm_ahr_vit.data.synthetic_hair import render_hair
     from dm_ahr_vit.diffusion.train import _resolve_manifest_path
 
     v.reload()
@@ -63,23 +65,43 @@ def prepare_val() -> dict:
 
     pairs = pd.read_csv("/vol/data/manifests/synthetic_pairs.csv")
     val = pairs[pairs["split"] == "val"].reset_index(drop=True)
-    if (pairs["split"] == "test").any():
-        assert (val["split"] == "val").all()  # test rows exist in the manifest but are never selected
+    assert (val["split"] == "val").all()  # test rows never selected
     val = val.iloc[:max(N_GRID, N_PARTIAL, N_PURE)].reset_index(drop=True)
     ids_hash = hashlib.sha256("".join(val["pair_id"].astype(str)).encode()).hexdigest()
-    for r in val.itertuples(index=False):
-        for p in (r.hairy_path, r.reference_path, r.hair_mask_path):
-            if not _resolve_manifest_path(p).exists():
-                raise FileNotFoundError(f"validation pair asset missing: {p}")
+
     masks = pd.read_csv("/vol/data/manifests/mask_manifest_x1.csv")
     masks = masks[masks["split"] == "val"]
-    have = set(val["image_id"]) & set(masks["image_id"])
+    lesion_of = dict(zip(masks["image_id"], masks["mask_path"]))
     out = Path(OUT)
-    out.mkdir(parents=True, exist_ok=True)
-    val.to_csv(out / "validation_pairs.csv", index=False)
+    assets = out / "val_assets"
+    assets.mkdir(parents=True, exist_ok=True)
+
+    have = 0
+    rows = []
+    for r in val.itertuples(index=False):
+        raw = Path(f"/vol/data/raw/isic_212/images/{r.image_id}.jpg")
+        if not raw.exists():
+            raise FileNotFoundError(f"raw validation image missing: {raw}")
+        img = Image.open(raw).convert("RGB")
+        seed = int(getattr(r, "seed", 7000))
+        hairy, hm, _ = render_hair(img, str(r.image_id), seed)
+        hp, rp, mp = (assets / f"{r.pair_id}_{k}.png" for k in ("hairy", "ref", "mask"))
+        hairy.save(hp)
+        img.save(rp)
+        hm.convert("L").save(mp)
+        lesion = ""
+        if r.image_id in lesion_of:
+            lpath = _resolve_manifest_path(lesion_of[r.image_id])
+            if lpath.exists():
+                lesion = str(lpath)
+                have += 1
+        rows.append({"pair_id": r.pair_id, "image_id": r.image_id, "group_id": r.group_id,
+                     "seed": seed, "hairy_local": str(hp), "ref_local": str(rp),
+                     "mask_local": str(mp), "lesion_local": lesion})
+    pd.DataFrame(rows).to_csv(out / "validation_pairs.csv", index=False)
     nv.commit()
-    return {"n": len(val), "val_pairs_hash": ids_hash,
-            "lesion_masks_for_val_pairs": len(have),
+    return {"n": len(rows), "val_pairs_hash": ids_hash, "regenerated": True,
+            "lesion_masks_for_val_pairs": have,
             "splits_selected": sorted(val["split"].unique().tolist())}
 
 
@@ -121,9 +143,9 @@ def score_snapshot(name: str, rel_path: str) -> dict:
     pairs = pd.read_csv(out / "validation_pairs.csv")
     refs, conds, hair = [], [], []
     for r in pairs.itertuples(index=False):
-        refs.append(Image.open(_resolve_manifest_path(r.reference_path)).convert("RGB"))
-        conds.append(Image.open(_resolve_manifest_path(r.hairy_path)).convert("RGB"))
-        m = np.array(Image.open(_resolve_manifest_path(r.hair_mask_path)).convert("L"))
+        refs.append(Image.open(r.ref_local).convert("RGB"))
+        conds.append(Image.open(r.hairy_local).convert("RGB"))
+        m = np.array(Image.open(r.mask_local).convert("L"))
         m = cv2.resize(m, (128, 128), interpolation=cv2.INTER_NEAREST) > 127
         hair.append(cv2.dilate(m.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0)
 
@@ -152,9 +174,6 @@ def score_snapshot(name: str, rel_path: str) -> dict:
         return float(lnet(ta, tb).mean())
 
     # strand removal and lesion-pixel change, per pair
-    masks = pd.read_csv("/vol/data/manifests/mask_manifest_x1.csv")
-    masks = masks[masks["split"] == "val"]
-    mask_of = dict(zip(masks["image_id"], masks["mask_path"]))
     strand, lesion_changed = [], []
     for i, r in enumerate(pairs.itertuples(index=False)):
         if i >= N_PARTIAL:
@@ -166,10 +185,10 @@ def score_snapshot(name: str, rel_path: str) -> dict:
         before = float(np.abs(hairy_a[hm] - ref_a[hm]).mean())
         after = float(np.abs(out_a[hm] - ref_a[hm]).mean())
         strand.append(float(np.clip(1 - after / max(before, 1e-6), -1, 1)))
-        mp = mask_of.get(r.image_id)
+        mp = r.lesion_local if isinstance(r.lesion_local, str) and r.lesion_local else None
         changed = float("nan")
-        if mp is not None:
-            lm = Image.open(_resolve_manifest_path(mp)).convert("L")
+        if mp is not None and Path(mp).exists():
+            lm = Image.open(mp).convert("L")
             lm = cv2.resize(np.array(lm), (out_a.shape[1], out_a.shape[0]), interpolation=cv2.INTER_NEAREST) > 127
             if lm.any():
                 changed = float((np.abs(out_a - hairy_a).mean(axis=2) > 10 / 255)[lm].mean())
