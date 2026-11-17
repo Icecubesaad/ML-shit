@@ -248,7 +248,7 @@ def score_snapshot(name: str, rel_path: str) -> dict:
 
 
 @app.local_entrypoint()
-def main(limit: int = 0):
+def main(only: str = ""):
     print("prepare:", prepare_val.remote(), flush=True)
     specs = {
         "base50k": "artifacts/exports/diffusion/repaired_trainer_iter050000_gen.pth",
@@ -258,6 +258,8 @@ def main(limit: int = 0):
         "base55k": "artifacts/checkpoints/dmahr/gen_iter055000.pth",
     }
     for name, rel in specs.items():
+        if only and name != only:
+            continue
         if not exists.remote(rel):
             print(name, "SKIPPED â€” checkpoint absent on volume:", rel, flush=True)
             continue
