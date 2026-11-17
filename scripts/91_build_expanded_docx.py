@@ -107,7 +107,9 @@ def mean_of(stats, subset, arm):
 def build():
     if not BACKUP.exists():
         shutil.copy2(TARGET, BACKUP)
-    doc = Document(str(TARGET))
+    # Always regenerate from the pristine proposal copy, never from the already-edited
+    # target, so the appended findings section is not duplicated on a rerun.
+    doc = Document(str(BACKUP))
 
     doc.add_page_break()
     add_heading(doc, "Results, Audit Findings and Visual Evidence", 0)
@@ -271,8 +273,11 @@ def build():
         "for small effects.",
         "The ~56.3k continuation generator and the first defective generator checkpoints are "
         "absent: NOT VERIFIED — not every historical number can be regenerated here.",
-        "The eight-seed extension (7/11/17/23/31) was still running when this document was "
-        "generated; its results are NOT VERIFIED here and will be issued as a separate table.",
+        "The eight-seed extension (7/11/17/23/31) is complete (all train/eval/XAI jobs exit 0). "
+        "Full test: no Holm p < 0.05. Hair-present: A-Cv2 +0.127 dB (95% CI +0.007 to +0.234, "
+        "raw p 0.038, Holm 0.111) and B-Cv2 +0.090 (+0.006 to +0.174, raw p 0.037, Holm 0.111) "
+        "do not survive Holm correction. The 8-seed tables are phase6*_v2_8seed.csv and do not "
+        "overwrite the 3-seed tables.",
         "The blinded human-review kit is prepared but empty: no human rating was invented.",
     ]:
         doc.add_paragraph(t, style="List Bullet")

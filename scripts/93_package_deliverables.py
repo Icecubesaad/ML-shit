@@ -97,10 +97,10 @@ figures/archived_original_run/  Figures from the original run, retained for prov
 
 Verification
 ------------
-reports/numbers_audit.md records 37 checks comparing every reported v2 metric with
-its source CSV; all 37 passed at packaging time. The 8-seed extension (7/11/17/23/31)
-was still running and is NOT VERIFIED in these documents; the audited results here
-use the three pre-registered seeds 42/123/2026.
+reports/numbers_audit.md records 41 checks comparing every reported v2 metric with
+its source CSV; all 41 passed at packaging time. The 8-seed extension (7/11/17/23/31)
+is complete; its tables are phase6*_v2_8seed.csv alongside the original 3-seed tables.
+Both agree: no Holm-significant advantage for either hair-removal arm on the full test.
 
 Licence: HAM10000 CC BY-NC 4.0; DM-AHR README/LICENSE conflict (see license_audit.md).
 Commercial use unresolved. No legal conclusion is given.

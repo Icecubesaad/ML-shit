@@ -124,11 +124,21 @@ third-party code is isolated with notices intact, and no legal conclusion is dra
   **NOT VERIFIED** — not every historical number can be regenerated from this workspace.
 - A*/fov and the blinded human-review kit remain outside this v2 rerun.
 
-## 8. Eight-seed extension
+## 8. Eight-seed extension (completed)
 
-`NOT VERIFIED` at the time of writing: training/evaluation/XAI for seeds 7, 11, 17, 23, 31
-is running on Modal. The 3-seed results above are final and preserved; the eight-seed
-tables will be written to `phase6*_v2_8seed.csv` separately and must not overwrite these.
+Training, evaluation and XAI for seeds 7, 11, 17, 23, 31 completed (exit 0 for all jobs).
+The eight-seed tables are in `phase6*_v2_8seed.csv` and **do not overwrite** the three-seed
+tables above. The conclusion is unchanged:
+
+- Full test: no Holm p < 0.05. A−B +0.010 (95% CI −0.025 to +0.047, Holm 0.800);
+  A−Cv2 +0.021 (−0.016 to +0.061, Holm 0.800); B−Cv2 +0.011 (−0.015 to +0.037, Holm 0.800).
+- Hair-present (n=109): A−Cv2 +0.127 (95% CI +0.007 to +0.234, raw p 0.038, **Holm 0.111**);
+  B−Cv2 +0.090 (+0.006 to +0.174, raw p 0.037, **Holm 0.111**). The uncorrected CIs exclude
+  zero but neither survives Holm correction, so neither is called significant.
+
+The 3-seed and 8-seed analyses agree: no established advantage for either hair-removal arm
+on the full test set, and a non-significant point-estimate disadvantage for Cv2 on the
+hair-present subset.
 
 ## 9. Artifacts
 

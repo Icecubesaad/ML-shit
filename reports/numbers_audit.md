@@ -2,8 +2,8 @@
 
 Source: v2 CSVs; targets: `artifacts/reports/DM-AHR-ViT_Skin_Lesion_Classification_FINAL.docx` and `reports/real_hair_validation/audit_v2_integration.md`.
 
-- Checks run: 37
-- Passed: 37
+- Checks run: 41
+- Passed: 41
 - Failed: 0
 
 
@@ -43,6 +43,10 @@ Source: v2 CSVs; targets: `artifacts/reports/DM-AHR-ViT_Skin_Lesion_Classificati
 - docx: XAI gradcam_ln1 B = `0.121`
 - docx: XAI gradcam_ln1 Astar = `0.163`
 - docx: XAI gradcam_ln1 Cv2 = `0.199`
+- docx: 8seed diff hair_present/A-Cv2 = `0.127`
+- docx: 8seed holm hair_present/A-Cv2 = `0.111`
+- docx: 8seed diff hair_present/B-Cv2 = `0.090`
+- docx: 8seed holm hair_present/B-Cv2 = `0.111`
 - docx: DERMAHAIR PSNR = `25.50`
 - docx: research-only statement = `Research prototype only`
 - docx: no significance claim = `no comparison reaches Holm p < 0.05`

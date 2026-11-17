@@ -83,6 +83,12 @@ def main() -> int:
                  (XSUM["method"] == "gradcam_ln1") & (XSUM["metric"] == "recall")]
         check(f"XAI gradcam_ln1 {a}", f"{q['mean'].iloc[0]:.3f}")
 
+    # eight-seed extension values quoted in the docx and the audit report
+    eight = pd.read_csv(V2 / "phase6_statistical_comparisons_v2_8seed.csv")
+    for sub, comp in (("hair_present", "A-Cv2"), ("hair_present", "B-Cv2")):
+        r = eight[(eight["subset"] == sub) & (eight["comparison"] == comp)].iloc[0]
+        check(f"8seed diff {sub}/{comp}", f"{r['difference']:.3f}")
+        check(f"8seed holm {sub}/{comp}", f"{r['p_holm']:.3f}")
     check("DERMAHAIR PSNR", f"{DH['psnr'].mean():.2f}")
     check("research-only statement", "Research prototype only")
     check("no significance claim", "no comparison reaches Holm p < 0.05")

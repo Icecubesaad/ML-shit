@@ -334,3 +334,9 @@ See decision log D30. The fixed trainer was tested on validation pairs only; the
 - Step 2: validation synthetic pairs regenerated deterministically from raw val images (archived assets absent on this volume; val_pairs_hash 7043ff... matches archived). Three available snapshots scored fp32 with committed sampler: base50k +9.730 dB (CI 9.110-10.320), ft_v2/70k +10.209 dB (CI 9.589-10.834), released ~725k +6.853 dB (CI 6.447-7.313). Paired: ft_v2-base50k +0.479 dB (CI 0.186-0.769, p 0.0012); released-base50k -2.877 dB (CI -3.295 to -2.466, p 0.0002). Checkpoints 25k/55k absent -> archived-only, no per-pair CI.
 - Gates: (a) PASS with caveat; (b) FAIL (no doubling with per-pair CI; long-horizon evidence negative); (c),(d) NOT RUN (decision already STOP). Verdict STOP. Steps 3-4 not launched.
 - Output: `reports/iteration_decision.md`, `reports/iteration_decision/` tables, `artifacts/figures/iteration_curve.png` (agent visually reviewed).
+
+## 2026-11-17 - Eight-seed extension complete; deliverable ZIP refreshed
+
+- The pre-existing 8-seed job finished (EXTRA_EXIT=0): 20 trainings + 20 evals + 20 XAI runs all exit 0; aggregation produced 64 classification rows over 8 seeds. Tables pulled to reports/real_hair_validation/v2/phase6*_v2_8seed.csv (separate files, 3-seed tables preserved).
+- 8-seed result agrees with 3-seed: no Holm p < 0.05 on full test; hair-present A-Cv2 +0.127 (Holm 0.111) and B-Cv2 +0.090 (Holm 0.111) not significant after correction.
+- Updated audit_v2_integration.md section 8, the edited client docx (regenerated from the pristine backup so findings are not duplicated), numbers_audit.md (41 checks, all pass) and the deliverable ZIP at C:\Users\saadq\Downloads\DM-AHR-ViT_Full_Deliverables.zip (69 files, integrity OK).
