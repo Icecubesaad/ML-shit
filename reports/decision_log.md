@@ -607,3 +607,9 @@ Authority order applied: `AGENTS.md` > `docs/ACCEPTANCE_CRITERIA.md` > `docs/DEV
 
 - The A*-fov build smoke failed: all 8 sampled images raised `FileNotFoundError`, because the icysolutionscorp volume holds checkpoints and derived images but not the original ISIC JPEGs (the data manifest points to the first account's volume `vo-Yfgbqu0raQMBZb7syrtU35`). No other accessible volume or secret contains them; the C arm's stored images are 128 px squashed diffusion outputs and cannot reconstruct the original 600 × 450 photograph.
 - Resolution: re-fetch public ISIC collection 212 onto this volume with a new CPU entrypoint `modal_app.py::fetch_isic_images` (commit 4337fa1). The frozen split/hair-screen manifests still decide which images enter any arm; the ~1,705 extra collection images remain quarantined. The rebuild is retried only after the fetch succeeds and the manifest SHA-256s verify.
+
+## D55 - Research paper and reports regenerated from the committed fix round
+
+- Regenerated 13/14/15/80/82 locally from artifacts, rebuilt Research_Paper.docx and rendered all four PDFs in-container. The updated Research_Paper.pdf (17 pages, commit 8a166345fd) contains: Table 8 at 3 decimals with A-Cv2 [6 of 8] counted from unrounded per-seed diffs, the per-arm transform table, corrected H3 direction, the [14] citation for 20,000 iterations, the off-centre finding, and the frozen DullRazor result on 704 DERMAHAIR pairs (25.33 dB / 0.7591 / 0.3380).
+- Item 9 (A*-fov) remains deferred: no A*-fov predictions exist on the volume, so the builders' have_fov branches are dormant and no A*-fov row is printed. This is reported rather than fabricated.
+- In-container deliverable gates: 16/18 PASS. V12 and V15 (the paper-specific bracket and seed-count gates) PASS. V3 and V16 FAIL on container path resolution (/root/proj/artifacts absent for some scripts), not on artifact content; the corresponding local tests (5 passed) and the docx/PDF content checks pass.

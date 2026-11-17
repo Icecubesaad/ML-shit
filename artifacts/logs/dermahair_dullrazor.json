@@ -1,0 +1,35 @@
+{
+  "metrics": {
+    "lpips": 0.3379666448824785,
+    "lpips_sd": 0.16409759402748575,
+    "psnr_256": 25.18190409260873,
+    "psnr_256_sd": 5.699174495646437,
+    "psnr_sk": 25.32673876394456,
+    "psnr_sk_sd": 5.8014814361424305,
+    "psnr_up": 25.32673876394456,
+    "psnr_up_sd": 5.8014814361424305,
+    "ssim_256": 0.7837562428265552,
+    "ssim_256_sd": 0.131585236251904,
+    "ssim_sk": 0.7339057955007552,
+    "ssim_sk_sd": 0.16012779359746776,
+    "ssim_up": 0.7591175021761308,
+    "ssim_up_sd": 0.14884917084373975
+  },
+  "provenance": {
+    "dataset_sha256_of_names_and_sizes": "8d641b62c2dda4356ac103c19e83045f288c6a45d8c1e0ebbfd6b394bb30d875",
+    "dataset_source": "kaggle riotulab/skin-cancer-hair-removal v1, anonymous public download",
+    "device": "cpu",
+    "git_commit": "8d6a7fef6d531b0f2585d615385b3d9d068818af",
+    "method": "frozen classical DullRazor (Arm B procedure) on the public DERMAHAIR pairs, CPU only",
+    "metric_note": "psnr_up/ssim_up = upstream core.metrics at 128 px; sk = skimage at 128; 256 = output bicubic-upsampled vs the 256 px hairless image; LPIPS alex",
+    "n_excluded_identical": 3,
+    "n_pairs": 707,
+    "n_valid": 704,
+    "no_tuning": "hair screen and DullRazor parameters loaded from the frozen train/val configs; DERMAHAIR pairs never influence any parameter",
+    "seconds": 58.639,
+    "sha256": {
+      "configs/dullrazor.json": "084f55b7b1847be0abb8c75c128184e0a66a08efe1c26175e06622298a26e6ec",
+      "configs/hair_screen.json": "aee69df819707ea4f1cd0102b86746b25f7299c1d6d9ca93b81574f52fb291ce"
+    }
+  }
+}

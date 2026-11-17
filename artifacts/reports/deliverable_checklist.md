@@ -7,16 +7,22 @@ it actually inspected.
 |---|---|---|---|---|
 | V1 | Split hash unchanged; zero lesion overlap across splits | **PASS** | `data/manifests/splits.sha256, artifacts/logs/data_audit.json` | hash=fda56cf3c555e6d2… max distinct splits per group=1 |
 | V2 | Headline metrics recomputed from predictions | **PASS** | `artifacts/predictions/pred_*.csv, artifacts/logs/classification_seed_summary.csv` | 8 statistics, max abs diff 0.00e+00 (tolerance 1e-6) |
-| V3 | Reports rebuild from artifacts; tracked copy matches generated | **PASS** | `scripts/13_*, scripts/14_*, scripts/15_*` | 13_preprocessing_report.py:ok; 14_results_report.py:ok; 15_code_guide_report.py:ok; report identical=True |
+| V3 | Reports rebuild from artifacts; tracked copy matches generated | **FAIL** | `scripts/13_*, scripts/14_*, scripts/15_*` | 13_preprocessing_report.py:ok; 14_results_report.py:h file or directory: '/root/proj/artifacts/logs/classification_metrics_all.csv'
+; 15_code_guide_report.py:ok; report identical=True |
 | V4 | No stale phrases in either report | **PASS** | `reports/final_research_report.md, artifacts/reports/*.docx` | over-smoothing (affirmative)=0, expert-traced disclaimer=0, no independent hair annotations=0, 'part of that margin'=0, 'uniform chance 0.200' as a claim=0 |
 | V5 | Determinism: Arm A seed 42 reproduces | **PASS** | `artifacts/logs/reproduction_log.json` | diff=0.000000 tolerance=0.02 |
-| V6 | Unit tests pass | **PASS** | `tests/` | 93 passed, 2 skipped, 36 warnings in 21.98s |
-| V7 | All three .docx present and rendered to PDF | **PASS** | `artifacts/reports/*.docx, artifacts/reports/*.pdf` | {"Preprocessing_Report.docx": 11, "Results_Report.docx": 16, "Code_Guide_Report.docx": 16} |
+| V6 | Unit tests pass | **PASS** | `tests/` | 94 passed, 5 skipped, 15 warnings in 21.76s |
+| V7 | All three .docx present and rendered to PDF | **PASS** | `artifacts/reports/*.docx, artifacts/reports/*.pdf` | {"Preprocessing_Report.docx": 11, "Results_Report.docx": 18, "Code_Guide_Report.docx": 16} |
 | V8 | Spend within budget | **PASS** | `artifacts/logs/run_registry.jsonl` | diagnosis 29.1 min = $1.02; budget $8.37 |
-| V9a | Geometry tests (mask aligned with model input, per arm and stored size) | **PASS** | `tests/test_xai_registration.py` | 18 passed in 3.62s |
+| V9a | Geometry tests (mask aligned with model input, per arm and stored size) | **PASS** | `tests/test_xai_registration.py` | 18 passed in 4.75s |
 | V9b | All corrected explanation CSVs use the model-frame geometry | **PASS** | `artifacts/logs/xai_v2/*_test.csv` | 38 files, frames=['model_frame_v2'] |
 | V9c | Mask fraction in the model's frame reported per arm | **PASS** | `artifacts/logs/xai_v2_analysis/xai_geometry_by_arm_test.csv; reports/xai_corrected_results.md` | arms=['A', 'B', 'Astar', 'Cv2', 'C', 'Creleased'] |
-| V10 | No stale explanation or statistics phrases in current deliverables | **PASS** | `configs/stale_phrases.json` | 9 files scanned, 0 hits |
+| V10 | No stale explanation or statistics phrases in current deliverables | **PASS** | `configs/stale_phrases.json` | 5 files scanned, 0 hits |
 | V11 | Spend within the owner's $60 limit (estimate) | **PASS** | `reports/spend_log.csv` | estimated $24.60 of $60.00 over 98 jobs |
+| V12 | Paper Table 8 per-seed column matches pooled_per_seed.csv | **PASS** | `artifacts/reports/Research_Paper.docx + artifacts/logs/pooled_per_seed.csv` | 5 rows checked |
+| V13 | Results Report keeps legacy x1_ rows only in the labelled appendix | **PASS** | `artifacts/reports/Results_Report.docx` | appendix heading found=True, corrected-geometry table before it=True, legacy rows inside appendix=1 |
+| V14 | Grad-CAM ln_1 sanity check verifies the implementation | **PASS** | `artifacts/logs/gradcam_sanity.json` | verdict=passes, follow_recall_max=0.963125 vs chance 0.2, transposed_recall_max=0.1111111111111111, reference_spearman_min=0.9999999992816823, reshape_exact=True, n_following=3 |
+| V15 | Seed-count test and paper bracket use unrounded per-seed differences | **PASS** | `tests/test_paper_build.py + artifacts/reports/Research_Paper.docx + artifacts/logs/pooled_per_seed.csv` | A-Cv2 unrounded positives=6 of 8; clean |
+| V16 | Stale-phrase list is well-formed and retains retired claims | **FAIL** | `/root/proj/configs/stale_phrases.json` | 14 patterns, 8 paper_patterns; listed path missing: artifacts/reports/Research_Paper.docx | docx_dir missing: /root/proj/artifacts/reports |
 
-**13 of 13 gates pass.**
+**16 of 18 gates pass.**
